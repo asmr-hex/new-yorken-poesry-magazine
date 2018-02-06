@@ -8,5 +8,5 @@ type Issue struct {
 	Committee    *ReviewCommittee
 	Contributors []*Poet
 	Poems        []*Poem
-	Description  String
+	Description  string
 }

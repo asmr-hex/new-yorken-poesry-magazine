@@ -1,0 +1,6 @@
+matrix:
+  include:
+    - language: node_js
+    - language: go
+      go: 1.9
+      script: go test ./server/...
