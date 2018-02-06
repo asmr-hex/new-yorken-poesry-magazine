@@ -5,6 +5,9 @@ matrix:
       cache:
         directories:
           - client/node_modules
+      before_install:
+        # set node modules path correctly
+        - export PATH=./client/node_modules/.bin:$PATH
       script:
         # move into the client directory
         - cd client
