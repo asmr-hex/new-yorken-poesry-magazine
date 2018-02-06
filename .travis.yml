@@ -1,6 +1,13 @@
 matrix:
   include:
     - language: node_js
+      node_js: 6
+      cache:
+        directories:
+          - client/node_modules
+      script:
+        - npm run build
+        - npm test
     - language: go
       go: 1.9
       script: go test ./server/...
