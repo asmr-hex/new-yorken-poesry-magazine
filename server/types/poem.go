@@ -7,6 +7,6 @@ type Poem struct {
 	Date   time.Time
 	Author *Poet
 	Issue  *Issue
-	Likes  Int     // number of likes from readers
+	Likes  int     // number of likes from readers
 	Score  float64 // score assigned by committee
 }
