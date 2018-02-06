@@ -8,6 +8,7 @@ matrix:
       script:
         # move into the client directory
         - cd client
+        - ls node_modules
         - npm run build
         - npm test
         - cd ..
