@@ -6,8 +6,11 @@ matrix:
         directories:
           - client/node_modules
       script:
+        # move into the client directory
+        - cd client
         - npm run build
         - npm test
+        - cd ..
     - language: go
       go: 1.9
       script: go test ./server/...
