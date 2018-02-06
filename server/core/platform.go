@@ -18,8 +18,20 @@ type Config struct {
 }
 
 type Platform struct {
+	Api    *API
 	config *Config
 	db     *sql.DB
+}
+
+func NewPlatform() *Platform {
+	p := &Platform{
+		Api: NewAPI(),
+	}
+
+	// TODO retry until db connects?
+	// p.Connect()
+
+	return p
 }
 
 func (p *Platform) Connect() {

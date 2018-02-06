@@ -16,12 +16,12 @@ type API struct {
 	Router  *web.Router
 }
 
-func NewAPI() API {
+func NewAPI() *API {
 	api := API{Version: VERSION}
 
 	api.BuildRouter()
 
-	return api
+	return &api
 }
 
 func (a *API) BuildRouter() {
@@ -33,6 +33,8 @@ func (a *API) BuildRouter() {
 
 	a.Router = web.New(*a).
 		// TODO include middlewares for authorization etc.
+
+		// === Public API ===
 
 		// Plural type Reads
 		Get(pubPrefix+"/users", (*API).GetUsers).
@@ -60,5 +62,10 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/issue/id", (*API).GetIssue).
 
 		// Committee R (Committees can only be read via the API)
-		Get(pubPrefix+"/committee/id", (*API).GetCommittee)
+		Get(pubPrefix+"/committee/id", (*API).GetCommittee).
+
+		// === Dashboard API ===
+
+		// TODO
+		Get(dashPrefix+"/user/id", (*API).GetUser)
 }

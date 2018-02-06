@@ -19,12 +19,12 @@ func main() {
 
 	// check args
 
-	// init API routers + state
-	api := core.NewAPI()
+	// init platform instance
+	p := core.NewPlatform()
 
 	fmt.Printf(color.GreenString("New Yorken Poesry daemon running...\n"))
 
-	err := http.ListenAndServe("localhost:3000", api.Router)
+	err := http.ListenAndServe("localhost:3000", p.Api.Router)
 	if err != nil {
 		log.Fatal(err)
 	}
