@@ -26,6 +26,11 @@ type Platform struct {
 func NewPlatform() *Platform {
 	p := &Platform{
 		Api: NewAPI(),
+		config: &Config{
+			User:     "wintermute",
+			Password: "t0b30rn0tt0b3",
+			DBName:   "nypm",
+		},
 	}
 
 	// TODO retry until db connects?

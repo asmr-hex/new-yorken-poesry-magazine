@@ -13,12 +13,14 @@ var (
 
 // Validate incoming requests.
 // ensure path parameters are valid, etc.
-func (*API) Validate(rw web.ResponseWriter, req *web.Request) {
+func (a *API) Validate(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
 	// validate path parameter strings
 	err := ValidateParams(req.PathParams)
 	if err != nil {
 		// return an error to client
 	}
+
+	next(rw, req)
 }
 
 func ValidateParams(params map[string]string) error {
@@ -46,6 +48,8 @@ func IsValidUUIDV4(uuid string) bool {
 
 // Authorize requests.
 // ensure a user cannot delete other users, etc.
-func (*API) Authorize(rw web.ResponseWriter, req *web.Request) {
+func (*API) Authorize(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
 	// TODO
+
+	next(rw, req)
 }
