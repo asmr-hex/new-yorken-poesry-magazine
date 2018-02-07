@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	VERSION   = "v1"
-	DASHBOARD = "dashboard"
+	VERSION       = "v1"
+	DASHBOARD     = "dashboard"
+	ID_PATH_PARAM = "id"
 )
 
 type API struct {
@@ -32,7 +33,9 @@ func (a *API) BuildRouter() {
 	)
 
 	a.Router = web.New(*a).
-		// TODO include middlewares for authorization etc.
+		// === Middleware ===
+		Middleware((*API).Validate).
+		Middleware((*API).Authorize).
 
 		// === Public API ===
 
@@ -45,27 +48,27 @@ func (a *API) BuildRouter() {
 
 		// User CRUD
 		Post(pubPrefix+"/user", (*API).CreateUser).
-		Get(pubPrefix+"/user/id", (*API).GetUser).
-		Put(pubPrefix+"/user/id", (*API).UpdateUser).
-		Delete(pubPrefix+"/user/id", (*API).DeleteUser).
+		Get(pubPrefix+"/user/:"+ID_PATH_PARAM, (*API).GetUser).
+		Put(pubPrefix+"/user/:"+ID_PATH_PARAM, (*API).UpdateUser).
+		Delete(pubPrefix+"/user/:"+ID_PATH_PARAM, (*API).DeleteUser).
 
 		// Poet CRD
 		Post(pubPrefix+"/poet", (*API).CreatePoet).
-		Get(pubPrefix+"/poet/id", (*API).GetPoet).
-		Put(pubPrefix+"/poet/id", (*API).UpdatePoet).
-		Delete(pubPrefix+"/poet/id", (*API).DeletePoet).
+		Get(pubPrefix+"/poet/:"+ID_PATH_PARAM, (*API).GetPoet).
+		Put(pubPrefix+"/poet/:"+ID_PATH_PARAM, (*API).UpdatePoet).
+		Delete(pubPrefix+"/poet/:"+ID_PATH_PARAM, (*API).DeletePoet).
 
 		// Poem R (Poems can only be read via the API)
-		Get(pubPrefix+"/poem/id", (*API).GetPoem).
+		Get(pubPrefix+"/poem/:"+ID_PATH_PARAM, (*API).GetPoem).
 
 		// Issue R (Issues can only be read via the API)
-		Get(pubPrefix+"/issue/id", (*API).GetIssue).
+		Get(pubPrefix+"/issue/:"+ID_PATH_PARAM, (*API).GetIssue).
 
 		// Committee R (Committees can only be read via the API)
-		Get(pubPrefix+"/committee/id", (*API).GetCommittee).
+		Get(pubPrefix+"/committee/:"+ID_PATH_PARAM, (*API).GetCommittee).
 
 		// === Dashboard API ===
 
 		// TODO
-		Get(dashPrefix+"/user/id", (*API).GetUser)
+		Get(dashPrefix+"/user/:"+ID_PATH_PARAM, (*API).GetUser)
 }
