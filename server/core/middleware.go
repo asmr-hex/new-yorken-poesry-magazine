@@ -14,6 +14,8 @@ var (
 // Validate incoming requests.
 // ensure path parameters are valid, etc.
 func (a *API) Validate(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
+	fmt.Println(req.RequestURI)
+
 	// validate path parameter strings
 	err := ValidateParams(req.PathParams)
 	if err != nil {

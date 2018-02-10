@@ -1,0 +1,10 @@
+version: '2'
+services:
+  server:
+    build: .
+    ports:
+      - "8080:8080"
+    restart: always
+    # env_file: ./server/.env # TODO - uncomment this to auto-load your .env file!
+  # db:
+    # add some db configurations

@@ -1,0 +1,39 @@
+# dev docker-compose config
+
+version: '2'
+services:
+  server:
+    build:
+      context: ./server/
+    # command: server # put fs listener here? or in server/Dockerfile
+    volumes:
+      - ./server/:/go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    # env_file: ./server/.env # TODO - uncomment this to auto-load your .env file!
+  client:
+    build:
+      context: ./client/
+    command: npm start
+    volumes:
+      - ./client/:/client/
+      - /client/node_modules
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: wintermute
+      POSTGRES_PASSWORD: t0b30rn0tt0b3
+      POSTGRES_DB: nypm
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8000

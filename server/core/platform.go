@@ -58,4 +58,6 @@ func (p *Platform) Connect() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("CONNECTED TO DB YOO")
 }

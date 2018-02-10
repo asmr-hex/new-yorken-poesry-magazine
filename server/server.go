@@ -24,7 +24,7 @@ func main() {
 
 	fmt.Printf(color.GreenString("New Yorken Poesry daemon running...\n"))
 
-	err := http.ListenAndServe("localhost:3000", p.Api.Router)
+	err := http.ListenAndServe("0.0.0.0:8080", p.Api.Router)
 	if err != nil {
 		log.Fatal(err)
 	}

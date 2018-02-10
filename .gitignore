@@ -13,6 +13,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Output of fresh, fs watcher
+server/tmp
+
 ### Javascript ES6/React ignore ###
 # dependencies
 client/node_modules
