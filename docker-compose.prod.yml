@@ -2,12 +2,24 @@
 
 version: '2'
 services:
-  # new yorken poesry magazine service
   nypm:
+    env_file: .env
     build: .
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     restart: always
-    # env_file: ./server/.env # TODO - uncomment this to auto-load your .env file!
-  # db:
-    # add some db configurations
+    depends_on:
+      - db
+    links:
+      - "db:${DB_HOST}"
+
+  db:
+    env_file: .env
+    image: postgres
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8000

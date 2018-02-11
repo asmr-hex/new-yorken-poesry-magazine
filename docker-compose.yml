@@ -2,38 +2,38 @@
 
 version: '2'
 services:
-  nypm_dev_server:
+  dev_server:
+    env_file: .env
     build:
       context: ./server/
-    # command: server # put fs listener here? or in server/Dockerfile
     volumes:
       - ./server/:/go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       - db
     links:
       - "db:${DB_HOST}"
-    env_file:
-      - ./server/.env
-  nypm_dev_client:
+
+  dev_client:
+    env_file: .env
     build:
       context: ./client/
     command: npm start
     volumes:
       - ./client/:/client/
       - /client/node_modules
-    depends_on:
-      - nypm_dev_server
     ports:
-      - "3000:3000"
+      - "${CLIENT_PORT_DEV}:${CLIENT_PORT_DEV}"
+    depends_on:
+      - dev_server
+    links:
+      - "dev_server:${SERVER_HOST_DEV}"
+
   db:
+    env_file: .env
     image: postgres
     restart: always
-    environment:
-      POSTGRES_USER: wintermute
-      POSTGRES_PASSWORD: t0b30rn0tt0b3
-      POSTGRES_DB: nypm
 
   adminer:
     image: adminer
