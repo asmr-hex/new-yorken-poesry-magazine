@@ -2,7 +2,7 @@
 
 version: '2'
 services:
-  server:
+  nypm_dev_server:
     build:
       context: ./server/
     # command: server # put fs listener here? or in server/Dockerfile
@@ -12,8 +12,11 @@ services:
       - "8080:8080"
     depends_on:
       - db
-    # env_file: ./server/.env # TODO - uncomment this to auto-load your .env file!
-  client:
+    links:
+      - "db:${DB_HOST}"
+    env_file:
+      - ./server/.env
+  nypm_dev_client:
     build:
       context: ./client/
     command: npm start
@@ -21,7 +24,7 @@ services:
       - ./client/:/client/
       - /client/node_modules
     depends_on:
-      - server
+      - nypm_dev_server
     ports:
       - "3000:3000"
   db:

@@ -34,7 +34,7 @@ func NewPlatform() *Platform {
 	}
 
 	// TODO retry until db connects?
-	// p.Connect()
+	p.Connect()
 
 	return p
 }
@@ -45,7 +45,9 @@ func (p *Platform) Connect() {
 		dbInfo string
 	)
 
-	dbInfo = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
+	// TODO parameterize "host=db" so we have a single source of truth config or something
+	// actualy load from .env
+	dbInfo = fmt.Sprintf("host=postgres user=%s password=%s dbname=%s sslmode=%s",
 		p.config.User, p.config.Password, p.config.DBName, "disable")
 
 	p.db, err = sql.Open(DB_DRIVER, dbInfo)

@@ -1,6 +1,9 @@
+# production docker-compose configuration
+
 version: '2'
 services:
-  server:
+  # new yorken poesry magazine service
+  nypm:
     build: .
     ports:
       - "8080:8080"
