@@ -9,17 +9,12 @@ RUN npm install -qy
 COPY client/ ./
 RUN npm run build
 
-# TODO look into this namespacing thing ---^
-
 
 # build the server
 FROM golang:1.9-alpine as server
 
 WORKDIR /go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
 COPY ./server .
-RUN ls
-RUN echo $GOPATH
-RUN pwd
 # no need to go get since we are vendoring all our deps
 RUN go install -v
 

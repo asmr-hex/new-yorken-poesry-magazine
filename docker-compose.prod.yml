@@ -12,6 +12,7 @@ services:
       - db
     links:
       - "db:${DB_HOST}"
+    tty: true
 
   db:
     env_file: .env
