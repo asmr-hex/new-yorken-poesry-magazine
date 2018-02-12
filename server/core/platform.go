@@ -25,13 +25,15 @@ type Platform struct {
 
 func NewPlatform() *Platform {
 	p := &Platform{
-		Api:    NewAPI(),
 		config: NewConfig(),
 		logger: log.New(os.Stdout, "", 0), // "you *really* don't know what this zero means?" -- ex-coworker
 	}
 
 	// connect to all the lovely things we must connect to in my life
 	p.Connect()
+
+	// construct API and pass it the db connection handle set within Connect ---^
+	p.Api = NewAPI(p.db)
 
 	return p
 }

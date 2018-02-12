@@ -37,6 +37,16 @@ func (*API) GetCommittees(rw web.ResponseWriter, req *web.Request) {
 
 */
 func (*API) CreateUser(rw web.ResponseWriter, req *web.Request) {
+	// TODO send email verification
+
+	// extract username, password, email, etc from form-data
+
+	// validate all provided form fields
+
+	// insert data into db tables
+
+	// send success response
+
 	fmt.Println("TODO CREATE USER")
 }
 
