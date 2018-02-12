@@ -4,6 +4,7 @@ import (
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/core"
 )
 
+// wow this is surprisingly terse (＾▽＾)
 func main() {
 	// init platform instance
 	p := core.NewPlatform()
