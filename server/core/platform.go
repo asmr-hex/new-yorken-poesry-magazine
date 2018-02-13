@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fatih/color"
 	_ "github.com/lib/pq"
 )
 
@@ -17,20 +16,23 @@ const (
 
 // struct for storing in-memory statefulnessnessnesssnes for server
 type Platform struct {
+	*Logger
 	Api    *API
 	config *Config
 	db     *sql.DB
-	logger *log.Logger
 }
 
 func NewPlatform() *Platform {
 	p := &Platform{
+		Logger: NewLogger(os.Stdout),
 		config: NewConfig(),
-		logger: log.New(os.Stdout, "", 0), // "you *really* don't know what this zero means?" -- ex-coworker
 	}
 
 	// connect to all the lovely things we must connect to in my life
 	p.Connect()
+
+	// setup db state, etc.
+	p.Setup()
 
 	// construct API and pass it the db connection handle set within Connect ---^
 	p.Api = NewAPI(p.db)
@@ -71,6 +73,15 @@ func (p *Platform) Connect() {
 	}
 
 	p.Success("Successful Connection -> %s", p.config.DB.Host)
+
+	// if we connect to more services, we will do it below...
+}
+
+func (p *Platform) Setup() {
+	// check to see if all tables have been created
+	// for table := range DB_TABLE_NAMES {
+	// 	//
+	// }
 }
 
 func (p *Platform) Start() {
@@ -82,22 +93,4 @@ func (p *Platform) Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// some Platform utils functions
-// i know what your saying right now, YAGNI, but i can't help myself (‾⌣‾)♉
-// i could probably write all these in a better way by implementing a custom io.Writer
-// for each case (success, info, error) and wrap the text in a color of choice and specify
-// a prefix on an individual basis, but i don't feel like it. But i probably could have
-// done that during the time it took me to write this. #designdecisions
-func (p *Platform) Success(format string, v ...interface{}) {
-	p.logger.Print(color.GreenString(fmt.Sprintf(format, v...)))
-}
-
-func (p *Platform) Info(format string, v ...interface{}) {
-	p.logger.Print(color.BlueString(fmt.Sprintf(format, v...)))
-}
-
-func (p *Platform) Error(format string, v ...interface{}) {
-	p.logger.Print(color.RedString(fmt.Sprintf(format, v...)))
 }

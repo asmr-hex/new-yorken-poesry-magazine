@@ -1,0 +1,3 @@
+package core
+
+// there will be constants at some point...

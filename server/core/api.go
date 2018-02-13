@@ -3,6 +3,7 @@ package core
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/gocraft/web"
 )
@@ -14,6 +15,7 @@ const (
 )
 
 type API struct {
+	*Logger
 	Version string
 	Router  *web.Router
 	db      *sql.DB
@@ -21,6 +23,7 @@ type API struct {
 
 func NewAPI(db *sql.DB) *API {
 	api := API{
+		Logger:  NewLogger(os.Stdout),
 		Version: API_VERSION,
 		db:      db,
 	}
@@ -47,35 +50,35 @@ func (a *API) BuildRouter() {
 		// === Public API ===
 
 		// Plural type Reads
-		Get(pubPrefix+"/users", (*API).GetUsers).
-		Get(pubPrefix+"/poets", (*API).GetPoets).
-		Get(pubPrefix+"/poems", (*API).GetPoems).
-		Get(pubPrefix+"/issues", (*API).GetIssues).
-		Get(pubPrefix+"/committees", (*API).GetCommittees).
+		Get(pubPrefix+"/users", a.GetUsers).
+		Get(pubPrefix+"/poets", a.GetPoets).
+		Get(pubPrefix+"/poems", a.GetPoems).
+		Get(pubPrefix+"/issues", a.GetIssues).
+		Get(pubPrefix+"/committees", a.GetCommittees).
 
 		// User CRUD
-		Post(pubPrefix+"/user", (*API).CreateUser).
-		Get(pubPrefix+"/user/:"+API_ID_PATH_PARAM, (*API).GetUser).
-		Put(pubPrefix+"/user/:"+API_ID_PATH_PARAM, (*API).UpdateUser).
-		Delete(pubPrefix+"/user/:"+API_ID_PATH_PARAM, (*API).DeleteUser).
+		Post(pubPrefix+"/user", a.CreateUser).
+		Get(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser).
+		Put(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.UpdateUser).
+		Delete(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.DeleteUser).
 
 		// Poet CRD
-		Post(pubPrefix+"/poet", (*API).CreatePoet).
-		Get(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, (*API).GetPoet).
-		Put(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, (*API).UpdatePoet).
-		Delete(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, (*API).DeletePoet).
+		Post(pubPrefix+"/poet", a.CreatePoet).
+		Get(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, a.GetPoet).
+		Put(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, a.UpdatePoet).
+		Delete(pubPrefix+"/poet/:"+API_ID_PATH_PARAM, a.DeletePoet).
 
 		// Poem R (Poems can only be read via the API)
-		Get(pubPrefix+"/poem/:"+API_ID_PATH_PARAM, (*API).GetPoem).
+		Get(pubPrefix+"/poem/:"+API_ID_PATH_PARAM, a.GetPoem).
 
 		// Issue R (Issues can only be read via the API)
-		Get(pubPrefix+"/issue/:"+API_ID_PATH_PARAM, (*API).GetIssue).
+		Get(pubPrefix+"/issue/:"+API_ID_PATH_PARAM, a.GetIssue).
 
 		// Committee R (Committees can only be read via the API)
-		Get(pubPrefix+"/committee/:"+API_ID_PATH_PARAM, (*API).GetCommittee).
+		Get(pubPrefix+"/committee/:"+API_ID_PATH_PARAM, a.GetCommittee).
 
 		// === Dashboard API ===
 
 		// TODO
-		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, (*API).GetUser)
+		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)
 }
