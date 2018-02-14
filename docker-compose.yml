@@ -31,11 +31,11 @@ services:
       - "dev_server:${SERVER_HOST_DEV}"
 
   db:
-    build:
-      context: ./server/
-      dockerfile: Dockerfile-db-dev
     env_file: .env
-    image: postgres
+    build:
+      context: ./db/
+    environment:
+      - DEV_ENV=true
     restart: always
 
   adminer:
