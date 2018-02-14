@@ -28,7 +28,7 @@ func (*Poem) CreateTable(db *sql.DB) error {
                           date TIMESTAMP WITH TIME ZONE,
                           author REFERENCES poets,
                           content TEXT NOT NULL,
-                          issue REFERENCES issues,
+                          issue UUID REFERENCES issues,
                           likes INT DEFAULT 0 CONSTRAINT gtzero CHECK (likes > 0),
                           score NUMERIC(1) DEFAULT 0 CONSTRAINT normalized CHECK (score >= 0 and score <= 1),
 		          PRIMARY KEY (id)

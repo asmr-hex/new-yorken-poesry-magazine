@@ -7,25 +7,22 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	_ "github.com/lib/pq"
-)
-
-const (
-	DB_DRIVER = "postgres"
 )
 
 // struct for storing in-memory statefulnessnessnesssnes for server
 type Platform struct {
 	*Logger
 	Api    *API
-	config *Config
+	config *env.Config
 	db     *sql.DB
 }
 
 func NewPlatform() *Platform {
 	p := &Platform{
 		Logger: NewLogger(os.Stdout),
-		config: NewConfig(),
+		config: env.NewConfig(),
 	}
 
 	// connect to all the lovely things we must connect to in my life
@@ -60,7 +57,7 @@ func (p *Platform) Connect() {
 	)
 
 	// open a connection to the database
-	p.db, err = sql.Open(DB_DRIVER, dbInfo)
+	p.db, err = sql.Open(env.DB_DRIVER, dbInfo)
 	if err != nil {
 		panic(err)
 	}

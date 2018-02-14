@@ -1,7 +1,11 @@
-package core
+package env
 
 import (
 	"github.com/caarlos0/env"
+)
+
+const (
+	DB_DRIVER = "postgres"
 )
 
 // server conf

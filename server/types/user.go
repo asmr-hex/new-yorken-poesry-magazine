@@ -1,6 +1,9 @@
 package types
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 type User struct {
 	Id       string  `json:"id"`
@@ -19,13 +22,21 @@ func (u *User) Validate() error {
 /*
    db methods
 */
+
+// package level globals for storing prepared sql statements
+var (
+	userCreateStmt  *sql.Stmt
+	userReadStmt    *sql.Stmt
+	userReadAllStmt *sql.Stmt
+	userDeleteStmt  *sql.Stmt
+)
+
 func (*User) CreateTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS users (
 		          id UUID NOT NULL UNIQUE,
                           username VARCHAR(255) NOT NULL UNIQUE,
                           password VARCHAR(255) NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
-                          poets UUID[] ELEMENT REFERENCES poets,
 		          PRIMARY KEY (id)
 	)`
 
@@ -38,11 +49,70 @@ func (*User) CreateTable(db *sql.DB) error {
 }
 
 func (u *User) CreateUser(db *sql.DB) error {
+	var (
+		err error
+	)
+
+	// we assume that all validation/sanitization has already been called
+
+	// prepare statement if not already done so.
+	if userCreateStmt == nil {
+		// create statement
+		stmt := `INSERT INTO users (
+                           id, username, password, email, poets
+                         ) VALUES (?, ?, ?, ?, ?)`
+		userCreateStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = userCreateStmt.Exec(u.Id, u.Username, u.Password, u.Email, u.Poets)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (u *User) ReadUser(db *sql.DB) error {
+	var (
+		err error
+	)
+
+	// prepare statement if not already done so.
+	if userReadStmt == nil {
+		// read statement
+		stmt := `SELECT * FROM users WHERE id = ?`
+		userReadStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// make sure user Id is actually populated
+
+	// run prepared query over arguments
+	// NOTE: we are not joining from the poets tables
+	rows, err := userReadStmt.Query(u.Id)
+	if err != nil {
+		return err
+	}
+
+	// decode results into user struct
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&u.Id, &u.Username, &u.Password, &u.Email)
+		if err != nil {
+			return err
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(u)
 
 	return nil
 }
@@ -53,6 +123,19 @@ func (u *User) UpdateUser(db *sql.DB) error {
 }
 
 func (u *User) DeleteUser(db *sql.DB) error {
+	var (
+		err error
+	)
+
+	// prepare statement if not already done so.
+	if userDeleteStmt == nil {
+		// delete statement
+		stmt := `DELETE FROM users WHERE id = ?`
+		userDeleteStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -60,39 +143,19 @@ func (u *User) DeleteUser(db *sql.DB) error {
 func ReadUsers(db *sql.DB) ([]*User, error) {
 	var (
 		users = []*User{}
+		err   error
 	)
 
-	return users, nil
-}
-
-/*
-   sql statement preparation
-*/
-
-// statements are used to optimize common read/write patterns to the db
-type userStmts struct {
-	prepared bool
-	create   *sql.Stmt
-	read     *sql.Stmt
-	readAll  *sql.Stmt
-	update   *sql.Stmt
-	delete   *sql.Stmt
-}
-
-// create a package scoped global to store these statements ヾ(_ _。）
-var (
-	usrStmts = &userStmts{prepared: false}
-)
-
-// prepares statments. This function is idempotent s.t. it will only prepare statements
-// if they have not yet been prepared and do nothing otherwise.
-func (s *userStmts) prepareStmts(db *sql.DB) error {
-	if s.prepared {
-		// okidoki, stmts have already been prepared ^-^
-		return nil
+	// prepare statement if not already done so.
+	if userReadAllStmt == nil {
+		// readAll statement
+		// TODO pagination
+		stmt := `SELECT * FROM users`
+		userReadAllStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return users, nil
+		}
 	}
 
-	//
-
-	return nil
+	return users, nil
 }

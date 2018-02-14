@@ -31,6 +31,9 @@ services:
       - "dev_server:${SERVER_HOST_DEV}"
 
   db:
+    build:
+      context: ./server/
+      dockerfile: Dockerfile-db-dev
     env_file: .env
     image: postgres
     restart: always

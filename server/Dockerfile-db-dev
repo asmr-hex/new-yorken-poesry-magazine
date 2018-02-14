@@ -1,0 +1,2 @@
+FROM postgres
+COPY create-test-database.sh /docker-entrypoint-initdb.d/

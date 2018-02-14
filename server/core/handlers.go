@@ -87,7 +87,29 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	fmt.Println("TODO CREATE USER")
 }
 
-func (*API) GetUser(rw web.ResponseWriter, req *web.Request) {
+func (a *API) GetUser(rw web.ResponseWriter, req *web.Request) {
+	var (
+		err error
+	)
+
+	// extracting the id path param
+	id := req.PathParams[API_ID_PATH_PARAM]
+
+	// assigning said id to id of user struct
+	user := &types.User{Id: id}
+	err = user.Validate()
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	// invoke read
+	err = user.ReadUser(a.db)
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	// send actual response back to users
+
 	fmt.Println("TODO GET USER")
 }
 
