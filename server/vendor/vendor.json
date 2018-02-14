@@ -73,6 +73,18 @@
 			"revisionTime": "2018-02-02T15:35:43Z"
 		},
 		{
+			"checksumSHA1": "3Y2ZemkxaOSr6yq5xAyItl/vYMk=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "be8372ae8ec5c6daaed3cc28ebf73c54b737c240",
+			"revisionTime": "2018-02-02T15:35:43Z"
+		},
+		{
+			"checksumSHA1": "uefllr2OtKBGo/kQSAPbW3w6p0A=",
+			"path": "github.com/stretchr/testify/suite",
+			"revision": "be8372ae8ec5c6daaed3cc28ebf73c54b737c240",
+			"revisionTime": "2018-02-02T15:35:43Z"
+		},
+		{
 			"checksumSHA1": "oBjdFvDUZpioGsB6URqe16hDQUg=",
 			"origin": "github.com/fatih/color/vendor/golang.org/x/sys/unix",
 			"path": "golang.org/x/sys/unix",

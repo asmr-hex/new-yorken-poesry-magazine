@@ -12,6 +12,7 @@ COPY . .
 # we need to install git, go get the fs watcher, and delete git to reduce image space
 RUN apk add --no-cache git \
 && go get github.com/pilu/fresh \
+&& go get github.com/connorwalsh/gotest \
 && apk del git
 
 # compile and install server binary within container

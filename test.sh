@@ -8,9 +8,11 @@
 # ALSO NOTE: this script only runs the tests once, not in watch-mode.
 
 # run golang tests
-docker-compose exec dev_server go test -v ./...
+echo "================ SERVER TESTS ================"
+docker-compose exec dev_server gotest -v ./...
 
 # run npm tests
+echo -e "\n\n================ CLIENT TESTS ================"
 docker-compose exec dev_client env CI=true npm test
 
 

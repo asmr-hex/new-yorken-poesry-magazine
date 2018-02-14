@@ -2,96 +2,52 @@ package types
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"testing"
 
-	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
-	_ "github.com/lib/pq"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-var (
-	testDB *sql.DB
-)
-
-const (
-	TEST_DB_NAME = "nypm_test"
-)
-
-func TestMain(m *testing.M) {
-	// setup db before calling tests
-	err := setup()
-	if err != nil {
-		panic(err)
-	}
-
-	returnCode := m.Run()
-
-	// tear down everything
-	err = teardown()
-	if err != nil {
-		panic(err)
-	}
-
-	os.Exit(returnCode)
+type UserTestSuite struct {
+	suite.Suite
+	db *sql.DB
 }
 
-func setup() error {
+// run before all tests in this suite begin
+func (s *UserTestSuite) SetupSuite() {
+	// create users table
+	user := &User{}
+	err := user.CreateTable(s.db)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// run after all tests in this suite have complete
+func (s *UserTestSuite) TearDownSuite() {
+	_, err := s.db.Exec(`DROP TABLE IF EXISTS users CASCADE`)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// run specific setups before specific tests
+func (s *UserTestSuite) BeforeTest(suiteName, testName string) {
 	var (
 		err error
 	)
 
-	// get config
-	conf := env.NewConfig()
-
-	// construct database info string required for connection
-	dbInfo := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s sslmode=%s",
-		conf.DB.Host,
-		conf.DB.Username,
-		conf.DB.Password,
-		TEST_DB_NAME, // eventually get config from .env file
-		"disable",
-	)
-
-	// open a connection to the database
-	testDB, err = sql.Open(env.DB_DRIVER, dbInfo)
-	if err != nil {
-		return err
+	switch testName {
+	// drop users table before create table test to see if it works.
+	case "TestCreateTable":
+		_, err = s.db.Exec(`DROP TABLE IF EXISTS users CASCADE`)
+		if err != nil {
+			panic(err)
+		}
 	}
-
-	// ping open db to verify the connection has been established.
-	// otherwise (╥﹏╥)
-	err = testDB.Ping()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
-func teardown() error {
-	// destroy test database tables
-	_, err := testDB.Exec(`DROP TABLE IF EXISTS users CASCADE;
-                            DROP TABLE IF EXISTS poets CASCADE;
-                            DROP TABLE IF EXISTS poems CASCADE;
-                            DROP TABLE IF EXISTS issues CASCADE;
-                            DROP TABLE IF EXISTS committees CASCADE;`)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func TestCreateTable(t *testing.T) {
+func (s *UserTestSuite) TestCreateTable() {
 	user := &User{}
 
 	err := user.CreateTable(testDB)
-	assert.NoError(t, err)
-}
-
-func TestNothing(t *testing.T) {
-
+	s.NoError(err)
 }
