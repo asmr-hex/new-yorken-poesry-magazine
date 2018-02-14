@@ -18,8 +18,25 @@ type Config struct {
 }
 
 type Platform struct {
+	Api    *API
 	config *Config
 	db     *sql.DB
+}
+
+func NewPlatform() *Platform {
+	p := &Platform{
+		Api: NewAPI(),
+		config: &Config{
+			User:     "wintermute",
+			Password: "t0b30rn0tt0b3",
+			DBName:   "nypm",
+		},
+	}
+
+	// TODO retry until db connects?
+	// p.Connect()
+
+	return p
 }
 
 func (p *Platform) Connect() {
