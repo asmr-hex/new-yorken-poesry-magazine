@@ -1,20 +1,28 @@
-matrix:
-  include:
-    - language: node_js
-      node_js: 6
-      cache:
-        directories:
-          - client/node_modules
-      before_install:
-        # set node modules path correctly
-        - export PATH=./client/node_modules/.bin:$PATH
-      script:
-        # move into the client directory
-        - cd client
-        - npm install
-        - npm run build
-        - npm test
-        - cd ..
-    - language: go
-      go: 1.9
-      script: go test ./server/...
+dist: trusty
+sudo: required
+
+services:
+  - docker
+
+install:
+    # Update docker-engine using Ubuntu 'trusty' apt repo
+  - >
+    curl -sSL "https://get.docker.com/gpg" |
+     sudo -E apt-key add -
+  - >
+    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" |
+     sudo tee -a /etc/apt/sources.list
+  - sudo apt-get update
+  - >
+    sudo apt-get -o Dpkg::Options::="--force-confdef" \
+     -o Dpkg::Options::="--force-confold" --assume-yes install docker-engine
+  - docker version
+  # Update docker-compose via pip
+  - sudo pip install docker-compose
+  - docker-compose version
+before_script:
+  - docker-compose up --build -d
+script:
+  - ./test.sh
+after_script:
+  - docker-compose down

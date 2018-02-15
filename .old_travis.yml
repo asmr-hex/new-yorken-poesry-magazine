@@ -1,0 +1,20 @@
+matrix:
+  include:
+    - language: node_js
+      node_js: 6
+      cache:
+        directories:
+          - client/node_modules
+      before_install:
+        # set node modules path correctly
+        - export PATH=./client/node_modules/.bin:$PATH
+      script:
+        # move into the client directory
+        - cd client
+        - npm install
+        - npm run build
+        - npm test
+        - cd ..
+    - language: go
+      go: 1.9
+      script: go test ./server/...
