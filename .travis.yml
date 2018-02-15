@@ -3,12 +3,6 @@ sudo: required
 services:
   - docker
 
-install:
-  - docker-compose version
-  - docker version
-  # Update docker-compose via pip
-  - sudo pip install docker-compose
-  - docker-compose version
 before_script:
   - docker-compose up --build -d
 script:
