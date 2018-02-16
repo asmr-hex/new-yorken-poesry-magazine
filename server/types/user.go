@@ -3,6 +3,9 @@ package types
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
+	_ "github.com/lib/pq"
 )
 
 type User struct {
@@ -13,8 +16,20 @@ type User struct {
 	Poets    []*Poet `json:"poets"`
 }
 
-func (u *User) Validate() error {
-	// TODO
+func (u *User) Validate(action string) error {
+	// make sure id, if not an empty string, is a uuid
+	if !utils.IsValidUUIDV4(u.Id) && u.Id != "" {
+		return fmt.Errorf("User Id must be a valid uuid, given %s", u.Id)
+	}
+
+	// perform validation on a per action basis
+	switch action {
+	case "CREATE":
+	case "UPDATE":
+	default:
+		// only ensure that the id is present
+		// this aplies to the READ and DELETE cases
+	}
 
 	return nil
 }
@@ -48,28 +63,37 @@ func (*User) CreateTable(db *sql.DB) error {
 	return nil
 }
 
-func (u *User) CreateUser(db *sql.DB) error {
+func (u *User) CreateUser(id string, db *sql.DB) error {
 	var (
-		err error
+		rows *sql.Rows
+		err  error
 	)
 
 	// we assume that all validation/sanitization has already been called
+
+	// assign id
+	u.Id = id
 
 	// prepare statement if not already done so.
 	if userCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO users (
-                           id, username, password, email, poets
-                         ) VALUES (?, ?, ?, ?, ?)`
+                           id, username, password, email
+                         ) VALUES ($1, $2, $3, $4)`
 		userCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = userCreateStmt.Exec(u.Id, u.Username, u.Password, u.Email, u.Poets)
+	rows, err = userCreateStmt.Query(u.Id, u.Username, u.Password, u.Email)
 	if err != nil {
 		return err
+	}
+
+	// read created result
+	for rows.Next() {
+		rows.Scan(u.Id, u.Username, u.Password, u.Email)
 	}
 
 	return nil

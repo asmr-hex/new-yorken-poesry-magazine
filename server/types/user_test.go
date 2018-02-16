@@ -3,6 +3,7 @@ package types
 import (
 	"database/sql"
 
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -50,4 +51,19 @@ func (s *UserTestSuite) TestCreateTable() {
 
 	err := user.CreateTable(testDB)
 	s.NoError(err)
+}
+
+func (s *UserTestSuite) TestCreateUser() {
+	user := &User{Username: "c", Password: "axaxaxax", Email: "hr@worst.nightmare"}
+	id := uuid.NewV4().String()
+	expectedResult := &User{
+		Id:       id,
+		Username: "c",
+		Password: "axaxaxax",
+		Email:    "hr@worst.nightmare",
+	}
+
+	err := user.CreateUser(id, testDB)
+	s.NoError(err)
+	s.EqualValues(user, expectedResult)
 }

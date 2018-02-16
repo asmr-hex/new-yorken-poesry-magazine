@@ -2,13 +2,9 @@ package core
 
 import (
 	"fmt"
-	"regexp"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	"github.com/gocraft/web"
-)
-
-var (
-	uuidRegexp = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 )
 
 // Validate incoming requests.
@@ -31,7 +27,7 @@ func ValidateParams(params map[string]string) error {
 		switch k {
 		case API_ID_PATH_PARAM:
 			// id path params MUST be V4 UUIDs
-			if !IsValidUUIDV4(v) {
+			if !utils.IsValidUUIDV4(v) {
 				return fmt.Errorf("Id parameter must be a UUID V4 (given %s)", v)
 			}
 		default:
@@ -41,11 +37,6 @@ func ValidateParams(params map[string]string) error {
 	}
 
 	return nil
-}
-
-// check to see if a string is a UUID V4
-func IsValidUUIDV4(uuid string) bool {
-	return uuidRegexp.MatchString(uuid)
 }
 
 // Authorize requests.
