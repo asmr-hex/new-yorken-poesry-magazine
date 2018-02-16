@@ -32,7 +32,14 @@ func NewPlatform() *Platform {
 	p.Setup()
 
 	// construct API and pass it the db connection handle set within Connect ---^
-	p.Api = NewAPI(p.db)
+	p.Api = NewAPI(p.config, p.db)
+
+	// print out server configuration
+	if p.config.DevEnv {
+		p.Info("Server running in Development mode")
+	} else {
+		p.Info("Server running in Production mode")
+	}
 
 	return p
 }

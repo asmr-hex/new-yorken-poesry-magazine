@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/gocraft/web"
 )
 
@@ -16,14 +18,16 @@ const (
 
 type API struct {
 	*Logger
+	Config  *env.Config
 	Version string
 	Router  *web.Router
 	db      *sql.DB
 }
 
-func NewAPI(db *sql.DB) *API {
+func NewAPI(config *env.Config, db *sql.DB) *API {
 	api := API{
 		Logger:  NewLogger(os.Stdout),
+		Config:  config,
 		Version: API_VERSION,
 		db:      db,
 	}
@@ -81,4 +85,20 @@ func (a *API) BuildRouter() {
 
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)
+
+	// set serve static middleware only if in production
+	if a.Config.DevEnv == false {
+		currentRoot, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+
+		// add static server middleware
+		a.Router.Middleware(
+			web.StaticMiddleware(
+				path.Join(currentRoot, "client/build"),
+				web.StaticOption{IndexFile: "index.html"},
+			),
+		)
+	}
 }
