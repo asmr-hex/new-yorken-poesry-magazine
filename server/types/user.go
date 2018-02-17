@@ -135,6 +135,9 @@ func (u *User) Read(db *sql.DB) error {
 		return err
 	}
 
+	// TODO ensure that we only allow reading of passwords if the user making the
+	// request is the user being read.
+
 	return nil
 }
 

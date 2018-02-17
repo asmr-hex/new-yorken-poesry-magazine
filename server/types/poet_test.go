@@ -50,6 +50,17 @@ func (s *PoetTestSuite) BeforeTest(suiteName, testName string) {
 		if err != nil {
 			panic(err)
 		}
+	case "TestReadAllPoets":
+		_, err = s.db.Exec(`DROP TABLE IF EXISTS poets CASCADE`)
+		if err != nil {
+			panic(err)
+		}
+
+		// create poets table
+		err = CreatePoetsTable(s.db)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -100,7 +111,6 @@ func (s *PoetTestSuite) TestReadPoet() {
 	s.NoError(err)
 
 	expectedPoet := poet
-	expectedPoet.ExecPath = "" // this should not be public info
 
 	// read poet
 	poet = &Poet{Id: poetId}
@@ -124,4 +134,62 @@ func (s *PoetTestSuite) TestReadPoet() {
 	poet.DeathDate = time.Time{}
 
 	s.EqualValues(expectedPoet, poet)
+}
+
+func (s *PoetTestSuite) TestReadAllPoets() {
+	poetIds := []string{uuid.NewV4().String(), uuid.NewV4().String(), uuid.NewV4().String()}
+	userId := uuid.NewV4().String()
+
+	// create user
+	user := &User{Username: "cat-eyed-boy", Password: "pwd", Email: "qt@spooky.jp"}
+	err := user.Create(userId, s.db)
+	s.NoError(err)
+
+	// create poets
+	poets := []*Poet{
+		{
+			Designer:    userId,
+			Name:        "ghostA",
+			Description: "haunts shoes",
+			ExecPath:    path.Join("/poets/", poetIds[0]),
+		},
+		{
+			Designer:    userId,
+			Name:        "ghostB",
+			Description: "haunts shoe stores",
+			ExecPath:    path.Join("/poets/", poetIds[1]),
+		},
+		{
+			Designer:    userId,
+			Name:        "ghostC",
+			Description: "isn't a ghost",
+			ExecPath:    path.Join("/poets/", poetIds[2]),
+		},
+	}
+
+	for i := 0; i < len(poetIds); i++ {
+		err = poets[i].Create(poetIds[i], s.db)
+		s.NoError(err)
+	}
+
+	resultPoets, err := ReadPoets(s.db)
+	s.NoError(err)
+	for j := 0; j < len(resultPoets); j++ {
+		// compare formatted string times (since postgres and go have different formats -___-)
+		s.EqualValues(
+			poets[j].BirthDate.Format(time.RFC3339),
+			resultPoets[j].BirthDate.Format(time.RFC3339),
+		)
+		s.EqualValues(
+			poets[j].DeathDate.Format(time.RFC3339),
+			resultPoets[j].DeathDate.Format(time.RFC3339),
+		)
+
+		resultPoets[j].BirthDate = time.Time{}
+		resultPoets[j].DeathDate = time.Time{}
+		poets[j].BirthDate = time.Time{}
+		poets[j].DeathDate = time.Time{}
+	}
+
+	s.EqualValues(poets, resultPoets)
 }

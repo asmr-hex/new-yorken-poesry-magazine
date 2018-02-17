@@ -120,7 +120,7 @@ func (p *Poet) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if poetReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, execPath
                          FROM poets WHERE id = $1`
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -133,7 +133,15 @@ func (p *Poet) Read(db *sql.DB) error {
 	// run prepared query over arguments
 	err = poetReadStmt.
 		QueryRow(p.Id).
-		Scan(&p.Id, &p.Designer, &p.Name, &p.BirthDate, &p.DeathDate, &p.Description)
+		Scan(
+			&p.Id,
+			&p.Designer,
+			&p.Name,
+			&p.BirthDate,
+			&p.DeathDate,
+			&p.Description,
+			&p.ExecPath,
+		)
 	switch {
 	case err == sql.ErrNoRows:
 		return fmt.Errorf("No poet with id %s", p.Id)
@@ -152,7 +160,48 @@ func (p *Poet) Delete(db *sql.DB) error {
 func ReadPoets(db *sql.DB) ([]*Poet, error) {
 	var (
 		poets []*Poet = []*Poet{}
+		err   error
 	)
+
+	// prepare statement if not already done so.
+	if poetReadAllStmt == nil {
+		// readAll statement
+		// TODO pagination
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, execPath
+                         FROM poets`
+		poetReadAllStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return poets, nil
+		}
+	}
+
+	rows, err := poetReadAllStmt.Query()
+	if err != nil {
+		return poets, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		poet := &Poet{}
+		err = rows.Scan(
+			&poet.Id,
+			&poet.Designer,
+			&poet.Name,
+			&poet.BirthDate,
+			&poet.DeathDate,
+			&poet.Description,
+			&poet.ExecPath,
+		)
+		if err != nil {
+			return poets, err
+		}
+
+		// append scanned user into list of all users
+		poets = append(poets, poet)
+	}
+	if err := rows.Err(); err != nil {
+		return poets, err
+	}
 
 	return poets, nil
 }
