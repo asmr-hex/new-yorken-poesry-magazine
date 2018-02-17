@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	_ "github.com/lib/pq"
 )
@@ -24,11 +25,21 @@ func (u *User) Validate(action string) error {
 
 	// perform validation on a per action basis
 	switch action {
-	case "CREATE":
-	case "UPDATE":
+	case consts.CREATE:
+	case consts.UPDATE:
+	case consts.DELETE:
+		// TODO ensure that only a user can delete themselves
+		fallthrough
 	default:
 		// only ensure that the id is present
 		// this aplies to the READ and DELETE cases
+		// we minimally need the Id to exist in these cases
+		if u.Id == "" {
+			return fmt.Errorf(
+				"User Id is a required field to fulfill a %s",
+				action,
+			)
+		}
 	}
 
 	return nil
@@ -63,7 +74,7 @@ func (*User) CreateTable(db *sql.DB) error {
 	return nil
 }
 
-func (u *User) CreateUser(id string, db *sql.DB) error {
+func (u *User) Create(id string, db *sql.DB) error {
 	var (
 		rows *sql.Rows
 		err  error
@@ -99,7 +110,7 @@ func (u *User) CreateUser(id string, db *sql.DB) error {
 	return nil
 }
 
-func (u *User) ReadUser(db *sql.DB) error {
+func (u *User) Read(db *sql.DB) error {
 	var (
 		err error
 	)
@@ -107,7 +118,7 @@ func (u *User) ReadUser(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userReadStmt == nil {
 		// read statement
-		stmt := `SELECT * FROM users WHERE id = ?`
+		stmt := `SELECT * FROM users WHERE id = $1`
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
@@ -118,35 +129,28 @@ func (u *User) ReadUser(db *sql.DB) error {
 
 	// run prepared query over arguments
 	// NOTE: we are not joining from the poets tables
-	rows, err := userReadStmt.Query(u.Id)
-	if err != nil {
+	err = userReadStmt.
+		QueryRow(u.Id).
+		Scan(&u.Id, &u.Username, &u.Password, &u.Email)
+	switch {
+	case err == sql.ErrNoRows:
+		return fmt.Errorf("No user with id %s", u.Id)
+	case err != nil:
 		return err
 	}
-
-	// decode results into user struct
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.Scan(&u.Id, &u.Username, &u.Password, &u.Email)
-		if err != nil {
-			return err
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(u)
 
 	return nil
 }
 
-func (u *User) UpdateUser(db *sql.DB) error {
+func (u *User) Update(db *sql.DB) error {
+	// var (
+	// 	err error
+	// )
 
 	return nil
 }
 
-func (u *User) DeleteUser(db *sql.DB) error {
+func (u *User) Delete(db *sql.DB) error {
 	var (
 		err error
 	)
@@ -154,11 +158,16 @@ func (u *User) DeleteUser(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userDeleteStmt == nil {
 		// delete statement
-		stmt := `DELETE FROM users WHERE id = ?`
+		stmt := `DELETE FROM users WHERE id = $1`
 		userDeleteStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
 		}
+	}
+
+	_, err = userDeleteStmt.Exec(u.Id)
+	if err != nil {
+		return err
 	}
 
 	return nil

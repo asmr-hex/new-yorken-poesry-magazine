@@ -63,7 +63,52 @@ func (s *UserTestSuite) TestCreateUser() {
 		Email:    "hr@worst.nightmare",
 	}
 
-	err := user.CreateUser(id, testDB)
+	err := user.Create(id, testDB)
 	s.NoError(err)
 	s.EqualValues(user, expectedResult)
+}
+
+func (s *UserTestSuite) TestReadUser() {
+	id := uuid.NewV4().String()
+	expectedUser := &User{
+		Username: "dagon",
+		Password: "bl4ckr33f",
+		Email:    "gasp@unknowable.horror",
+	}
+
+	// create expected user in db
+	err := expectedUser.Create(id, testDB)
+	s.NoError(err)
+
+	user := &User{Id: id}
+	err = user.Read(testDB)
+	s.NoError(err)
+
+	s.EqualValues(expectedUser, user)
+}
+
+func (s *UserTestSuite) TestReadUser_NonExistent() {
+	user := &User{Id: uuid.NewV4().String()}
+	err := user.Read(testDB)
+	s.Error(err)
+}
+
+func (s *UserTestSuite) TestDeleteUser() {
+	id := uuid.NewV4().String()
+	// create a user
+	user := &User{
+		Username: "colonel_buendias",
+		Password: "g0ld3nf15h",
+		Email:    "rogue@macondo.gov",
+	}
+	err := user.Create(id, testDB)
+	s.NoError(err)
+
+	// delete a user
+	err = user.Delete(testDB)
+	s.NoError(err)
+
+	// read a user (shouldn't exist)
+	err = user.Read(testDB)
+	s.Error(err)
 }

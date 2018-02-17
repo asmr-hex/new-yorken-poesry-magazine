@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,17 +15,18 @@ func MainTest(m *testing.M) {
 	os.Exit(retcode)
 }
 
+// move this test to utils
 func TestIsValidUUIDV4_WithValidUUID(t *testing.T) {
 	id := uuid.NewV4().String()
 
-	assert.True(t, IsValidUUIDV4(id))
+	assert.True(t, utils.IsValidUUIDV4(id))
 }
 
 func TestIsValidUUIDV4_WithInValidUUID(t *testing.T) {
 	id := uuid.NewV4().String()
 
 	// say no to sql injections
-	assert.False(t, IsValidUUIDV4(id+" OR 1=1 --see u in h3ll"))
+	assert.False(t, utils.IsValidUUIDV4(id+" OR 1=1 --see u in h3ll"))
 }
 
 func TestValidateParams_NoParams(t *testing.T) {

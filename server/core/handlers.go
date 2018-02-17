@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
 )
@@ -70,7 +71,7 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 		// TODO send failure response to client
 	}
 
-	err = user.Validate()
+	err = user.Validate(consts.CREATE)
 	if err != nil {
 		a.Error(err.Error())
 	}
@@ -97,13 +98,13 @@ func (a *API) GetUser(rw web.ResponseWriter, req *web.Request) {
 
 	// assigning said id to id of user struct
 	user := &types.User{Id: id}
-	err = user.Validate()
+	err = user.Validate(consts.READ)
 	if err != nil {
 		a.Error(err.Error())
 	}
 
 	// invoke read
-	err = user.ReadUser(a.db)
+	err = user.Read(a.db)
 	if err != nil {
 		a.Error(err.Error())
 	}
