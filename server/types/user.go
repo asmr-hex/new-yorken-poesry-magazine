@@ -76,8 +76,7 @@ func (*User) CreateTable(db *sql.DB) error {
 
 func (u *User) Create(id string, db *sql.DB) error {
 	var (
-		rows *sql.Rows
-		err  error
+		err error
 	)
 
 	// we assume that all validation/sanitization has already been called
@@ -97,14 +96,9 @@ func (u *User) Create(id string, db *sql.DB) error {
 		}
 	}
 
-	rows, err = userCreateStmt.Query(u.Id, u.Username, u.Password, u.Email)
+	_, err = userCreateStmt.Exec(u.Id, u.Username, u.Password, u.Email)
 	if err != nil {
 		return err
-	}
-
-	// read created result
-	for rows.Next() {
-		rows.Scan(u.Id, u.Username, u.Password, u.Email)
 	}
 
 	return nil
@@ -183,11 +177,31 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	if userReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT * FROM users`
+		stmt := `SELECT id, username, email FROM users`
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return users, nil
 		}
+	}
+
+	rows, err := userReadAllStmt.Query()
+	if err != nil {
+		return users, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		user := &User{}
+		err = rows.Scan(&user.Id, &user.Username, &user.Email)
+		if err != nil {
+			return users, err
+		}
+
+		// append scanned user into list of all users
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		return users, err
 	}
 
 	return users, nil

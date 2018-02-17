@@ -43,6 +43,15 @@ func (s *UserTestSuite) BeforeTest(suiteName, testName string) {
 		if err != nil {
 			panic(err)
 		}
+	case "TestReadAllUsers":
+		_, err = s.db.Exec(`DROP TABLE IF EXISTS users CASCADE`)
+		if err != nil {
+			panic(err)
+		}
+		err := (&User{}).CreateTable(testDB)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -54,11 +63,11 @@ func (s *UserTestSuite) TestCreateTable() {
 }
 
 func (s *UserTestSuite) TestCreateUser() {
-	user := &User{Username: "c", Password: "axaxaxax", Email: "hr@worst.nightmare"}
+	user := &User{Username: "tlon", Password: "axaxaxax", Email: "hr@worst.nightmare"}
 	id := uuid.NewV4().String()
 	expectedResult := &User{
 		Id:       id,
-		Username: "c",
+		Username: "tlon",
 		Password: "axaxaxax",
 		Email:    "hr@worst.nightmare",
 	}
@@ -111,4 +120,30 @@ func (s *UserTestSuite) TestDeleteUser() {
 	// read a user (shouldn't exist)
 	err = user.Read(testDB)
 	s.Error(err)
+}
+
+func (s *UserTestSuite) TestReadAllUsers() {
+	var err error
+
+	// create three users
+	ids := []string{uuid.NewV4().String(), uuid.NewV4().String(), uuid.NewV4().String()}
+	expectedUsers := []*User{
+		&User{Username: "a", Password: "passwd", Email: "a@idk.org"},
+		&User{Username: "b", Password: "passwd", Email: "b@idk.org"},
+		&User{Username: "c", Password: "passwd", Email: "c@idk.org"},
+	}
+
+	for i := 0; i < len(ids); i++ {
+		err = expectedUsers[i].Create(ids[i], testDB)
+		s.NoError(err)
+
+		// since we do not read passwords of users, we set them to empty string
+		expectedUsers[i].Password = ""
+	}
+
+	// read all users
+	users, err := ReadUsers(testDB)
+	s.NoError(err)
+
+	s.EqualValues(expectedUsers, users)
 }
