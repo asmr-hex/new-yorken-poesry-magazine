@@ -137,9 +137,7 @@ func (u *User) Read(db *sql.DB) error {
 }
 
 func (u *User) Update(db *sql.DB) error {
-	// var (
-	// 	err error
-	// )
+	// TODO
 
 	return nil
 }

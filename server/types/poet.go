@@ -12,7 +12,7 @@ import (
 
 type Poet struct {
 	Id          string
-	God         string    // the writer of the poet (user)
+	Designer    string    // the writer of the poet (user)
 	BirthDate   time.Time // so we can show years active
 	DeathDate   time.Time // this should be set to null for currently active poets
 	Name        string
@@ -34,7 +34,7 @@ func (p *Poet) Validate() error {
 func (*Poet) CreateTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS poets (
 		          id UUID NOT NULL UNIQUE,
-                          god UUID REFERENCES users NOT NULL,
+                          designer UUID REFERENCES users NOT NULL,
                           birthDate TIMESTAMP WITH TIME ZONE NOT NULL,
                           deathDate TIMESTAMP WITH TIME ZONE,
                           name VARCHAR(255) NOT NULL UNIQUE,
