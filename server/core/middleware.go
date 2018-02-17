@@ -14,6 +14,8 @@ var (
 // Validate incoming requests.
 // ensure path parameters are valid, etc.
 func (a *API) Validate(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
+	fmt.Println(req.RequestURI)
+
 	// validate path parameter strings
 	err := ValidateParams(req.PathParams)
 	if err != nil {
@@ -27,7 +29,7 @@ func ValidateParams(params map[string]string) error {
 	for k, v := range params {
 		// apply param specific validation, e.g. id params must be uuid v4, etc.
 		switch k {
-		case ID_PATH_PARAM:
+		case API_ID_PATH_PARAM:
 			// id path params MUST be V4 UUIDs
 			if !IsValidUUIDV4(v) {
 				return fmt.Errorf("Id parameter must be a UUID V4 (given %s)", v)

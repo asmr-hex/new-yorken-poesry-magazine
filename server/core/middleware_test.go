@@ -40,13 +40,13 @@ func TestValidateParams_UnknownParam(t *testing.T) {
 }
 
 func TestValidateParams_IdParam_ValidUUID(t *testing.T) {
-	params := map[string]string{ID_PATH_PARAM: uuid.NewV4().String()}
+	params := map[string]string{API_ID_PATH_PARAM: uuid.NewV4().String()}
 
 	assert.NoError(t, ValidateParams(params))
 }
 
 func TestValidateParams_IdParam_InValidUUID(t *testing.T) {
-	params := map[string]string{ID_PATH_PARAM: "/bin/sh"}
+	params := map[string]string{API_ID_PATH_PARAM: "/bin/sh"}
 
 	assert.Error(t, ValidateParams(params))
 }

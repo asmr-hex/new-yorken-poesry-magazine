@@ -1,31 +1,15 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/core"
-	"github.com/fatih/color"
 )
 
-var (
-	arg = flag.String("arg", "123", "ok")
-)
-
+// wow this is surprisingly terse (＾▽＾)
 func main() {
-	flag.Parse()
-
-	// check args
-
 	// init platform instance
 	p := core.NewPlatform()
 
-	fmt.Printf(color.GreenString("New Yorken Poesry daemon running...\n"))
+	p.Success("New Yorken Poesry daemon running...\n")
 
-	err := http.ListenAndServe("localhost:3000", p.Api.Router)
-	if err != nil {
-		log.Fatal(err)
-	}
+	p.Start()
 }
