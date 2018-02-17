@@ -57,7 +57,9 @@ var (
 	userDeleteStmt  *sql.Stmt
 )
 
-func (*User) CreateTable(db *sql.DB) error {
+// TODO refactor this so that is doesn't need a reciever
+// aka CreateUsersTable(...)
+func CreateUsersTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS users (
 		          id UUID NOT NULL UNIQUE,
                           username VARCHAR(255) NOT NULL UNIQUE,

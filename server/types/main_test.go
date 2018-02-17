@@ -93,3 +93,7 @@ func teardown() error {
 func TestUserSuite(t *testing.T) {
 	suite.Run(t, &UserTestSuite{db: testDB})
 }
+
+func TestPoetSuite(t *testing.T) {
+	suite.Run(t, &PoetTestSuite{db: testDB})
+}
