@@ -10,8 +10,9 @@ const (
 
 // server conf
 type Config struct {
-	Port string `env:"SERVER_PORT" envDefault:"8080"`
-	DB   DB
+	DevEnv bool   `env:"DEV_ENV" envDefault:"false"`
+	Port   string `env:"SERVER_PORT" envDefault:"8080"`
+	DB     DB
 }
 
 // DB conf
