@@ -152,6 +152,8 @@ func (p *Poet) Read(db *sql.DB) error {
 	return nil
 }
 
+// delete should keep meta about poets in the system along with their poems, but
+// should remove all files from the file system and assign a death date.
 func (p *Poet) Delete(db *sql.DB) error {
 
 	return nil
