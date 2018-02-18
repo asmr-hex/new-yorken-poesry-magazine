@@ -57,7 +57,9 @@ var (
 	userDeleteStmt  *sql.Stmt
 )
 
-func (*User) CreateTable(db *sql.DB) error {
+// TODO refactor this so that is doesn't need a reciever
+// aka CreateUsersTable(...)
+func CreateUsersTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS users (
 		          id UUID NOT NULL UNIQUE,
                           username VARCHAR(255) NOT NULL UNIQUE,
@@ -133,13 +135,14 @@ func (u *User) Read(db *sql.DB) error {
 		return err
 	}
 
+	// TODO ensure that we only allow reading of passwords if the user making the
+	// request is the user being read.
+
 	return nil
 }
 
 func (u *User) Update(db *sql.DB) error {
-	// var (
-	// 	err error
-	// )
+	// TODO
 
 	return nil
 }

@@ -15,8 +15,7 @@ type UserTestSuite struct {
 // run before all tests in this suite begin
 func (s *UserTestSuite) SetupSuite() {
 	// create users table
-	user := &User{}
-	err := user.CreateTable(s.db)
+	err := CreateUsersTable(s.db)
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +47,7 @@ func (s *UserTestSuite) BeforeTest(suiteName, testName string) {
 		if err != nil {
 			panic(err)
 		}
-		err := (&User{}).CreateTable(testDB)
+		err := CreateUsersTable(testDB)
 		if err != nil {
 			panic(err)
 		}
@@ -56,9 +55,7 @@ func (s *UserTestSuite) BeforeTest(suiteName, testName string) {
 }
 
 func (s *UserTestSuite) TestCreateTable() {
-	user := &User{}
-
-	err := user.CreateTable(testDB)
+	err := CreateUsersTable(testDB)
 	s.NoError(err)
 }
 
