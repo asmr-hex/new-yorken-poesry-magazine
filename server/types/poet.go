@@ -21,6 +21,7 @@ type Poet struct {
 	DeathDate   time.Time `json:"deathDate"` // this should be set to null for currently active poets
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
+	Language    string    `json:"language"`
 	ExecPath    string    `json:"execPath"` // or possibly a Path, this is the path to the source code
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
@@ -60,6 +61,7 @@ func CreatePoetsTable(db *sql.DB) error {
                           deathDate TIMESTAMP WITH TIME ZONE NOT NULL,
                           name VARCHAR(255) NOT NULL UNIQUE,
                           description TEXT NOT NULL,
+                          language VARCHAR(255) NOT NULL,
                           execPath VARCHAR(255) NOT NULL UNIQUE,
 		          PRIMARY KEY (id)
 	)`
@@ -72,7 +74,11 @@ func CreatePoetsTable(db *sql.DB) error {
 	return nil
 }
 
-// TODO persist files to the filesystem for poet execs
+// NOTE [cw|am] 2.21.2018 do we *really* need to be passing in the ID here?
+// why can't we just set it in the struct before the function is called??
+// that way, we have a cleaner function signature but also have the ability of
+// deterministicaly being able to control the value of the ID from outside of
+// the function for the sake of testing.
 func (p *Poet) Create(id string, db *sql.DB) error {
 	var (
 		err error
@@ -88,8 +94,8 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 	if poetCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO poets (
-                           id, designer, name, birthDate, deathDate, description, execPath
-                         ) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+                           id, designer, name, birthDate, deathDate, description, language, execPath
+                         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 		poetCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
@@ -103,6 +109,7 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 		p.BirthDate,
 		p.DeathDate,
 		p.Description,
+		p.Language,
 		p.ExecPath,
 	)
 	if err != nil {
@@ -120,7 +127,7 @@ func (p *Poet) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if poetReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
                          FROM poets WHERE id = $1`
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -140,6 +147,7 @@ func (p *Poet) Read(db *sql.DB) error {
 			&p.BirthDate,
 			&p.DeathDate,
 			&p.Description,
+			&p.Language,
 			&p.ExecPath,
 		)
 	switch {
@@ -169,7 +177,7 @@ func ReadPoets(db *sql.DB) ([]*Poet, error) {
 	if poetReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
                          FROM poets`
 		poetReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -192,6 +200,7 @@ func ReadPoets(db *sql.DB) ([]*Poet, error) {
 			&poet.BirthDate,
 			&poet.DeathDate,
 			&poet.Description,
+			&poet.Language,
 			&poet.ExecPath,
 		)
 		if err != nil {

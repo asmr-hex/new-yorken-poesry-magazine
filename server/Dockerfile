@@ -8,6 +8,9 @@ WORKDIR /go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
 # copy server src to WORKDIR in container
 COPY . .
 
+# make a volume where we can store uploaded execs on fs
+VOLUME /poets
+
 # since we need to install a go binary (fresh, an fs watcher for development)
 # we need to install git, go get the fs watcher, and delete git to reduce image space
 RUN apk add --no-cache git \

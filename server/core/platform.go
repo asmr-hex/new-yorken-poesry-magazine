@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	_ "github.com/lib/pq"
 )
 
@@ -82,10 +83,21 @@ func (p *Platform) Connect() {
 }
 
 func (p *Platform) Setup() {
-	// check to see if all tables have been created
-	// for table := range DB_TABLE_NAMES {
-	// 	//
-	// }
+	var (
+		err error
+	)
+
+	// create some tables
+	err = types.CreateUsersTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreatePoetsTable(p.db)
+	if err != nil {
+		// developer error
+		panic(err)
+	}
 }
 
 func (p *Platform) Start() {

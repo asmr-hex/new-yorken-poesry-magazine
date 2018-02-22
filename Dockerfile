@@ -26,6 +26,9 @@ WORKDIR /usr/app/
 COPY --from=server /go/bin/server .
 COPY --from=client /usr/app/client/build/ ./client/build/
 
+# make a volume where we can store uploaded execs on fs
+VOLUME /poets
+
 ENV PORT 8080
 EXPOSE 8080
 

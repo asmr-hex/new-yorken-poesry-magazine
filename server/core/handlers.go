@@ -3,10 +3,15 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 /*
@@ -127,8 +132,211 @@ func (*API) DeleteUser(rw web.ResponseWriter, req *web.Request) {
   Poet CRD
 
 */
-func (*API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO Create POET")
+func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
+	var (
+		err error
+		fds = struct {
+			program    *multipart.FileHeader
+			parameters *multipart.FileHeader
+		}{}
+	)
+
+	// parse multipart-form from request
+	err = req.ParseMultipartForm(30 << 20)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		// TODO return response
+
+		return
+	}
+
+	// iterate over form files
+	formFiles := req.MultipartForm.File
+	for filesKey, files := range formFiles {
+		// we onlye care about the POET_FILES_FORM_KEY
+		if filesKey != POET_FILES_FORM_KEY {
+			a.Error("Encountered abnormal key, %s", filesKey)
+
+			// TODO return http error response
+
+			return
+		}
+
+		// there should be at most two files
+		nFiles := len(files)
+		if nFiles > 2 || nFiles < 1 {
+			err = fmt.Errorf(
+				"Expected at most 2 files within %s form array, given %d",
+				POET_FILES_FORM_KEY,
+				nFiles,
+			)
+
+			a.Error("User Error: %s", err.Error())
+
+			// TODO return response
+
+			return
+		}
+
+		// try to get code files and the optional parameters file
+		for _, file := range files {
+			switch file.Filename {
+			case POET_PROG_FILENAME:
+				if fds.program != nil {
+					// this means multiple program files were uploaded!
+					err = fmt.Errorf("Multiple program files uploaded, only 1 allowed!")
+					a.Error("User Error: %s", err.Error())
+					// TODO return error response
+
+					return
+				}
+
+				fds.program = file
+
+			case POET_PARAMS_FILENAME:
+				if fds.parameters != nil {
+					// this means multiple parameter files were uploaded!
+					err = fmt.Errorf("Multiple parameter files uploaded, only 1 allowed!")
+					a.Error("User Error: %s", err.Error())
+					// TODO return error response
+
+					return
+				}
+
+				fds.parameters = file
+
+			default:
+				// invalid filename was included
+				err = fmt.Errorf("Invalid filename provided, %s", file.Filename)
+
+				a.Error("User Error: %s", err.Error())
+
+				// TODO should we return an error response?
+
+				return
+			}
+		} // end for
+	} // end for
+
+	// ensure that we have a program file
+	if fds.program == nil {
+		err = fmt.Errorf("No program file was uploaded! At least 1 required.")
+		a.Error("User Error: %s", err.Error)
+
+		// TODO return error response
+
+		return
+	}
+
+	// open up the program file!
+	fdProg, err := fds.program.Open()
+	defer fdProg.Close()
+	if err != nil {
+		a.Error(err.Error())
+
+		// TODO return response
+
+		return
+	}
+
+	// create new poet
+	poetID := uuid.NewV4().String()
+
+	// initialize poet struct
+	poet := &types.Poet{
+		Designer:    "TODO NEED TO GET THE USER UUID",
+		Name:        req.PostFormValue(POET_NAME_PARAM),
+		Description: req.PostFormValue(POET_DESCRIPTION_PARAM),
+		Language:    req.PostFormValue(POET_LANGUAGE_PARAM),
+	}
+
+	// validate the poet structure
+	err = poet.Validate(consts.CREATE)
+	if err != nil {
+		a.Error(err.Error())
+
+		// TODO return responses
+
+		return
+	}
+
+	// create new poet directory
+	err = os.Mkdir(path.Join(POET_DIR, poetID), os.ModePerm)
+	if err != nil {
+		a.Error(err.Error())
+
+		// returrn response
+
+		return
+	}
+
+	// create program file on fs
+	dstProg, err := os.Create(path.Join(POET_DIR, poetID, fds.program.Filename))
+	defer dstProg.Close()
+	if err != nil {
+		a.Error(err.Error())
+
+		// TODO return response (internal server error from http pkg)
+
+		return
+	}
+
+	// persist program file to the fs
+	if _, err = io.Copy(dstProg, fdProg); err != nil {
+		a.Error(err.Error())
+
+		// TODO return response
+
+		return
+	}
+
+	// persist parameters file on disk if provided
+	if fds.parameters != nil {
+		// open up the parameteres file!
+		fdParam, err := fds.parameters.Open()
+		defer fdParam.Close()
+		if err != nil {
+			a.Error(err.Error())
+
+			// TODO return response
+
+			return
+		}
+
+		// create parameters file on the fs
+		dstParam, err := os.Create(path.Join(POET_DIR, poetID, fds.parameters.Filename))
+		defer dstParam.Close()
+		if err != nil {
+			a.Error(err.Error())
+
+			// TODO return response
+
+			return
+		}
+
+		// persist params file to the fs
+		if _, err = io.Copy(dstParam, fdParam); err != nil {
+			a.Error(err.Error())
+
+			// TODO return response
+
+			return
+		}
+	}
+
+	// create poet in db
+	err = poet.Create(poetID, a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		// TODO return http response
+
+		return
+	}
+
+	a.Info("Poet successfully created ^-^")
 }
 
 func (*API) GetPoet(rw web.ResponseWriter, req *web.Request) {
