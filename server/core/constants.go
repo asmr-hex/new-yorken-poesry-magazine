@@ -4,7 +4,15 @@ package core
 const (
 	POET_DIR = "/poets"
 
-	// API CONSTANTS
+	/*
+	   API CONSTANTS
+	*/
+
+	LOGIN_USERNAME_PARAM = "username"
+	LOGIN_PASSWORD_PARAM = "password"
+
+	SESSION_TOKEN_COOKIE_NAME = "session_token"
+
 	POET_FILES_FORM_KEY    = "src[]"
 	POET_PROG_FILENAME     = "program"
 	POET_PARAMS_FILENAME   = "parameters"

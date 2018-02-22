@@ -18,10 +18,11 @@ const (
 
 type API struct {
 	*Logger
-	Config  *env.Config
-	Version string
-	Router  *web.Router
-	db      *sql.DB
+	Config   *env.Config
+	Version  string
+	Router   *web.Router
+	Sessions *Sessions
+	db       *sql.DB
 }
 
 func NewAPI(config *env.Config, db *sql.DB) *API {
@@ -33,6 +34,8 @@ func NewAPI(config *env.Config, db *sql.DB) *API {
 	}
 
 	api.BuildRouter()
+
+	api.Sessions = NewSessions()
 
 	return &api
 }
@@ -53,6 +56,10 @@ func (a *API) BuildRouter() {
 
 		// === Public API ===
 
+		// User Register /Login
+		Post(pubPrefix+"/register", a.CreateUser).
+		Post(pubPrefix+"/login", a.Login).
+
 		// Plural type Reads
 		Get(pubPrefix+"/users", a.GetUsers).
 		Get(pubPrefix+"/poets", a.GetPoets).
@@ -60,8 +67,7 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/issues", a.GetIssues).
 		Get(pubPrefix+"/committees", a.GetCommittees).
 
-		// User CRUD
-		Post(pubPrefix+"/user", a.CreateUser).
+		// User RUD
 		Get(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser).
 		Put(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.UpdateUser).
 		Delete(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.DeleteUser).

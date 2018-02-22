@@ -86,11 +86,75 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	// appropriate data from the db. Once we have the user, we will proceed as
 	// normally below. ✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。
 
+	// assign user id
+	user.Id = uuid.NewV4().String()
+
 	// insert data into db tables
+	err = user.Create(user.Id, a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		// send response
+
+		return
+	}
 
 	// send success response
 
-	fmt.Println("TODO CREATE USER")
+	a.Info("user %s successfully created!", user.Username)
+}
+
+func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
+	var (
+		err error
+	)
+
+	err = req.ParseMultipartForm(30 << 20)
+	if err != nil {
+		a.Error(err.Error())
+
+		// TODO send response
+
+		return
+	}
+
+	fmt.Println(req.Form)
+
+	// get the username, password from request
+	user := &types.User{
+		Username: req.PostFormValue(LOGIN_USERNAME_PARAM),
+		Password: req.PostFormValue(LOGIN_PASSWORD_PARAM),
+	}
+
+	fmt.Println(user)
+
+	err = user.Validate(consts.LOGIN)
+	if err != nil {
+		a.Error(err.Error())
+
+		// send response
+
+		return
+	}
+
+	// authenticate user with password
+	err = user.Authenticate(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		// return response
+
+		return
+	}
+
+	// get session token
+	sessionToken := a.Sessions.GetTokenByUser(user.Id)
+
+	a.Info("user %s successfully logged in!", user.Username)
+	// return response with session token
+	fmt.Println(sessionToken)
+
+	// TODO send successful response WITH SESSION TOKEN IN COOKIES
 }
 
 func (a *API) GetUser(rw web.ResponseWriter, req *web.Request) {
@@ -140,6 +204,35 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 			parameters *multipart.FileHeader
 		}{}
 	)
+
+	// anyone who sends this request *must* have a session token in their
+	// request header (or cookies?) since only logged in users can create poets.
+
+	// get session token from cookie (maybe use golang CookieJar)
+	tokenCookie, err := req.Cookie(SESSION_TOKEN_COOKIE_NAME)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		// TODO return response
+
+		return
+	}
+
+	token := tokenCookie.Value
+
+	// get username from token
+	userId, validToken := a.Sessions.GetUserByToken(token)
+	if !validToken {
+		err = fmt.Errorf("invalid session token!")
+
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		// TODO return response
+
+		return
+	}
 
 	// parse multipart-form from request
 	err = req.ParseMultipartForm(30 << 20)
@@ -246,7 +339,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 	// initialize poet struct
 	poet := &types.Poet{
-		Designer:    "TODO NEED TO GET THE USER UUID",
+		Designer:    userId,
 		Name:        req.PostFormValue(POET_NAME_PARAM),
 		Description: req.PostFormValue(POET_DESCRIPTION_PARAM),
 		Language:    req.PostFormValue(POET_LANGUAGE_PARAM),
