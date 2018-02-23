@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/gocraft/web"
@@ -35,7 +36,7 @@ func NewAPI(config *env.Config, db *sql.DB) *API {
 
 	api.BuildRouter()
 
-	api.Sessions = NewSessions()
+	api.Sessions = NewSessions(time.Minute * 30) // TODO put in config
 
 	return &api
 }

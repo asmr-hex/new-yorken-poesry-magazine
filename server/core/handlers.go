@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path"
 
@@ -71,14 +72,20 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	decoder := json.NewDecoder(req.Body)
 	err = decoder.Decode(&user)
 	if err != nil {
-		a.Error("Unable to decode POST raw-data")
+		a.Error("Unable to decode POST raw-data: %s", err.Error())
 
-		// TODO send failure response to client
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
 	}
 
 	err = user.Validate(consts.CREATE)
 	if err != nil {
-		a.Error(err.Error())
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
 	}
 
 	// TODO once we implement email verification tokens, we will be expecting
@@ -95,6 +102,7 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 		a.Error(err.Error())
 
 		// send response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
@@ -111,14 +119,23 @@ func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
 
 	err = req.ParseMultipartForm(30 << 20)
 	if err != nil {
-		a.Error(err.Error())
+		switch {
+		case err == http.ErrNotMultipart:
+			fallthrough
+		case err == multipart.ErrMessageTooLarge:
+			// handle this error
+			a.Error("User Error: %s", err.Error())
 
-		// TODO send response
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+		default:
+			// log internal error
+			a.Error("Internal Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+		}
 
 		return
 	}
-
-	fmt.Println(req.Form)
 
 	// get the username, password from request
 	user := &types.User{
@@ -126,13 +143,11 @@ func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
 		Password: req.PostFormValue(LOGIN_PASSWORD_PARAM),
 	}
 
-	fmt.Println(user)
-
 	err = user.Validate(consts.LOGIN)
 	if err != nil {
-		a.Error(err.Error())
+		a.Error("User Error: %s", err.Error())
 
-		// send response
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
 		return
 	}
@@ -140,15 +155,21 @@ func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
 	// authenticate user with password
 	err = user.Authenticate(a.db)
 	if err != nil {
-		a.Error(err.Error())
+		a.Error("User Error: %s", err.Error())
 
 		// return response
-
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	// get session token
 	sessionToken := a.Sessions.GetTokenByUser(user.Id)
+
+	// set the sessionToken within a response cookie
+	http.SetCookie(rw, &http.Cookie{
+		Name:  SESSION_TOKEN_COOKIE_NAME,
+		Value: sessionToken,
+	})
 
 	a.Info("user %s successfully logged in!", user.Username)
 	// return response with session token
@@ -214,7 +235,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		// handle this error
 		a.Error("User Error: %s", err.Error())
 
-		// TODO return response
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
 		return
 	}
@@ -229,7 +250,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		// handle this error
 		a.Error("User Error: %s", err.Error())
 
-		// TODO return response
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
 
 		return
 	}
@@ -237,10 +258,20 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	// parse multipart-form from request
 	err = req.ParseMultipartForm(30 << 20)
 	if err != nil {
-		// handle this error
-		a.Error("User Error: %s", err.Error())
+		switch {
+		case err == http.ErrNotMultipart:
+			fallthrough
+		case err == multipart.ErrMessageTooLarge:
+			// handle this error
+			a.Error("User Error: %s", err.Error())
 
-		// TODO return response
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+		default:
+			// log internal error
+			a.Error("Internal Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+		}
 
 		return
 	}
@@ -252,7 +283,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		if filesKey != POET_FILES_FORM_KEY {
 			a.Error("Encountered abnormal key, %s", filesKey)
 
-			// TODO return http error response
+			http.Error(rw, err.Error(), http.StatusBadRequest)
 
 			return
 		}
@@ -268,7 +299,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 			a.Error("User Error: %s", err.Error())
 
-			// TODO return response
+			http.Error(rw, err.Error(), http.StatusBadRequest)
 
 			return
 		}
@@ -281,7 +312,8 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 					// this means multiple program files were uploaded!
 					err = fmt.Errorf("Multiple program files uploaded, only 1 allowed!")
 					a.Error("User Error: %s", err.Error())
-					// TODO return error response
+
+					http.Error(rw, err.Error(), http.StatusBadRequest)
 
 					return
 				}
@@ -293,7 +325,8 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 					// this means multiple parameter files were uploaded!
 					err = fmt.Errorf("Multiple parameter files uploaded, only 1 allowed!")
 					a.Error("User Error: %s", err.Error())
-					// TODO return error response
+
+					http.Error(rw, err.Error(), http.StatusBadRequest)
 
 					return
 				}
@@ -306,7 +339,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 				a.Error("User Error: %s", err.Error())
 
-				// TODO should we return an error response?
+				http.Error(rw, err.Error(), http.StatusBadRequest)
 
 				return
 			}
@@ -318,7 +351,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		err = fmt.Errorf("No program file was uploaded! At least 1 required.")
 		a.Error("User Error: %s", err.Error)
 
-		// TODO return error response
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
 		return
 	}
@@ -329,7 +362,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if err != nil {
 		a.Error(err.Error())
 
-		// TODO return response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
@@ -350,7 +383,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if err != nil {
 		a.Error(err.Error())
 
-		// TODO return responses
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
 		return
 	}
@@ -361,6 +394,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		a.Error(err.Error())
 
 		// returrn response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
@@ -371,7 +405,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if err != nil {
 		a.Error(err.Error())
 
-		// TODO return response (internal server error from http pkg)
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
@@ -380,7 +414,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if _, err = io.Copy(dstProg, fdProg); err != nil {
 		a.Error(err.Error())
 
-		// TODO return response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
@@ -393,7 +427,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		if err != nil {
 			a.Error(err.Error())
 
-			// TODO return response
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 			return
 		}
@@ -404,7 +438,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		if err != nil {
 			a.Error(err.Error())
 
-			// TODO return response
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 			return
 		}
@@ -413,7 +447,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		if _, err = io.Copy(dstParam, fdParam); err != nil {
 			a.Error(err.Error())
 
-			// TODO return response
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 			return
 		}
@@ -424,7 +458,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if err != nil {
 		a.Error(err.Error())
 
-		// TODO return http response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}

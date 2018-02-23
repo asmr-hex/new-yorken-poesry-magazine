@@ -9,17 +9,24 @@ import (
 
 type Sessions struct {
 	sync.Mutex
+	TokenDuration time.Duration
 	TokenToUser   map[string]string
 	UserToToken   map[string]string
 	TokenLastSeen map[string]time.Time
 }
 
-func NewSessions() *Sessions {
-	return &Sessions{
+func NewSessions(tokenDuration time.Duration) *Sessions {
+	session := &Sessions{
+		TokenDuration: tokenDuration,
 		TokenToUser:   map[string]string{},
 		UserToToken:   map[string]string{},
 		TokenLastSeen: map[string]time.Time{},
 	}
+
+	// being background token sweeper
+	go session.SweepUpTokens()
+
+	return session
 }
 
 func (s *Sessions) GetTokenByUser(userID string) string {
@@ -64,9 +71,37 @@ func (s *Sessions) GetUserByToken(token string) (string, bool) {
 	return userId, exists
 }
 
-// TODO we eventually want to have a go-routine constantly running in the background
-// at a specified interval which will expire and evict session tokens if no requests
-// have been made by a user in a certain time window.
-func (s *Sessions) ExpireSessions() {
+func (s *Sessions) SweepUpTokens() {
+	ticker := time.NewTicker(s.TokenDuration)
+	for {
+		<-ticker.C
 
+		s.ExpireSessions()
+	}
+}
+
+func (s *Sessions) ExpireSessions() {
+	expirationThreshold := time.Now().Add(-1 * s.TokenDuration)
+
+	s.Lock()
+	defer s.Unlock()
+
+	// go through each token and check expiration time
+	for token, lastSeen := range s.TokenLastSeen {
+		if lastSeen.After(expirationThreshold) {
+			// the token should not be expired!
+			continue
+		}
+
+		// this toekn should be expired.
+
+		// remove entry from UserToToken
+		delete(s.UserToToken, s.TokenToUser[token])
+
+		// remove entry from TokenToUser
+		delete(s.TokenToUser, token)
+
+		// remove entry from TokenLastSeen
+		delete(s.TokenLastSeen, token)
+	}
 }
