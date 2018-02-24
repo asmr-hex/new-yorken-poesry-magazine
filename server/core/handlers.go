@@ -20,12 +20,64 @@ import (
   Plural Types
 
 */
-func (*API) GetUsers(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO GET USERS")
+func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
+	var (
+		users []*types.User
+		err   error
+	)
+
+	users, err = types.ReadUsers(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	usersJSON, err := json.Marshal(users)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(usersJSON)
+
+	a.Info("successfully read all users")
 }
 
-func (*API) GetPoets(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO GET POETS")
+func (a *API) GetPoets(rw web.ResponseWriter, req *web.Request) {
+	var (
+		poets []*types.Poet
+		err   error
+	)
+
+	poets, err = types.ReadPoets(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	poetsJSON, err := json.Marshal(poets)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(poetsJSON)
+
+	a.Info("successfully read all poets")
 }
 
 func (*API) GetPoems(rw web.ResponseWriter, req *web.Request) {
