@@ -167,7 +167,8 @@ func (u *User) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userReadStmt == nil {
 		// read statement
-		stmt := `SELECT * FROM users WHERE id = $1`
+		stmt := `SELECT id, username, password, email
+                         FROM users WHERE id = $1`
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err

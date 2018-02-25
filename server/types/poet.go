@@ -4,9 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+	"unicode/utf8"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	_ "github.com/lib/pq"
+)
+
+const (
+	POET_DESCRIPTION_MAX_CHARS = 2000
 )
 
 // Notes about poet executables:
@@ -16,27 +22,121 @@ import (
 
 type Poet struct {
 	Id          string    `json:"id"`
-	Designer    string    `json:"designer"`  // the writer of the poet (user)
-	BirthDate   time.Time `json:"birthDate"` // so we can show years active
-	DeathDate   time.Time `json:"deathDate"` // this should be set to null for currently active poets
+	Designer    string    `json:"designer"`            // the writer of the poet (user)
+	BirthDate   time.Time `json:"birthDate"`           // so we can show years active
+	DeathDate   time.Time `json:"deathDate,omitempty"` // this should be set to null for currently active poets
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Language    string    `json:"language"`
-	ExecPath    string    `json:"execPath"` // or possibly a Path, this is the path to the source code
+	ExecPath    string    `json:"-"` // or possibly a Path, this is the path to the source code
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
 
 	// what if we also had a poet obituary for when poets are "retired"
 }
 
-func (p *Poet) Validate(action string) error {
+type PoetValidationParams struct {
+	Designer       string
+	SupportedLangs map[string]bool
+}
+
+func (p *Poet) Validate(action string, params ...PoetValidationParams) error {
+	var (
+		err error
+	)
+
 	// make sure id, if not an empty string, is a uuid
 	if !utils.IsValidUUIDV4(p.Id) && p.Id != "" {
-		return fmt.Errorf("User Id must be a valid uuid, given %s", p.Id)
+		return fmt.Errorf("Poet Id must be a valid uuid, given %s", p.Id)
 	}
 
 	// TODO ensure that only the user namking the create and delete request can perform
 	// those actions!
+	switch action {
+	case consts.CREATE:
+		if len(params) == 0 {
+			return fmt.Errorf(
+				"validation parameters must be provided for %s action",
+				consts.CREATE,
+			)
+		}
+
+		err = p.CheckRequiredFields(params[0])
+		if err != nil {
+			return err
+		}
+	case consts.READ:
+		// the id *must* be populated and valid
+		if p.Id == "" {
+			return fmt.Errorf("poet id *must* be provided on %s", consts.READ)
+		}
+	case consts.UPDATE:
+		if len(params) == 0 {
+			return fmt.Errorf(
+				"validation parameters must be provided for %s action",
+				consts.UPDATE,
+			)
+		}
+
+		// designer must be provided AND match the given validation parameter
+		if p.Designer == "" || p.Designer != params[0].Designer {
+			return fmt.Errorf("Invalid poet designer provided")
+		}
+
+		// the id *must* be populated and valid
+		if p.Id == "" {
+			return fmt.Errorf("poet id *must* be provided on %s", consts.READ)
+		}
+	case consts.DELETE:
+		if len(params) == 0 {
+			return fmt.Errorf(
+				"validation parameters must be provided for %s action",
+				consts.DELETE,
+			)
+		}
+
+		// designer must be provided AND match the given validation parameter
+		if p.Designer == "" || p.Designer != params[0].Designer {
+			return fmt.Errorf("Invalid poet designer provided")
+		}
+
+		// the id *must* be populated and valid
+		if p.Id == "" {
+			return fmt.Errorf("poet id *must* be provided on %s", consts.READ)
+		}
+	}
+
+	return nil
+}
+
+// check required fields for creation
+func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
+	var (
+		err error
+	)
+
+	// we already know that the Id field is valid
+
+	// designer must be provided AND match the given validation parameter
+	if p.Designer == "" || p.Designer != params.Designer {
+		return fmt.Errorf("Invalid poet designer provided")
+	}
+
+	// ensure name is non-empty and obeys naming rules
+	err = utils.ValidateUsername(p.Name)
+	if err != nil {
+		return err
+	}
+
+	// limit the size of the description
+	if utf8.RuneCountInString(p.Description) > POET_DESCRIPTION_MAX_CHARS {
+		return fmt.Errorf("poet description must be below 2k characters")
+	}
+
+	// ensure that language is provided and within supported languages
+	if _, isSupported := params.SupportedLangs[p.Language]; !isSupported {
+		return fmt.Errorf("poet language (%s) not supported (╥﹏╥)", p.Language)
+	}
 
 	return nil
 }
