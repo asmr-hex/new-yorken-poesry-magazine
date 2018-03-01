@@ -130,3 +130,13 @@ func (s *StrCheckTestSuite) TestValidateUsername_Arabic() {
 	err := ValidateUsername("الظلام")
 	s.NoError(err)
 }
+
+func (s *StrCheckTestSuite) TestValidateEmail() {
+	err := ValidateEmail("geomancer666@benevolent.magik")
+	s.NoError(err)
+}
+
+func (s *StrCheckTestSuite) TestValidateEmail_InvalidEmail() {
+	err := ValidateEmail("ur@somewherere bad")
+	s.Error(err)
+}

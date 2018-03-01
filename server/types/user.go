@@ -18,7 +18,15 @@ type User struct {
 	Poets    []*Poet `json:"poets"`
 }
 
-func (u *User) Validate(action string) error {
+type UserValidationParams struct {
+	CurrentUserID string
+}
+
+func (u *User) Validate(action string, params ...UserValidationParams) error {
+	var (
+		err error
+	)
+
 	// make sure id, if not an empty string, is a uuid
 	if !utils.IsValidUUIDV4(u.Id) && u.Id != "" {
 		return fmt.Errorf("User Id must be a valid uuid, given %s", u.Id)
@@ -27,11 +35,53 @@ func (u *User) Validate(action string) error {
 	// perform validation on a per action basis
 	switch action {
 	case consts.LOGIN:
+		// there must be a username and a password
+		if u.Username == "" {
+			return fmt.Errorf("No username provided.")
+		}
+
+		if u.Password == "" {
+			return fmt.Errorf("No password provided.")
+		}
 	case consts.CREATE:
+		// on registration, the username, password, and email must be provided
+		if u.Username == "" {
+			return fmt.Errorf("No username provided.")
+		}
+		if u.Password == "" {
+			return fmt.Errorf("No password provided.")
+		}
+		if u.Email == "" {
+			return fmt.Errorf("No email address provided.")
+		}
+
+		// validate username and email
+		err = utils.ValidateUsername(u.Username)
+		if err != nil {
+			return err
+		}
+		err = utils.ValidateEmail(u.Email)
+		if err != nil {
+			return err
+		}
 	case consts.UPDATE:
-	case consts.DELETE:
-		// TODO ensure that only a user can delete themselves
+		// TODO validate user updates
 		fallthrough
+	case consts.DELETE:
+		if len(params) == 0 {
+			return fmt.Errorf(
+				"validation parameters must be provided for %s action",
+				action,
+			)
+		}
+
+		// a user can only delete themselves!
+		if u.Id != params[0].CurrentUserID {
+			return fmt.Errorf(
+				"I'm sorry, but what are you trying to do? You can't %s other users...",
+				action,
+			)
+		}
 	default:
 		// only ensure that the id is present
 		// this aplies to the READ and DELETE cases
