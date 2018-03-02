@@ -83,6 +83,7 @@ func (s *PoetTestSuite) TestCreatePoet() {
 		Designer:    userId,
 		Name:        "wintermute",
 		Description: "mutator of the immutable",
+		Language:    "python",
 		ExecPath:    path.Join("/poets/", poetId),
 	}
 
@@ -104,6 +105,7 @@ func (s *PoetTestSuite) TestReadPoet() {
 		Designer:    userId,
 		Name:        "Chum of Chance",
 		Description: "explorer of some other dimensionality",
+		Language:    "forth",
 		ExecPath:    path.Join("/poets/", poetId),
 	}
 
@@ -151,18 +153,21 @@ func (s *PoetTestSuite) TestReadAllPoets() {
 			Designer:    userId,
 			Name:        "ghostA",
 			Description: "haunts shoes",
+			Language:    "haskell",
 			ExecPath:    path.Join("/poets/", poetIds[0]),
 		},
 		{
 			Designer:    userId,
 			Name:        "ghostB",
 			Description: "haunts shoe stores",
+			Language:    "k",
 			ExecPath:    path.Join("/poets/", poetIds[1]),
 		},
 		{
 			Designer:    userId,
 			Name:        "ghostC",
 			Description: "isn't a ghost",
+			Language:    "apl",
 			ExecPath:    path.Join("/poets/", poetIds[2]),
 		},
 	}

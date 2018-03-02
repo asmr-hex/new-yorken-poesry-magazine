@@ -7,6 +7,7 @@ import (
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	_ "github.com/lib/pq"
+	uuid "github.com/satori/go.uuid"
 )
 
 type User struct {
@@ -17,7 +18,15 @@ type User struct {
 	Poets    []*Poet `json:"poets"`
 }
 
-func (u *User) Validate(action string) error {
+type UserValidationParams struct {
+	CurrentUserID string
+}
+
+func (u *User) Validate(action string, params ...UserValidationParams) error {
+	var (
+		err error
+	)
+
 	// make sure id, if not an empty string, is a uuid
 	if !utils.IsValidUUIDV4(u.Id) && u.Id != "" {
 		return fmt.Errorf("User Id must be a valid uuid, given %s", u.Id)
@@ -25,11 +34,54 @@ func (u *User) Validate(action string) error {
 
 	// perform validation on a per action basis
 	switch action {
+	case consts.LOGIN:
+		// there must be a username and a password
+		if u.Username == "" {
+			return fmt.Errorf("No username provided.")
+		}
+
+		if u.Password == "" {
+			return fmt.Errorf("No password provided.")
+		}
 	case consts.CREATE:
+		// on registration, the username, password, and email must be provided
+		if u.Username == "" {
+			return fmt.Errorf("No username provided.")
+		}
+		if u.Password == "" {
+			return fmt.Errorf("No password provided.")
+		}
+		if u.Email == "" {
+			return fmt.Errorf("No email address provided.")
+		}
+
+		// validate username and email
+		err = utils.ValidateUsername(u.Username)
+		if err != nil {
+			return err
+		}
+		err = utils.ValidateEmail(u.Email)
+		if err != nil {
+			return err
+		}
 	case consts.UPDATE:
-	case consts.DELETE:
-		// TODO ensure that only a user can delete themselves
+		// TODO validate user updates
 		fallthrough
+	case consts.DELETE:
+		if len(params) == 0 {
+			return fmt.Errorf(
+				"validation parameters must be provided for %s action",
+				action,
+			)
+		}
+
+		// a user can only delete themselves!
+		if u.Id != params[0].CurrentUserID {
+			return fmt.Errorf(
+				"I'm sorry, but what are you trying to do? You can't %s other users...",
+				action,
+			)
+		}
 	default:
 		// only ensure that the id is present
 		// this aplies to the READ and DELETE cases
@@ -51,6 +103,7 @@ func (u *User) Validate(action string) error {
 
 // package level globals for storing prepared sql statements
 var (
+	userAuthStmt    *sql.Stmt
 	userCreateStmt  *sql.Stmt
 	userReadStmt    *sql.Stmt
 	userReadAllStmt *sql.Stmt
@@ -64,6 +117,7 @@ func CreateUsersTable(db *sql.DB) error {
 		          id UUID NOT NULL UNIQUE,
                           username VARCHAR(255) NOT NULL UNIQUE,
                           password VARCHAR(255) NOT NULL,
+                          salt UUID NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
 		          PRIMARY KEY (id)
 	)`
@@ -78,7 +132,9 @@ func CreateUsersTable(db *sql.DB) error {
 
 func (u *User) Create(id string, db *sql.DB) error {
 	var (
-		err error
+		hashedPassword string
+		salt           string
+		err            error
 	)
 
 	// we assume that all validation/sanitization has already been called
@@ -86,21 +142,68 @@ func (u *User) Create(id string, db *sql.DB) error {
 	// assign id
 	u.Id = id
 
+	// generate salt for password
+	salt = uuid.NewV4().String()
+
+	// salt password
+	hashedPassword = utils.SaltPassword(u.Password, salt)
+
 	// prepare statement if not already done so.
 	if userCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO users (
-                           id, username, password, email
-                         ) VALUES ($1, $2, $3, $4)`
+                           id, username, password, salt, email
+                         ) VALUES ($1, $2, $3, $4, $5)`
 		userCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = userCreateStmt.Exec(u.Id, u.Username, u.Password, u.Email)
+	_, err = userCreateStmt.Exec(u.Id, u.Username, hashedPassword, salt, u.Email)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (u *User) Authenticate(db *sql.DB) error {
+	var (
+		hashedPassword string
+		salt           string
+		err            error
+	)
+
+	if userAuthStmt == nil {
+		// auth stmt
+		stmt := `SELECT id, password, salt FROM users WHERE username = $1`
+		userAuthStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// assume that auth validation for user has been performed
+
+	// run the prepared stmt over args (username)
+	err = userAuthStmt.
+		QueryRow(u.Username).
+		Scan(&u.Id, &hashedPassword, &salt)
+	switch {
+	case err == sql.ErrNoRows:
+		return fmt.Errorf("incorrect username or password AAHHH")
+	case err != nil:
+		return err
+	}
+
+	// hash provided user password
+	passwd := utils.SaltPassword(u.Password, salt)
+
+	// ensure that our hashed provided password matches our hashed saved password
+	if passwd != hashedPassword {
+		// oops, wrong password
+		return fmt.Errorf("incorrect username or password")
 	}
 
 	return nil
@@ -114,7 +217,8 @@ func (u *User) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userReadStmt == nil {
 		// read statement
-		stmt := `SELECT * FROM users WHERE id = $1`
+		stmt := `SELECT id, username, password, email
+                         FROM users WHERE id = $1`
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err

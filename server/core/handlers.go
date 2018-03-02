@@ -3,10 +3,16 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
+	uuid "github.com/satori/go.uuid"
 )
 
 /*
@@ -14,12 +20,64 @@ import (
   Plural Types
 
 */
-func (*API) GetUsers(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO GET USERS")
+func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
+	var (
+		users []*types.User
+		err   error
+	)
+
+	users, err = types.ReadUsers(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	usersJSON, err := json.Marshal(users)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(usersJSON)
+
+	a.Info("successfully read all users")
 }
 
-func (*API) GetPoets(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO GET POETS")
+func (a *API) GetPoets(rw web.ResponseWriter, req *web.Request) {
+	var (
+		poets []*types.Poet
+		err   error
+	)
+
+	poets, err = types.ReadPoets(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	poetsJSON, err := json.Marshal(poets)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(poetsJSON)
+
+	a.Info("successfully read all poets")
 }
 
 func (*API) GetPoems(rw web.ResponseWriter, req *web.Request) {
@@ -66,14 +124,20 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	decoder := json.NewDecoder(req.Body)
 	err = decoder.Decode(&user)
 	if err != nil {
-		a.Error("Unable to decode POST raw-data")
+		a.Error("Unable to decode POST raw-data: %s", err.Error())
 
-		// TODO send failure response to client
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
 	}
 
 	err = user.Validate(consts.CREATE)
 	if err != nil {
-		a.Error(err.Error())
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
 	}
 
 	// TODO once we implement email verification tokens, we will be expecting
@@ -81,11 +145,89 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	// appropriate data from the db. Once we have the user, we will proceed as
 	// normally below. ✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。
 
+	// assign user id
+	user.Id = uuid.NewV4().String()
+
 	// insert data into db tables
+	err = user.Create(user.Id, a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		// send response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
 
 	// send success response
 
-	fmt.Println("TODO CREATE USER")
+	a.Info("user %s successfully created!", user.Username)
+}
+
+func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
+	var (
+		err error
+	)
+
+	err = req.ParseMultipartForm(30 << 20)
+	if err != nil {
+		switch {
+		case err == http.ErrNotMultipart:
+			fallthrough
+		case err == multipart.ErrMessageTooLarge:
+			// handle this error
+			a.Error("User Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+		default:
+			// log internal error
+			a.Error("Internal Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	// get the username, password from request
+	user := &types.User{
+		Username: req.PostFormValue(LOGIN_USERNAME_PARAM),
+		Password: req.PostFormValue(LOGIN_PASSWORD_PARAM),
+	}
+
+	err = user.Validate(consts.LOGIN)
+	if err != nil {
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	// authenticate user with password
+	err = user.Authenticate(a.db)
+	if err != nil {
+		a.Error("User Error: %s", err.Error())
+
+		// return response
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// get session token
+	sessionToken := a.Sessions.GetTokenByUser(user.Id)
+
+	// set the sessionToken within a response cookie
+	http.SetCookie(rw, &http.Cookie{
+		Name:  SESSION_TOKEN_COOKIE_NAME,
+		Value: sessionToken,
+	})
+
+	a.Info("user %s successfully logged in!", user.Username)
+	// return response with session token
+	fmt.Println(sessionToken)
+
+	// TODO send successful response WITH SESSION TOKEN IN COOKIES
 }
 
 func (a *API) GetUser(rw web.ResponseWriter, req *web.Request) {
@@ -127,8 +269,253 @@ func (*API) DeleteUser(rw web.ResponseWriter, req *web.Request) {
   Poet CRD
 
 */
-func (*API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO Create POET")
+func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
+	var (
+		err error
+		fds = struct {
+			program    *multipart.FileHeader
+			parameters *multipart.FileHeader
+		}{}
+	)
+
+	// anyone who sends this request *must* have a session token in their
+	// request header (or cookies?) since only logged in users can create poets.
+
+	// get session token from cookie (maybe use golang CookieJar)
+	tokenCookie, err := req.Cookie(SESSION_TOKEN_COOKIE_NAME)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	token := tokenCookie.Value
+
+	// get username from token
+	userId, validToken := a.Sessions.GetUserByToken(token)
+	if !validToken {
+		err = fmt.Errorf("invalid session token!")
+
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
+
+		return
+	}
+
+	// parse multipart-form from request
+	err = req.ParseMultipartForm(30 << 20)
+	if err != nil {
+		switch {
+		case err == http.ErrNotMultipart:
+			fallthrough
+		case err == multipart.ErrMessageTooLarge:
+			// handle this error
+			a.Error("User Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+		default:
+			// log internal error
+			a.Error("Internal Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	// iterate over form files
+	formFiles := req.MultipartForm.File
+	for filesKey, files := range formFiles {
+		// we onlye care about the POET_FILES_FORM_KEY
+		if filesKey != POET_FILES_FORM_KEY {
+			a.Error("Encountered abnormal key, %s", filesKey)
+
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+
+		// there should be at most two files
+		nFiles := len(files)
+		if nFiles > 2 || nFiles < 1 {
+			err = fmt.Errorf(
+				"Expected at most 2 files within %s form array, given %d",
+				POET_FILES_FORM_KEY,
+				nFiles,
+			)
+
+			a.Error("User Error: %s", err.Error())
+
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+
+		// try to get code files and the optional parameters file
+		for _, file := range files {
+			switch file.Filename {
+			case POET_PROG_FILENAME:
+				if fds.program != nil {
+					// this means multiple program files were uploaded!
+					err = fmt.Errorf("Multiple program files uploaded, only 1 allowed!")
+					a.Error("User Error: %s", err.Error())
+
+					http.Error(rw, err.Error(), http.StatusBadRequest)
+
+					return
+				}
+
+				fds.program = file
+
+			case POET_PARAMS_FILENAME:
+				if fds.parameters != nil {
+					// this means multiple parameter files were uploaded!
+					err = fmt.Errorf("Multiple parameter files uploaded, only 1 allowed!")
+					a.Error("User Error: %s", err.Error())
+
+					http.Error(rw, err.Error(), http.StatusBadRequest)
+
+					return
+				}
+
+				fds.parameters = file
+
+			default:
+				// invalid filename was included
+				err = fmt.Errorf("Invalid filename provided, %s", file.Filename)
+
+				a.Error("User Error: %s", err.Error())
+
+				http.Error(rw, err.Error(), http.StatusBadRequest)
+
+				return
+			}
+		} // end for
+	} // end for
+
+	// ensure that we have a program file
+	if fds.program == nil {
+		err = fmt.Errorf("No program file was uploaded! At least 1 required.")
+		a.Error("User Error: %s", err.Error)
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	// open up the program file!
+	fdProg, err := fds.program.Open()
+	defer fdProg.Close()
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// create new poet
+	poetID := uuid.NewV4().String()
+
+	// initialize poet struct
+	poet := &types.Poet{
+		Designer:    userId,
+		Name:        req.PostFormValue(POET_NAME_PARAM),
+		Description: req.PostFormValue(POET_DESCRIPTION_PARAM),
+		Language:    req.PostFormValue(POET_LANGUAGE_PARAM),
+	}
+
+	// validate the poet structure
+	err = poet.Validate(consts.CREATE)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	// create new poet directory
+	err = os.Mkdir(path.Join(POET_DIR, poetID), os.ModePerm)
+	if err != nil {
+		a.Error(err.Error())
+
+		// returrn response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// create program file on fs
+	dstProg, err := os.Create(path.Join(POET_DIR, poetID, fds.program.Filename))
+	defer dstProg.Close()
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// persist program file to the fs
+	if _, err = io.Copy(dstProg, fdProg); err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// persist parameters file on disk if provided
+	if fds.parameters != nil {
+		// open up the parameteres file!
+		fdParam, err := fds.parameters.Open()
+		defer fdParam.Close()
+		if err != nil {
+			a.Error(err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		// create parameters file on the fs
+		dstParam, err := os.Create(path.Join(POET_DIR, poetID, fds.parameters.Filename))
+		defer dstParam.Close()
+		if err != nil {
+			a.Error(err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		// persist params file to the fs
+		if _, err = io.Copy(dstParam, fdParam); err != nil {
+			a.Error(err.Error())
+
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+	}
+
+	// create poet in db
+	err = poet.Create(poetID, a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	a.Info("Poet successfully created ^-^")
 }
 
 func (*API) GetPoet(rw web.ResponseWriter, req *web.Request) {
