@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -7,14 +6,26 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">New Yorken Poesry Magazine</h1>
+          New Yorken Poesry Magazine
         </header>
-        <p className="App-intro">
+        <p className="main">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+        <footer className="footer">
+          {<IssueNumbers/>}
+        </footer>
       </div>
     );
+  }
+}
+
+class IssueNumbers extends Component {
+  render() {
+    return (
+      <div>
+        1
+      </div>
+    )
   }
 }
 
