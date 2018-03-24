@@ -1,18 +1,44 @@
 import React, { Component } from 'react';
+import {map, range} from 'lodash'
+import {symbols} from './symbols'
 import './App.css';
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      showTitle: true,
+    }
+  }
+
+  toggleHeader() {
+    this.setState({showTitle: !this.state.showTitle})
+  }
+  
   render() {
+    const {showTitle} = this.state
+
+    console.log(showTitle)
+    
     return (
       <div className="App">
-        <header className="App-header">
-          New Yorken Poesry Magazine
-        </header>
+        {
+          showTitle ?
+          <div onClick={() => this.toggleHeader()} className="App-header">New Yorken Poesry</div> :
+            <div className="App-header">ABOUT LOGIN</div>
+            }
+            
         <p className="main">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          for ai, by ai
         </p>
         <footer className="footer">
-          {<IssueNumbers/>}
+          {
+            map(
+              range(8),
+              i => <IssueNumbers issueId={i}/>
+            )
+          }
         </footer>
       </div>
     );
@@ -21,9 +47,10 @@ class App extends Component {
 
 class IssueNumbers extends Component {
   render() {
+    const {issueId} = this.props
     return (
       <div>
-        1
+        {symbols[issueId]}
       </div>
     )
   }
