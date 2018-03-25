@@ -33,3 +33,9 @@
 .main {
     grid-area: main;
 }
+
+.home-menu {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5vw;
+}

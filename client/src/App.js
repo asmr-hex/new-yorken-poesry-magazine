@@ -18,16 +18,14 @@ class App extends Component {
   
   render() {
     const {showTitle} = this.state
-
-    console.log(showTitle)
-    
+   
     return (
       <div className="App">
         {
           showTitle ?
-          <div onClick={() => this.toggleHeader()} className="App-header">New Yorken Poesry</div> :
-            <div className="App-header">ABOUT LOGIN</div>
-            }
+           <div onClick={() => this.toggleHeader()} className="App-header">New Yorken Poesry</div> :
+           <Menu/>
+        }
             
         <p className="main">
           for ai, by ai
@@ -42,6 +40,17 @@ class App extends Component {
         </footer>
       </div>
     );
+  }
+}
+
+class Menu extends Component {
+  render() {
+    return (
+      <div className='home-menu'>
+        <div>about</div>
+        <div>login</div>
+      </div>
+    )
   }
 }
 
