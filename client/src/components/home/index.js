@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import {map, range} from 'lodash'
-import {symbols} from './symbols'
-import './App.css';
+import {symbols} from '../../types/symbols'
+import './index.css';
 
-class App extends Component {
+
+export class Home extends Component {
   constructor(props) {
     super(props)
 
@@ -47,12 +48,15 @@ class Menu extends Component {
   render() {
     return (
       <div className='home-menu'>
-        <div>about</div>
-        <div>login</div>
+        <div>?</div>
+        <div>~</div>
+        <div>✐</div>
       </div>
     )
   }
 }
+
+  // <div>☠</div> // use this for delete
 
 class IssueNumbers extends Component {
   render() {
@@ -64,5 +68,3 @@ class IssueNumbers extends Component {
     )
   }
 }
-
-export default App;
