@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux'
 import {map, range} from 'lodash'
 import {symbols} from '../../types/symbols'
+import {showMenu} from '../../redux/actions/ui'
 import './index.css';
 
+const actions = {
+  showMenu
+}
 
-export class Home extends Component {
+const mapStateToProps = state => ({
+  ui: state.ui
+})
+
+export class home extends Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      showTitle: true,
-    }
   }
 
-  toggleHeader() {
-    this.setState({showTitle: !this.state.showTitle})
-  }
-  
   render() {
-    const {showTitle} = this.state
+    const {showTitle} = this.props.ui
    
     return (
       <div className="App">
@@ -35,7 +36,7 @@ export class Home extends Component {
           {
             map(
               range(8),
-              i => <IssueNumbers issueId={i} key={i}/>
+              i => <IssueNumbers issueId={i} key={i}/>,
             )
           }
         </footer>
@@ -68,3 +69,5 @@ class IssueNumbers extends Component {
     )
   }
 }
+
+export const Home = connect(mapStateToProps, actions)(home)
