@@ -35,7 +35,7 @@ export class Home extends Component {
           {
             map(
               range(8),
-              i => <IssueNumbers issueId={i}/>
+              i => <IssueNumbers issueId={i} key={i}/>
             )
           }
         </footer>
