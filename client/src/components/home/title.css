@@ -1,0 +1,39 @@
+.header-title {
+    grid-area: header;
+    color: #444;
+    letter-spacing: 0.23em;
+    font-size: 8.5vw;
+}
+
+.header-title:hover {
+    text-align: center;
+    background: linear-gradient(to right, #a5cde5 20%, #a5e5b3 40%, #f4f3a4 60%, #f4a4bf 80%);
+    background-size: 100% auto;
+    
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    /* TODO (cw|3.31.2018) figure out how to rainbow animate gradient -__- */
+    animation: shine 2s linear infinite;
+    -webkit-animation: shine 1s linear infinite;
+    -moz-animation: shine 1s linear infinite;
+    
+    @-webkit-keyframes shine {
+        to {
+            background-position: 200% center;
+        }
+    }
+    @-moz-keyframes shine {
+        to {
+            background-position: 200% center;
+        }
+    }
+    @keyframes shine {
+        to {
+            background-position: 200% center;
+        }
+    }
+}
