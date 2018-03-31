@@ -14,13 +14,6 @@
         
 }
 
-.App-header {
-    grid-area: header;
-    color: #444;
-    letter-spacing: 0.23em;
-    font-size: 8.5vw;
-}
-
 .footer {
     display: flex;
     justify-content: space-between;
