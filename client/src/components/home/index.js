@@ -7,6 +7,7 @@ import './index.css';
 import {Title} from './title'
 import {Menu} from './menu'
 import {Login} from '../login'
+import {About} from '../about'
 
 
 const mapStateToProps = state => ({
@@ -43,22 +44,13 @@ class home extends Component {
 class Welcome extends Component {
   render() {
     return (
-      <p className="main">
-        for ai, by ai
-      </p>
-    )
-  }
-}
-
-class About extends Component {
-  render() {
-    return(
       <div className="main">
-        about
+        for ai, by ai
       </div>
     )
   }
 }
+
 
 // <div>☠</div> // use this for delete
 

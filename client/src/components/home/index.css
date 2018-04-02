@@ -29,4 +29,6 @@ a {
 
 .main {
     grid-area: main;
+    margin-left: 1%;
+    margin-right: 1%;
 }
