@@ -1,12 +1,19 @@
-.header-title {
-    grid-area: header;
-    color: #444;
-    letter-spacing: 0.23em;
+.home-menu {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5vw;
+}
+
+.header-menu-item {
+    display: flex;
+    justify-content: center;
+    width: 10%;
     font-size: 8.5vw;
     cursor: pointer;
 }
 
-.header-title:hover {
+
+.header-menu-item:hover {
     text-align: center;
     background: linear-gradient(to right, #a5cde5 20%, #a5e5b3 40%, #f4f3a4 60%, #f4a4bf 80%);
     background-size: 100% auto;

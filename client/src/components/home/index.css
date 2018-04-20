@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans&subset=cyrillic,cyrillic-ext,devanagari,greek,greek-ext,latin-ext,vietnamese');
 
+a {
+    text-decoration: none !important;
+    color: #444;
+}
+
 .App {
     height: inherit;
     width: inherit;
@@ -24,10 +29,6 @@
 
 .main {
     grid-area: main;
-}
-
-.home-menu {
-    display: flex;
-    justify-content: space-between;
-    font-size: 8.5vw;
+    margin-left: 1%;
+    margin-right: 1%;
 }
