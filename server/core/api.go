@@ -89,6 +89,7 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/committee/:"+API_ID_PATH_PARAM, a.GetCommittee).
 
 		// === Dashboard API ===
+		Post(dashPrefix+"/login", a.Login).
 
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)

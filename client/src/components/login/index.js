@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux'
 import {LoginForm, SignupForm} from './forms'
+import {requestLogin} from '../../redux/actions/login'
 
 
 class login extends Component {
@@ -12,20 +13,29 @@ class login extends Component {
     }
   }
 
-  submit = values => {
-    console.log(values)
+  login = values => {
+    const {password, username} = values
+
+    this.props.requestLogin({
+      username: username || '',
+      password: password || '',
+    })
   }
 
-  showLoginForm() {
+  signup = values => {
+    console.log("signing up")
+  }
+
+  showLoginForm = () => {
     this.setState({
       loginFormShown: true,
     })
   }
 
-  showSignupForm() {
+  showSignupForm = () => {
     this.setState({
       loginFormShown: false,
-    })    
+    })
   }
   
   render() {
@@ -35,13 +45,13 @@ class login extends Component {
       <div>
         {
           loginFormShown ?
-              <LoginForm onSubmit={this.submit}/>
-            : <SignupForm onSubmit={this.submit}/>
+              <LoginForm onSubmit={this.login}/>
+            : <SignupForm onSubmit={this.signup}/>
             
         }
         <div>
-          <span onClick={() => this.showLoginForm()}>login</span>/
-          <span onClick={() => this.showSignupForm()}>signup</span>
+          <span onClick={this.showLoginForm}>login</span>/
+          <span onClick={this.showSignupForm}>signup</span>
         </div>
       </div>
       
@@ -49,4 +59,8 @@ class login extends Component {
   }
 }
 
-export const Login = connect(() =>({}), {})(login)
+const actions = {
+  requestLogin,
+}
+
+export const Login = connect(() =>({}), actions)(login)
