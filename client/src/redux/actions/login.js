@@ -30,7 +30,7 @@ const handleErrors = response => {
   if (response.ok) {
     return response
   }
-
+  
   // TODO (cw|4.24.2018) create custom error classes
   throw new Error(response.statusText)
 }

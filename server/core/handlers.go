@@ -164,35 +164,34 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	a.Info("user %s successfully created!", user.Username)
 }
 
+// handles login requests.
+//
+// this handler services requests from both the public api and the
+// webapp dashboard. the inbound request should be have `Method: POST`
+// with the credentials data json encoded. Here is an example curl,
+//
+// curl \
+//  -X POST \
+//  -H "Content-Type: application/json" \
+//  -d '{"username": "percival", "password": "phantoms moving mistily"}'
+//
 func (a *API) Login(rw web.ResponseWriter, req *web.Request) {
 	var (
-		err error
+		user types.User
+		err  error
 	)
 
-	err = req.ParseMultipartForm(30 << 20)
+	defer req.Body.Close()
+
+	// decode body data into a User struct
+	decoder := json.NewDecoder(req.Body)
+	err = decoder.Decode(&user)
 	if err != nil {
-		switch {
-		case err == http.ErrNotMultipart:
-			fallthrough
-		case err == multipart.ErrMessageTooLarge:
-			// handle this error
-			a.Error("User Error: %s", err.Error())
+		a.Error("Unable to decode POST raw-data: %s", err.Error())
 
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-		default:
-			// log internal error
-			a.Error("Internal Error: %s", err.Error())
-
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-		}
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
 		return
-	}
-
-	// get the username, password from request
-	user := &types.User{
-		Username: req.PostFormValue(LOGIN_USERNAME_PARAM),
-		Password: req.PostFormValue(LOGIN_PASSWORD_PARAM),
 	}
 
 	err = user.Validate(consts.LOGIN)
