@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	API_VERSION       = "v1"
-	API_DASHBOARD     = "dashboard"
-	API_ID_PATH_PARAM = "id"
+	API_VERSION           = "v1"
+	API_DASHBOARD         = "dashboard"
+	API_ID_PATH_PARAM     = "id"
+	API_VERIFY_PATH_PARAM = "verify"
 )
 
 type API struct {
@@ -44,9 +45,8 @@ func NewAPI(config *env.Config, db *sql.DB) *API {
 func (a *API) BuildRouter() {
 	// split on two api routes, Pulic (versioned) and Dashboard
 	var (
-		prefix     = "/api"
-		pubPrefix  = fmt.Sprintf("%s/%s", prefix, a.Version)
-		dashPrefix = fmt.Sprintf("%s/%s", prefix, API_DASHBOARD)
+		pubPrefix  = fmt.Sprintf("api/%s", a.Version)
+		dashPrefix = fmt.Sprintf("dashboard")
 	)
 
 	a.Router = web.New(*a).
@@ -89,6 +89,9 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/committee/:"+API_ID_PATH_PARAM, a.GetCommittee).
 
 		// === Dashboard API ===
+		Post(dashPrefix+"/login", a.Login).
+		Post(dashPrefix+"/signup", a.SignUp).
+		Post(dashPrefix+"/verify/:"+API_VERIFY_PATH_PARAM, a.VerifyAccount).
 
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)

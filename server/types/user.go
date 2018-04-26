@@ -10,6 +10,10 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// User is a user of the New Yorken Poesry Magazine. This entity
+// has an account associated with it and is able to create and
+// update poets. A user must have a valid email address in order
+// to register for the site.
 type User struct {
 	Id       string  `json:"id"`
 	Username string  `json:"username"`
@@ -18,6 +22,8 @@ type User struct {
 	Poets    []*Poet `json:"poets"`
 }
 
+// The parameters which should be supplied from the session context
+// in order to properly validate the user.
 type UserValidationParams struct {
 	CurrentUserID string
 }
@@ -95,6 +101,15 @@ func (u *User) Validate(action string, params ...UserValidationParams) error {
 	}
 
 	return nil
+}
+
+// sanitizes User data before it is transmitted over the wire.
+//
+// this is important to remove sensitive data like passwords.
+//
+func (u *User) Sanitize() {
+	// replace password with asterisks
+	u.Password = `*************`
 }
 
 /*
