@@ -8,11 +8,16 @@ import {Title} from './title'
 import {Menu} from './menu'
 import {Login} from '../login'
 import {About} from '../about'
+import {Dashboard} from '../dashboard'
 
 
 const mapStateToProps = state => ({
-  ui: state.ui
+  loggedIn: state.session.loggedIn,
+  ui: state.ui,
 })
+
+// TODO (cw|4.26.2018) we should create a higher level component for the app so we can
+// switch between the different pages (e.g. home, dashboard, issues, etc.).
 
 class home extends Component {
   render() {
@@ -27,6 +32,7 @@ class home extends Component {
           <Route exact path='/' component={Welcome}/>
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
+          <Route path='/dashboard' component={Dashboard}/>
         </Switch>
         <footer className="footer">
           {

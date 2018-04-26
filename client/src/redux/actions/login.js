@@ -3,7 +3,7 @@ import {checkResponse} from './error'
 
 
 export const LOGIN_REQUESTED = 'LOGIN_REQUESTED'
-export const requestLogin = ({username, password}) => dispatch => {
+export const requestLogin = ({username, password}, redirectUponLogin) => dispatch => {
   const payload = {username, password}
   
   dispatch({
@@ -20,7 +20,10 @@ export const requestLogin = ({username, password}) => dispatch => {
     })
     .then(checkResponse)
     .then(
-      user => dispatch(loginSuccessful(user)),
+      user => {
+        dispatch(loginSuccessful(user))
+        redirectUponLogin()
+      },
       error => dispatch(loginFailed(error)),
     )
 }

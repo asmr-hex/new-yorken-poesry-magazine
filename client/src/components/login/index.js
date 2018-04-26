@@ -14,16 +14,26 @@ class login extends Component {
     }
   }
 
+  // upon login, we want to redirect the route to the dashboard
+  redirectUponLogin = () => {
+    const {history} = this.props
+
+    history.push('/dashboard')
+  }
+  
   login = values => {
     const {password, username} = values
-
+    
     // TODO (cw|4.25.2018) similar validation should happen here
     // to what i am referring to in the comment below.
     
-    this.props.requestLogin({
-      username: username || '',
-      password: password || '',
-    })
+    this.props.requestLogin(
+      {
+        username: username || '',
+        password: password || '',
+      },
+      this.redirectUponLogin,
+    )
   }
 
   signup = values => {
@@ -36,11 +46,14 @@ class login extends Component {
     // ps. there *is* server-side validation, but we want to
     // include some before it gets put on the wire for ease-of-use.
 
-    this.props.requestSignup({
-      email: email || '',
-      username: username || '',
-      password: password || '',      
-    })
+    this.props.requestSignup(
+      {
+        email: email || '',
+        username: username || '',
+        password: password || '',      
+      },
+      this.redirectUponLogin,
+    )
   }
 
   showLoginForm = () => {
