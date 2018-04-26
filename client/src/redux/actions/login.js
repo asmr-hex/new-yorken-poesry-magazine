@@ -1,4 +1,5 @@
 import fetch from 'cross-fetch'
+import {checkResponse} from './error'
 
 
 export const LOGIN_REQUESTED = 'LOGIN_REQUESTED'
@@ -17,24 +18,13 @@ export const requestLogin = ({username, password}) => dispatch => {
       body: JSON.stringify(payload),
       headers: new Headers({'Content-Type': 'application/json'}),
     })
-    .then(handleErrors)
+    .then(checkResponse)
     .then(
       user => dispatch(loginSuccessful(user)),
-      err => console.log('login error: ', err),
+      error => dispatch(loginFailed(error)),
     )
 }
 
-// TODO (cw|4.24.2018) wrap fetch in a status checker?
-export const handleErrors = response => {
-  if (response.ok) {
-    return response.json()
-  }
-  
-  // TODO (cw|4.24.2018) create custom error classes
-  throw new Error(response.statusText)
-}
-
-      
 
 export const LOGIN_SUCCESSFUL = 'LOGIN_SUCCESSFUL'
 export const loginSuccessful = user => dispatch =>
@@ -45,7 +35,12 @@ export const loginSuccessful = user => dispatch =>
 
 
 export const LOGIN_FAILED = 'LOGIN_FAILED'
-export const loginFailed = () => dispatch =>
+export const loginFailed = error => dispatch => {
+  error.message = 'login failed: ' + error.message
+  
   dispatch({
+    error,
     type: LOGIN_FAILED,
-  })
+  })  
+}
+

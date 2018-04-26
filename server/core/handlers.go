@@ -288,6 +288,8 @@ func (a *API) login(user *types.User, rw web.ResponseWriter) {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 	}
 
+	user.Sanitize()
+
 	// write json encoded data into response
 	err = json.NewEncoder(rw).Encode(user)
 	if err != nil {

@@ -103,6 +103,15 @@ func (u *User) Validate(action string, params ...UserValidationParams) error {
 	return nil
 }
 
+// sanitizes User data before it is transmitted over the wire.
+//
+// this is important to remove sensitive data like passwords.
+//
+func (u *User) Sanitize() {
+	// replace password with asterisks
+	u.Password = `*************`
+}
+
 /*
    db methods
 */
