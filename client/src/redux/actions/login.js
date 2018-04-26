@@ -11,7 +11,7 @@ export const requestLogin = ({username, password}) => dispatch => {
   })
 
   fetch(
-    `/api/dashboard/login`,
+    `/dashboard/login`,
     {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -19,16 +19,15 @@ export const requestLogin = ({username, password}) => dispatch => {
     })
     .then(handleErrors)
     .then(
-      response => console.log(response.json()),
+      user => dispatch(loginSuccessful(user)),
       err => console.log('login error: ', err),
     )
-    .then(json => dispatch(loginSuccessful()))  
 }
 
 // TODO (cw|4.24.2018) wrap fetch in a status checker?
-const handleErrors = response => {
+export const handleErrors = response => {
   if (response.ok) {
-    return response
+    return response.json()
   }
   
   // TODO (cw|4.24.2018) create custom error classes
@@ -38,8 +37,9 @@ const handleErrors = response => {
       
 
 export const LOGIN_SUCCESSFUL = 'LOGIN_SUCCESSFUL'
-export const loginSuccessful = () => dispatch =>
+export const loginSuccessful = user => dispatch =>
   dispatch({
+    payload: user,
     type: LOGIN_SUCCESSFUL,
   })
 

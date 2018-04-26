@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux'
 import {LoginForm, SignupForm} from './forms'
 import {requestLogin} from '../../redux/actions/login'
+import {requestSignup} from '../../redux/actions/signup'
 
 
 class login extends Component {
@@ -16,6 +17,9 @@ class login extends Component {
   login = values => {
     const {password, username} = values
 
+    // TODO (cw|4.25.2018) similar validation should happen here
+    // to what i am referring to in the comment below.
+    
     this.props.requestLogin({
       username: username || '',
       password: password || '',
@@ -23,7 +27,20 @@ class login extends Component {
   }
 
   signup = values => {
-    console.log("signing up")
+    const {email, username, password} = values
+
+    // TODO (cw|4.25.2018) invoke some validation.
+    // Question: where should validation for outbound request
+    // data reside? Certainly not at the component level, but
+    // perhaps in the action creators.
+    // ps. there *is* server-side validation, but we want to
+    // include some before it gets put on the wire for ease-of-use.
+
+    this.props.requestSignup({
+      email: email || '',
+      username: username || '',
+      password: password || '',      
+    })
   }
 
   showLoginForm = () => {
@@ -61,6 +78,7 @@ class login extends Component {
 
 const actions = {
   requestLogin,
+  requestSignup,
 }
 
 export const Login = connect(() =>({}), actions)(login)
