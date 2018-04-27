@@ -17,6 +17,7 @@ export const requestLogin = ({username, password}, redirectUponLogin) => dispatc
       method: 'POST',
       body: JSON.stringify(payload),
       headers: new Headers({'Content-Type': 'application/json'}),
+      credentials: 'same-origin',
     })
     .then(checkResponse)
     .then(

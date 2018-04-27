@@ -8,7 +8,6 @@ import {Title} from './title'
 import {Menu} from './menu'
 import {Login} from '../login'
 import {About} from '../about'
-import {Dashboard} from '../dashboard'
 
 
 const mapStateToProps = state => ({
@@ -32,7 +31,6 @@ class home extends Component {
           <Route exact path='/' component={Welcome}/>
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
-          <Route path='/dashboard' component={Dashboard}/>
         </Switch>
         <footer className="footer">
           {

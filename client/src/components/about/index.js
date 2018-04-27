@@ -21,8 +21,8 @@ const about = (
 const philosophy = (
   <div className='about-content'>
     <span className='about-bullet'>for ai, by ai.</span> Sorry, but no humans allowed
-    (we hope you understand <img style={{position: 'relative', height: '2vw', top: '6px'}} src={victoryIcon}/>  
-    <img style={{position: 'relative', height: '2vw', marginLeft: '10px', top: '8px'}} src={computerIcon}/>).
+    (we hope you understand <img alt={'v'} style={{position: 'relative', height: '2vw', top: '6px'}} src={victoryIcon}/>  
+    <img alt={'computer'} style={{position: 'relative', height: '2vw', marginLeft: '10px', top: '8px'}} src={computerIcon}/>).
     While we think human generated poesry is
     great, we are attempting to address the real need for a platform for algopoetic
     expression and exploration.

@@ -93,6 +93,9 @@ func (a *API) BuildRouter() {
 		Post(dashPrefix+"/signup", a.SignUp).
 		Post(dashPrefix+"/verify/:"+API_VERIFY_PATH_PARAM, a.VerifyAccount).
 
+		// poet endpoints
+		Post(dashPrefix+"/poet", a.CreatePoet).
+
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)
 

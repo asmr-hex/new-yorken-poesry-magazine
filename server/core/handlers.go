@@ -341,6 +341,39 @@ func (*API) DeleteUser(rw web.ResponseWriter, req *web.Request) {
   Poet CRD
 
 */
+
+// creates a poet for a valid, authenticated user.
+//
+// this API handler is used by both the webpage dashboard and public
+// APIs. a notable difference between this POST handler and others in
+// this API is that it only accepts Content-Type: multipart/form-data
+// (i.e. we can't give it json and expect it to work). the reason for
+// this is that we need to be uploading files here and form-data is the
+// easier and most efficient way of doing that(?).
+//
+// an example curl to this endpoint would look something like this,
+//
+// curl -X POST \
+//      -b "session_token=<your-session-token>" \
+//      -F "name=<your-poet-name>" \
+//      -F "description=<poet-description>" \
+//      -F "language=<poet-language>" \
+//      -F "src[]=@path/to/program-file;filename=program" \
+//      -F "src[]=@path/to/optional/param-file;filename=parameters" \
+//      https://poem.cool/dashboard/poet
+//      ( or https://poem.cool/api/v1/poet)
+//
+// note that in the example above there are a couple conventions that
+// the user must follow in order for their file to be properly uploaded.
+// first, all files must belong to the src[] form key. this way all files
+// are bundled in one nice array. finally, in order for the server to know
+// which file is which, the filename of each file must be set to either
+// 'program' or 'parameters'. this way, the users can name their files whatever
+// they want locally.
+//
+// TODO (cw|4.27.2018) this function is way too large. consider
+// refactoring into smaller pieces.
+//
 func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	var (
 		err error
@@ -405,7 +438,11 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	for filesKey, files := range formFiles {
 		// we onlye care about the POET_FILES_FORM_KEY
 		if filesKey != POET_FILES_FORM_KEY {
-			a.Error("Encountered abnormal key, %s", filesKey)
+			err = fmt.Errorf(
+				"Encountered abnormal key, %s",
+				filesKey,
+			)
+			a.Error(err.Error())
 
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 
@@ -473,7 +510,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	// ensure that we have a program file
 	if fds.program == nil {
 		err = fmt.Errorf("No program file was uploaded! At least 1 required.")
-		a.Error("User Error: %s", err.Error)
+		a.Error("User Error: %s", err.Error())
 
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 
@@ -500,10 +537,23 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		Name:        req.PostFormValue(POET_NAME_PARAM),
 		Description: req.PostFormValue(POET_DESCRIPTION_PARAM),
 		Language:    req.PostFormValue(POET_LANGUAGE_PARAM),
+		ExecPath:    path.Join(POET_DIR, poetID),
 	}
 
 	// validate the poet structure
-	err = poet.Validate(consts.CREATE)
+	err = poet.Validate(
+		consts.CREATE,
+		types.PoetValidationParams{
+			// ensure that the current logged in/authed user
+			// can only create a poet for themselves.
+			Designer: userId,
+			SupportedLangs: map[string]bool{
+				// TODO (cw|4.27.2018) get this list of
+				// supported langauges from somewhere.
+				"python": true,
+			},
+		},
+	)
 	if err != nil {
 		a.Error(err.Error())
 
@@ -513,7 +563,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create new poet directory
-	err = os.Mkdir(path.Join(POET_DIR, poetID), os.ModePerm)
+	err = os.Mkdir(poet.ExecPath, os.ModePerm)
 	if err != nil {
 		a.Error(err.Error())
 
@@ -524,7 +574,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create program file on fs
-	dstProg, err := os.Create(path.Join(POET_DIR, poetID, fds.program.Filename))
+	dstProg, err := os.Create(path.Join(poet.ExecPath, fds.program.Filename))
 	defer dstProg.Close()
 	if err != nil {
 		a.Error(err.Error())
@@ -557,7 +607,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		}
 
 		// create parameters file on the fs
-		dstParam, err := os.Create(path.Join(POET_DIR, poetID, fds.parameters.Filename))
+		dstParam, err := os.Create(path.Join(poet.ExecPath, fds.parameters.Filename))
 		defer dstParam.Close()
 		if err != nil {
 			a.Error(err.Error())
@@ -585,6 +635,18 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
+	}
+
+	// write to the response!
+	poet.Sanitize()
+
+	// write json encoded data into response
+	err = json.NewEncoder(rw).Encode(poet)
+	if err != nil {
+		a.Error(err.Error())
+
+		// return response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 	}
 
 	a.Info("Poet successfully created ^-^")

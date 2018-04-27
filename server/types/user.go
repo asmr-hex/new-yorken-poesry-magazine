@@ -123,6 +123,8 @@ var (
 	userReadStmt    *sql.Stmt
 	userReadAllStmt *sql.Stmt
 	userDeleteStmt  *sql.Stmt
+
+	poetOfUserReadStmt *sql.Stmt
 )
 
 // TODO refactor this so that is doesn't need a reciever
@@ -257,6 +259,12 @@ func (u *User) Read(db *sql.DB) error {
 	// TODO ensure that we only allow reading of passwords if the user making the
 	// request is the user being read.
 
+	// read all the poets associated with this user
+	_, err = u.GetPoets(db)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -327,4 +335,59 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	}
 
 	return users, nil
+}
+
+func (u *User) GetPoets(db *sql.DB) ([]*Poet, error) {
+	var (
+		poets []*Poet = []*Poet{}
+		err   error
+	)
+
+	// prepare statement if not already done so.
+	if poetOfUserReadStmt == nil {
+		// read statement
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
+                         FROM poets WHERE designer = $1`
+		poetOfUserReadStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return poets, err
+		}
+	}
+
+	// make sure user Id is actually populated
+
+	// run prepared query over arguments
+	rows, err := poetOfUserReadStmt.Query(u.Id)
+	if err != nil {
+		return poets, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		poet := &Poet{}
+		err = rows.Scan(
+			&poet.Id,
+			&poet.Designer,
+			&poet.Name,
+			&poet.BirthDate,
+			&poet.DeathDate,
+			&poet.Description,
+			&poet.Language,
+			&poet.ExecPath,
+		)
+		if err != nil {
+			return poets, err
+		}
+
+		// append scanned user into list of all poets
+		poets = append(poets, poet)
+	}
+	if err := rows.Err(); err != nil {
+		return poets, err
+	}
+
+	// assign internally to this user
+	u.Poets = poets
+
+	return poets, nil
 }

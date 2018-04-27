@@ -109,6 +109,12 @@ func (p *Poet) Validate(action string, params ...PoetValidationParams) error {
 	return nil
 }
 
+// sanitize out sensitive data from poet
+//
+func (p *Poet) Sanitize() {
+	// for now do nothing...
+}
+
 // check required fields for creation
 func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 	var (
@@ -123,6 +129,10 @@ func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 	}
 
 	// ensure name is non-empty and obeys naming rules
+	// Note (cw|4.27.2018) we are using the #ValidateUsername function for
+	// validating a poet's Name (not a username)
+	// TODO (cw|4.27.2018) proposal to rename (or make another) validation
+	// utility function for just Names in general to avoid confusion.
 	err = utils.ValidateUsername(p.Name)
 	if err != nil {
 		return err
