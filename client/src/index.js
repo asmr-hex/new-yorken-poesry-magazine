@@ -7,7 +7,7 @@ import {composeWithDevTools} from 'redux-devtools-extension'
 import {BrowserRouter} from 'react-router-dom'
 import {reducers} from './redux/reducers'
 import './index.css'
-import {Home} from './components/home'
+import {App} from './components/app'
 
 
 let store = createStore(
@@ -20,7 +20,7 @@ let store = createStore(
 render(
   <Provider store={store}>
     <BrowserRouter>
-      <Home/>
+      <App/>
     </BrowserRouter>
   </Provider>,
   document.getElementById('root')

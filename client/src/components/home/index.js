@@ -11,8 +11,12 @@ import {About} from '../about'
 
 
 const mapStateToProps = state => ({
-  ui: state.ui
+  loggedIn: state.session.loggedIn,
+  ui: state.ui,
 })
+
+// TODO (cw|4.26.2018) we should create a higher level component for the app so we can
+// switch between the different pages (e.g. home, dashboard, issues, etc.).
 
 class home extends Component {
   render() {
