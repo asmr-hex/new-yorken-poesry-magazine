@@ -16,7 +16,7 @@ import (
 type Platform struct {
 	*Logger
 	Api         *API
-	Submissions *Submissions
+	Submissions *SubmissionService
 	config      *env.Config
 	db          *sql.DB
 }

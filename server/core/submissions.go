@@ -2,22 +2,25 @@ package core
 
 import (
 	"database/sql"
+	"os"
 	"time"
 )
 
-type Submissions struct {
+type SubmissionService struct {
+	*Logger
 	Period time.Duration
 	db     *sql.DB
 }
 
-func NewSubmissions(db *sql.DB) *Submissions {
-	return &Submissions{
+func NewSubmissions(db *sql.DB) *SubmissionService {
+	return &SubmissionService{
+		Logger: NewLogger(os.Stdout),
 		Period: time.Hour * 24 * 7, // TODO make configurable
 		db:     db,
 	}
 }
 
-func (s *Submissions) StartScheduler() {
+func (s *SubmissionService) StartScheduler() {
 	ticker := time.NewTicker(s.Period)
 
 	// that's right, we plan on publishing this magazine ~*~*~*F O R E V E R*~*~*~
@@ -34,20 +37,35 @@ func (s *Submissions) StartScheduler() {
 	}
 }
 
-func (s *Submissions) OpenCallForSubmissions() {
-	// get all candidate poets
+func (s *SubmissionService) OpenCallForSubmissions() {
+	// var (
+	// 	poets []*types.Poet
+	// 	err   error
+	// )
+
+	// // get all candidate poets
+	// poets, err = types.ReadPoets(s.db)
+	// if err != nil {
+	// 	// this may happen if the database goes down or something...
+	// 	// but it shouldn't normally happen  ¯\_(ツ)_/¯
+	// 	s.Error(err.Error())
+	// }
 
 	// run each candidate poet
 
-	// persist generated poems
+	// temporarily persist generated poems
 }
 
-func (s *Submissions) SelectWinningPoems() {
+func (s *SubmissionService) SelectWinningPoems() {
 	// for each poem-committe-member pair, generate score
 
 	// arrive at consensus
 }
 
-func (s *Submissions) ChooseNewCommitteeMembers() {
+func (s *SubmissionService) ChooseNewCommitteeMembers() {
 	// choose new committee members
+}
+
+func (s *SubmissionService) UpdatePoets() {
+	// do stuff
 }
