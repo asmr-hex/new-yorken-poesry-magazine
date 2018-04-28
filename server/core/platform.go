@@ -15,9 +15,10 @@ import (
 // struct for storing in-memory statefulnessnessnesssnes for server
 type Platform struct {
 	*Logger
-	Api    *API
-	config *env.Config
-	db     *sql.DB
+	Api         *API
+	Submissions *Submissions
+	config      *env.Config
+	db          *sql.DB
 }
 
 func NewPlatform() *Platform {
@@ -34,6 +35,9 @@ func NewPlatform() *Platform {
 
 	// construct API and pass it the db connection handle set within Connect ---^
 	p.Api = NewAPI(p.config, p.db)
+
+	// construct a Submissions system and pass it the db connection handle established above
+	p.Submissions = NewSubmissions(p.db)
 
 	// print out server configuration
 	if p.config.DevEnv {
@@ -101,6 +105,9 @@ func (p *Platform) Setup() {
 }
 
 func (p *Platform) Start() {
+	// start call for submissions scheduler
+	go p.Submissions.StartScheduler()
+
 	// listen on quad-zero route with specified port yo (wait is this garbage?)
 	addr := fmt.Sprintf("0.0.0.0:%s", p.config.Port)
 
