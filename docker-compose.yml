@@ -10,6 +10,8 @@ services:
       context: ./server/
     volumes:
       - ./server/:/go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
+      - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:

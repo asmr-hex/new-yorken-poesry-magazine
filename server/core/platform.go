@@ -49,9 +49,7 @@ func NewPlatform() *Platform {
 	return p
 }
 
-// this is where it all happens.
-// this is where we make the meaningful connections which will last for forever...
-// just kidding, we will make more meaningful connections, don't you worry ( ⌒o⌒)人(⌒-⌒ )v
+// let's connect! ( ⌒o⌒)人(⌒-⌒ )v
 func (p *Platform) Connect() {
 	var (
 		err    error

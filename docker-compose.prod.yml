@@ -5,6 +5,8 @@ services:
   nypm:
     env_file: .env
     build: .
+    volumes:
+      - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     restart: always
