@@ -660,8 +660,8 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	// set execution context for poet
 	poet.ExecContext = &a.Config.ExecContext
 
-	a.Info("Executing Test Poem")
-	_, err = poet.GeneratePoem()
+	a.Info("Testing Poet, %s", poet.Name)
+	err = poet.TestPoet()
 	if err != nil {
 		a.Error(err.Error())
 	}

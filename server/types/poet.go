@@ -3,6 +3,8 @@ package types
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -339,21 +341,85 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 		err  error
 	)
 
-	if p.ExecContext == nil {
-		return nil, fmt.Errorf("developer error! exec context not set for poet %s", p.Id)
-	}
-
-	// setup execution context
-	compilers := xaqt.GetCompilers()
-	ctx, err := xaqt.NewContext(
-		compilers, xaqt.ExecDir(p.ExecContext.Dir),
-		xaqt.ExecMountDir(p.ExecContext.MountDir),
-	)
+	ctx, code, err := p.setupExecutionSandbox()
 	if err != nil {
 		return nil, err
 	}
 
-	code := xaqt.Code{
+	// execute poem generation task
+	results, _ := ctx.Evaluate(p.Language, code, []string{"write"})
+	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
+	// to extract the appropriate error.
+
+	poem = &Poem{
+		Date:    time.Now(),
+		Author:  p,
+		Content: results[0],
+	}
+
+	return poem, nil
+}
+
+func (p *Poet) CritiquePoem(poem string) (float64, error) {
+	var (
+		score float64
+		err   error
+	)
+
+	ctx, code, err := p.setupExecutionSandbox()
+	if err != nil {
+		return score, err
+	}
+
+	results, _ := ctx.Evaluate(p.Language, code, []string{"critique"})
+
+	score, err = strconv.ParseFloat(results[0], 64)
+	if err != nil {
+		return score, err
+	}
+
+	return score, nil
+}
+
+func (p *Poet) StudyPoem(poem string) (bool, error) {
+	ctx, code, err := p.setupExecutionSandbox()
+	if err != nil {
+		return false, err
+	}
+
+	results, _ := ctx.Evaluate(p.Language, code, []string{"study"})
+
+	success, err := strconv.ParseBool(results[0])
+	if err != nil {
+		return false, err
+	}
+
+	return success, nil
+}
+
+// creates and configures the execution sandbox.
+func (p *Poet) setupExecutionSandbox() (*xaqt.Context, xaqt.Code, error) {
+	var (
+		ctx  *xaqt.Context
+		code xaqt.Code
+		err  error
+	)
+
+	if p.ExecContext == nil {
+		return nil, code, fmt.Errorf("developer error! exec context not set for poet %s", p.Id)
+	}
+
+	// setup execution context
+	ctx, err = xaqt.NewContext(
+		xaqt.GetCompilers(),
+		xaqt.ExecDir(p.ExecContext.Dir),
+		xaqt.ExecMountDir(p.ExecContext.MountDir),
+	)
+	if err != nil {
+		return nil, code, err
+	}
+
+	code = xaqt.Code{
 		IsFile:            true,
 		SourceFileName:    p.ProgramFileName,
 		ResourceFileNames: []string{},
@@ -364,11 +430,39 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 		code.ResourceFileNames = []string{p.ParameterFileName}
 	}
 
-	// execute poem generation task
-	results, _ := ctx.Evaluate("python", code, []string{"generate"})
-	fmt.Println(results)
+	return ctx, code, nil
+}
 
-	// format output into Poem struct
+func (p *Poet) TestPoet() error {
+	// test poem generation
+	poem, err := p.GeneratePoem()
+	if err != nil {
+		return err
+	}
 
-	return poem, nil
+	if strings.TrimSpace(poem.Content) == "" {
+		return fmt.Errorf("%s's work is simply vapid.", p.Name)
+	}
+
+	// test poem evaluation
+	score, err := p.CritiquePoem(consts.THE_BEST_POEM)
+	if err != nil {
+		return err
+	}
+
+	if score < 0 || score > 1 {
+		return fmt.Errorf("%s is a bad critic.", p.Name)
+	}
+
+	// test self updating
+	success, err := p.StudyPoem(consts.THE_BEST_POEM)
+	if err != nil {
+		return err
+	}
+
+	if !success {
+		return fmt.Errorf("%s is unable to learn.", p.Name)
+	}
+
+	return nil
 }

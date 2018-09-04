@@ -41,3 +41,11 @@ func (*Poem) CreateTable(db *sql.DB) error {
 
 	return nil
 }
+
+/*
+   poem methods
+*/
+func (p *Poem) Create(id string, db *sql.DB) error {
+
+	return nil
+}
