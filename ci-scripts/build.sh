@@ -2,7 +2,7 @@
 set -x #display output of commands
 
 # add deploy server public key to known hosts
-echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC3Ga6LBdVDCTkRvH6zH826U4Iyce4I/qjvB5RNmclEY9/eCwEjF4nNmJCgQKyyvPj/aW6yepn/n+4wveHmI7UQ=" | tee -a "$HOME"/.ssh/known_hosts
+echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC3Ga6LBdVDCTkRvH6zH826U4Iyce4I/qjvB5RNmclEY9/eCwEjF4nNmJCgQKyyvPj/aW6yepn/n+4wveHmI7UQ=" >> "$HOME"/.ssh/known_hosts
 
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
