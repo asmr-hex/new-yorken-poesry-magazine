@@ -1,15 +1,5 @@
 # multi-stage build
 
-# build the client
-FROM node:9.4.0-alpine as client
-
-WORKDIR /usr/app/client/
-COPY client/package*.json ./
-RUN npm install -qy
-COPY client/ ./
-RUN npm run build
-
-
 # build the server
 FROM golang:1.9-alpine as server
 
@@ -19,12 +9,11 @@ COPY ./server .
 RUN go install -v
 
 
-# copy server binary and javascript bundle into final resting place
+# copy server binary into final resting place
 FROM alpine
 
 WORKDIR /usr/app/
 COPY --from=server /go/bin/server .
-COPY --from=client /usr/app/client/build/ ./client/build/
 
 # make a volume where we can store uploaded execs on fs
 VOLUME /poets
