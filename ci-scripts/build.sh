@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x #display output of commands
 
+# add deploy ip to known hosts
+ssh-keyscan -t "$TRAVIS_SSH_KEY_TYPES" -H "$DEPLOY_IP_ADDRESS" 2>&1 | tee -a "$HOME"/.ssh/known_hosts
+
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 cd client

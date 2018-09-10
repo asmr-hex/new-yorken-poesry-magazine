@@ -27,8 +27,6 @@ after_script:
   # spin down the dev docker containers
   - docker-compose down
 before_deploy:
-  # add deploy ip to known hosts
-  - ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES -H $DEPLOY_IP_ADDRESS 2>&1 | tee -a $HOME/.ssh/known_hosts
   # build the application for prod
   - bash ci-scripts/build.sh
 deploy:
