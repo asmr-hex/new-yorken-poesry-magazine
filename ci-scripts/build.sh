@@ -1,14 +1,14 @@
 #!/bin/bash
 set -x #display output of commands
 
-# add deploy ip to known hosts
-ssh-keyscan -t $TRAVIS_SSH_KEY_TYPES -H "$DEPLOY_IP_ADDRESS" 2>&1 | tee -a "$HOME"/.ssh/known_hosts
+# add deploy server public key to known hosts
+echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC3Ga6LBdVDCTkRvH6zH826U4Iyce4I/qjvB5RNmclEY9/eCwEjF4nNmJCgQKyyvPj/aW6yepn/n+4wveHmI7UQ=" | tee -a "$HOME"/.ssh/known_hosts
 
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 cd client
-npm install -qy
-npm run build  # this should put the bundle within ./build
+sudo npm install -qy
+sudo npm run build  # this should put the bundle within ./build
 cd ..
 
 # package up bundles frontend and docker-compose.prod.yml into directory
