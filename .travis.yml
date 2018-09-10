@@ -28,7 +28,7 @@ after_script:
   - docker-compose down
 before_deploy:
   # build the application for prod
-  - bash ci-scripts/build.sh
+  - sudo bash ci-scripts/build.sh
 deploy:
   # deploy to prod
   provider: script
