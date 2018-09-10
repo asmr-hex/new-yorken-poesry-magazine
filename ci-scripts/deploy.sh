@@ -9,7 +9,7 @@ set -x # display output of commands
 # turn the prod directory into a git repo and force push to deploy server
 cd prod-deploy
 git init
-git remote add deploy "$DEPLOY_HOST:DEPLOY_APP_DIR"
+git remote add deploy "$DEPLOY_HOST:$DEPLOY_APP_DIR"
 git config user.name "Travis CI"
 git config user.email "c@polygon.pizza"
 git add .
