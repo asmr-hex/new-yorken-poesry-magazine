@@ -1,5 +1,7 @@
 sudo: required
 language: node_js  # since we are building the prod bundle in travis
+node_js:
+  - "9.4.0"
 services:
   # we need docker to run the tests; NOTE: tests are run against dev env
   - docker

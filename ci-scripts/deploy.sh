@@ -3,14 +3,10 @@ set -x # display output of commands
 
 # deploy this thang
 #
-# at this point we should have the frontend bundle built within
-# ./build and the docker image for the app should have been pushed
-# to docker hub
+# at this point we should have the frontend bundle and prod docker-compose within
+# ./prod-deploy and the docker image for the app should have been pushed to dockerhub
 
-# create a new deploy repo
-mkdir prod-deploy
-mv ./build/* ./prod-deploy
-mv docker-compose.prod.yml ./prod-deploy/docker-compose.yml
+# turn the prod directory into a git repo and force push to deploy server
 cd prod-deploy
 git init
 git remote add deploy "$DEPLOY_HOST:DEPLOY_APP_DIR"
