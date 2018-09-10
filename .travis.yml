@@ -30,5 +30,6 @@ deploy:
   # deploy to prod
   provider: script
   script: bash ci-scripts/deploy.sh
-  # on:
+  on:
+    all_branches: true
   #   branch: master
