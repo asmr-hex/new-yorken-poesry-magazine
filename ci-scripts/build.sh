@@ -7,8 +7,8 @@ echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 cd client
-sudo npm install -qy
-sudo npm run build  # this should put the bundle within ./build
+npm install -qy
+npm run build  # this should put the bundle within ./build
 cd ..
 
 # package up bundles frontend and docker-compose.prod.yml into directory
