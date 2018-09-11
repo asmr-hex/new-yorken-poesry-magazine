@@ -8,17 +8,20 @@ echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 # for some reason, travis ci won't let us build within the original client
 # dir, so we need to,
-mkdir prod-client             # make a new prod-client build directory
-cd prod-client
-cp ../client/package*.json .  # only copy over the package*.json
-npm install                   # install all dependencies
-cp ../client/* .              # after installation, copy over src
+# mkdir prod-client             # make a new prod-client build directory
+# cd prod-client
+# cp ../client/package*.json .  # only copy over the package*.json
+# ls
+# npm install                   # install all dependencies
+# ls
+# cp ../client/* .              # after installation, copy over src
+cd client  # debugging
 npm run build                 # this should put the bundle within ./build
 cd ..
 
 # package up bundles frontend, docker-compose.prod.yml, .env into directory
 mkdir prod-deploy
-mv ./prod-client/build/* ./prod-deploy
+mv ./client/build/* ./prod-deploy
 mv docker-compose.prod.yml ./prod-deploy/docker-compose.yml
 mv .env ./prod-deploy/.env
 
