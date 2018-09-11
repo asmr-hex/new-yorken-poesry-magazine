@@ -7,7 +7,7 @@ echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 cd client
-npm install -qy
+npm install
 npm run build  # this should put the bundle within ./build
 cd ..
 
