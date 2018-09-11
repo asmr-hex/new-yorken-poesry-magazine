@@ -10,9 +10,15 @@ const (
 
 // server conf
 type Config struct {
-	DevEnv bool   `env:"DEV_ENV" envDefault:"false"`
-	Port   string `env:"SERVER_PORT" envDefault:"8080"`
-	DB     DB
+	DevEnv      bool   `env:"DEV_ENV" envDefault:"false"`
+	Port        string `env:"SERVER_PORT" envDefault:"8080"`
+	ExecContext ExecContext
+	DB          DB
+}
+
+type ExecContext struct {
+	Dir      string `env:"EXEC_DIR" envDefault:"/tmp"`
+	MountDir string `env:"EXEC_MOUNT_DIR" envDefault:"/tmp"`
 }
 
 // DB conf

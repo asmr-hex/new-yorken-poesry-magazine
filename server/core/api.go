@@ -99,7 +99,8 @@ func (a *API) BuildRouter() {
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)
 
-	// set serve static middleware only if in production
+	// set serve static middleware only if in production since in dev env mode
+	// we are using a hot-reloading node server for our frontend.
 	if a.Config.DevEnv == false {
 		currentRoot, err := os.Getwd()
 		if err != nil {

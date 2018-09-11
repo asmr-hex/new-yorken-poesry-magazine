@@ -3,11 +3,15 @@ package types
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
+	"github.com/frenata/xaqt"
 	_ "github.com/lib/pq"
 )
 
@@ -21,14 +25,18 @@ const (
 // executables will be stored on the filesystem in a safe dir with the path /some/path/bin/<poetId>/
 
 type Poet struct {
-	Id          string    `json:"id"`
-	Designer    string    `json:"designer"`            // the writer of the poet (user)
-	BirthDate   time.Time `json:"birthDate"`           // so we can show years active
-	DeathDate   time.Time `json:"deathDate,omitempty"` // this should be set to null for currently active poets
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Language    string    `json:"language"`
-	ExecPath    string    `json:"-"` // or possibly a Path, this is the path to the source code
+	Id                    string           `json:"id"`
+	Designer              string           `json:"designer"`            // the writer of the poet (user)
+	BirthDate             time.Time        `json:"birthDate"`           // so we can show years active
+	DeathDate             time.Time        `json:"deathDate,omitempty"` // this should be set to null for currently active poets
+	Name                  string           `json:"name"`
+	Description           string           `json:"description"`
+	Language              string           `json:"language"`
+	ProgramFileName       string           `json:"programFileName"`       // TODO (cw|8.24.2018) persist in db
+	ParameterFileName     string           `json:"parameterFileName"`     // TODO (cw|8.24.2018) persist in db
+	ParameterFileIncluded bool             `json:"parameterFileIncluded"` // TODO (cw|8.24.2018) persist in db
+	ExecPath              string           `json:"-"`                     // or possibly a Path, this is the path to the source code
+	ExecContext           *env.ExecContext // inherit from platform config
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
 
@@ -325,4 +333,136 @@ func ReadPoets(db *sql.DB) ([]*Poet, error) {
 	}
 
 	return poets, nil
+}
+
+func (p *Poet) GeneratePoem() (*Poem, error) {
+	var (
+		poem *Poem
+		err  error
+	)
+
+	ctx, code, err := p.setupExecutionSandbox()
+	if err != nil {
+		return nil, err
+	}
+
+	// execute poem generation task
+	results, _ := ctx.Evaluate(p.Language, code, []string{"write"})
+	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
+	// to extract the appropriate error.
+
+	poem = &Poem{
+		Date:    time.Now(),
+		Author:  p,
+		Content: results[0],
+	}
+
+	return poem, nil
+}
+
+func (p *Poet) CritiquePoem(poem string) (float64, error) {
+	var (
+		score float64
+		err   error
+	)
+
+	ctx, code, err := p.setupExecutionSandbox()
+	if err != nil {
+		return score, err
+	}
+
+	results, _ := ctx.Evaluate(p.Language, code, []string{"critique"})
+
+	score, err = strconv.ParseFloat(results[0], 64)
+	if err != nil {
+		return score, err
+	}
+
+	return score, nil
+}
+
+func (p *Poet) StudyPoem(poem string) (bool, error) {
+	ctx, code, err := p.setupExecutionSandbox()
+	if err != nil {
+		return false, err
+	}
+
+	results, _ := ctx.Evaluate(p.Language, code, []string{"study"})
+
+	success, err := strconv.ParseBool(results[0])
+	if err != nil {
+		return false, err
+	}
+
+	return success, nil
+}
+
+// creates and configures the execution sandbox.
+func (p *Poet) setupExecutionSandbox() (*xaqt.Context, xaqt.Code, error) {
+	var (
+		ctx  *xaqt.Context
+		code xaqt.Code
+		err  error
+	)
+
+	if p.ExecContext == nil {
+		return nil, code, fmt.Errorf("developer error! exec context not set for poet %s", p.Id)
+	}
+
+	// setup execution context
+	ctx, err = xaqt.NewContext(
+		xaqt.GetCompilers(),
+		xaqt.ExecDir(p.ExecContext.Dir),
+		xaqt.ExecMountDir(p.ExecContext.MountDir),
+	)
+	if err != nil {
+		return nil, code, err
+	}
+
+	code = xaqt.Code{
+		IsFile:            true,
+		SourceFileName:    p.ProgramFileName,
+		ResourceFileNames: []string{},
+		Path:              p.ExecPath,
+	}
+
+	if p.ParameterFileIncluded {
+		code.ResourceFileNames = []string{p.ParameterFileName}
+	}
+
+	return ctx, code, nil
+}
+
+func (p *Poet) TestPoet() error {
+	// test poem generation
+	poem, err := p.GeneratePoem()
+	if err != nil {
+		return err
+	}
+
+	if strings.TrimSpace(poem.Content) == "" {
+		return fmt.Errorf("%s's work is simply vapid.", p.Name)
+	}
+
+	// test poem evaluation
+	score, err := p.CritiquePoem(consts.THE_BEST_POEM)
+	if err != nil {
+		return err
+	}
+
+	if score < 0 || score > 1 {
+		return fmt.Errorf("%s is a bad critic.", p.Name)
+	}
+
+	// test self updating
+	success, err := p.StudyPoem(consts.THE_BEST_POEM)
+	if err != nil {
+		return err
+	}
+
+	if !success {
+		return fmt.Errorf("%s is unable to learn.", p.Name)
+	}
+
+	return nil
 }

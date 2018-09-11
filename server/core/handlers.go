@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
@@ -377,7 +378,7 @@ func (*API) DeleteUser(rw web.ResponseWriter, req *web.Request) {
 func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	var (
 		err error
-		fds = struct {
+		fds = struct { // file descriptors
 			program    *multipart.FileHeader
 			parameters *multipart.FileHeader
 		}{}
@@ -533,11 +534,12 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 	// initialize poet struct
 	poet := &types.Poet{
-		Designer:    userId,
-		Name:        req.PostFormValue(POET_NAME_PARAM),
-		Description: req.PostFormValue(POET_DESCRIPTION_PARAM),
-		Language:    req.PostFormValue(POET_LANGUAGE_PARAM),
-		ExecPath:    path.Join(POET_DIR, poetID),
+		Designer:        userId,
+		Name:            req.PostFormValue(POET_NAME_PARAM),
+		Description:     req.PostFormValue(POET_DESCRIPTION_PARAM),
+		Language:        req.PostFormValue(POET_LANGUAGE_PARAM),
+		ProgramFileName: POET_PROG_FILENAME,
+		ExecPath:        path.Join(POET_DIR, poetID),
 	}
 
 	// validate the poet structure
@@ -574,7 +576,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create program file on fs
-	dstProg, err := os.Create(path.Join(poet.ExecPath, fds.program.Filename))
+	dstProg, err := os.Create(filepath.Join(poet.ExecPath, fds.program.Filename))
 	defer dstProg.Close()
 	if err != nil {
 		a.Error(err.Error())
@@ -607,7 +609,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		}
 
 		// create parameters file on the fs
-		dstParam, err := os.Create(path.Join(poet.ExecPath, fds.parameters.Filename))
+		dstParam, err := os.Create(filepath.Join(poet.ExecPath, fds.parameters.Filename))
 		defer dstParam.Close()
 		if err != nil {
 			a.Error(err.Error())
@@ -625,6 +627,10 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 			return
 		}
+
+		// add this parameters file to the poet
+		poet.ParameterFileName = POET_PARAMS_FILENAME
+		poet.ParameterFileIncluded = true
 	}
 
 	// create poet in db
@@ -650,6 +656,15 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	a.Info("Poet successfully created ^-^")
+
+	// set execution context for poet
+	poet.ExecContext = &a.Config.ExecContext
+
+	a.Info("Testing Poet, %s", poet.Name)
+	err = poet.TestPoet()
+	if err != nil {
+		a.Error(err.Error())
+	}
 }
 
 func (*API) GetPoet(rw web.ResponseWriter, req *web.Request) {
