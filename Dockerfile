@@ -16,8 +16,10 @@ WORKDIR /usr/app/
 COPY --from=server /go/bin/server .
 
 # make a volume where we can store uploaded execs on fs
+# TODO (cw|9.11.2018) not sure if this works even with docker-compose
 VOLUME /poets
 
+# TODO (cw|9.11.2018) not sure if this works even with docker-compose
 ENV PORT 8080
 EXPOSE 8080
 
