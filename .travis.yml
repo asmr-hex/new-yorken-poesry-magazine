@@ -36,5 +36,4 @@ deploy:
   script: bash ci-scripts/deploy.sh
   skip_cleanup: true  # do not clean working dir so we can push build code
   on:
-    all_branches: true
-  #   branch: master
+    branch: master
