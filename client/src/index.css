@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,900');
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+#root{
+    height: inherit;
+    width: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* font-family: sans-serif; */
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 200;
+}
+
+.emoji {
+    width: i;
+}

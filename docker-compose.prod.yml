@@ -1,0 +1,28 @@
+# production docker-compose configuration
+
+version: '2'
+services:
+  nypm:
+    env_file: .env
+    image: "${DOCKER_IMAGE}"
+    volumes:
+      - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    restart: always
+    depends_on:
+      - db
+    links:
+      - "db:${DB_HOST}"
+    tty: true
+
+  db:
+    env_file: .env
+    image: postgres
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8000

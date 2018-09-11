@@ -1,0 +1,49 @@
+# dev docker-compose config
+
+version: '2'
+services:
+  dev_server:
+    env_file: .env
+    environment:
+      - DEV_ENV=true
+    build:
+      context: ./server/
+    volumes:
+      - ./server/:/go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
+      - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      - db
+    links:
+      - "db:${DB_HOST}"
+
+  dev_client:
+    env_file: .env
+    build:
+      context: ./client/
+    command: npm start
+    volumes:
+      - ./client/:/client/
+      - /client/node_modules
+    ports:
+      - "${CLIENT_PORT_DEV}:${CLIENT_PORT_DEV}"
+    depends_on:
+      - dev_server
+    links:
+      - "dev_server:${SERVER_HOST_DEV}"
+
+  db:
+    env_file: .env
+    build:
+      context: ./db/
+    environment:
+      - DEV_ENV=true
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8000
