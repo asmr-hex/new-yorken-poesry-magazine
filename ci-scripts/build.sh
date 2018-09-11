@@ -6,8 +6,11 @@ echo "poem.computer ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlz
 
 # build frontend bundle for prod
 echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
-cd client
+mkdir client-prod
+cp client/package*.json ./client-prod
+cd client-prod
 npm install
+cp ../client/* ./
 npm run build  # this should put the bundle within ./build
 cd ..
 
@@ -15,6 +18,7 @@ cd ..
 mkdir prod-deploy
 mv ./client/build/* ./prod-deploy
 mv docker-compose.prod.yml ./prod-deploy/docker-compose.yml
+mv .env ./prod-deploy/.env
 
 # build app docker image for prod
 echo "--- BUILDING APP DOCKER IMAGE FOR PROD ---"
