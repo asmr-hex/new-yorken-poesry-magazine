@@ -14,8 +14,10 @@ echo "--- BUILDING FRONTEND BUNDLE FOR PROD ---"
 # ls
 # npm install                   # install all dependencies
 # ls
-# cp ../client/* .              # after installation, copy over src
-cd client  # debugging
+# cp -a ../client/. .              # after installation, copy over src
+cd client
+rm -rf node_modules
+npm install -qy
 npm run build                 # this should put the bundle within ./build
 cd ..
 
