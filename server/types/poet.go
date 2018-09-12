@@ -180,6 +180,9 @@ func CreatePoetsTable(db *sql.DB) error {
                           name VARCHAR(255) NOT NULL UNIQUE,
                           description TEXT NOT NULL,
                           language VARCHAR(255) NOT NULL,
+                          programFileName VARCHAR(255) NOT NULL,
+                          parameterFileName VARCHAR(255) NOT NULL,
+                          parameterFileIncluded BOOL NOT NULL,
                           execPath VARCHAR(255) NOT NULL UNIQUE,
 		          PRIMARY KEY (id)
 	)`
@@ -212,8 +215,8 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 	if poetCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO poets (
-                           id, designer, name, birthDate, deathDate, description, language, execPath
-                         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+                           id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
+                         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 		poetCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
@@ -228,6 +231,9 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 		p.DeathDate,
 		p.Description,
 		p.Language,
+		p.ProgramFileName,
+		p.ParameterFileName,
+		p.ParameterFileIncluded,
 		p.ExecPath,
 	)
 	if err != nil {
@@ -245,7 +251,7 @@ func (p *Poet) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if poetReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
                          FROM poets WHERE id = $1`
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -266,6 +272,9 @@ func (p *Poet) Read(db *sql.DB) error {
 			&p.DeathDate,
 			&p.Description,
 			&p.Language,
+			&p.ProgramFileName,
+			&p.ParameterFileName,
+			&p.ParameterFileIncluded,
 			&p.ExecPath,
 		)
 	switch {
@@ -295,7 +304,7 @@ func ReadPoets(db *sql.DB) ([]*Poet, error) {
 	if poetReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
                          FROM poets`
 		poetReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -319,6 +328,9 @@ func ReadPoets(db *sql.DB) ([]*Poet, error) {
 			&poet.DeathDate,
 			&poet.Description,
 			&poet.Language,
+			&poet.ProgramFileName,
+			&poet.ParameterFileName,
+			&poet.ParameterFileIncluded,
 			&poet.ExecPath,
 		)
 		if err != nil {

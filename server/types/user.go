@@ -260,7 +260,7 @@ func (u *User) Read(db *sql.DB) error {
 	// request is the user being read.
 
 	// read all the poets associated with this user
-	_, err = u.GetPoets(db)
+	u.Poets, err = u.GetPoets(db)
 	if err != nil {
 		return err
 	}

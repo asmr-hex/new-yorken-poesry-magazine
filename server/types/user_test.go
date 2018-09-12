@@ -19,6 +19,12 @@ func (s *UserTestSuite) SetupSuite() {
 	if err != nil {
 		panic(err)
 	}
+
+	// create poets table
+	err = CreatePoetsTable(s.db)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // run after all tests in this suite have complete
@@ -80,6 +86,7 @@ func (s *UserTestSuite) TestReadUser() {
 		Username: "dagon",
 		Password: "bl4ckr33f",
 		Email:    "gasp@unknowable.horror",
+		Poets:    []*Poet{},
 	}
 
 	// create expected user in db
