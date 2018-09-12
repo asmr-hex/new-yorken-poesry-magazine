@@ -7,14 +7,19 @@ services:
     image: "${DOCKER_IMAGE}"
     volumes:
       - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
-    restart: always
     depends_on:
       - db
+      - xaqt
     links:
       - "db:${DB_HOST}"
-    tty: true
+    restart: always
+
+  xaqt:
+    env_file: .env
+    image: "${XAQT_IMAGE}"
 
   db:
     env_file: .env
