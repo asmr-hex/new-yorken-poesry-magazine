@@ -43,7 +43,6 @@ type Message struct {
 type options struct {
 	execDir      string // path to tmp execution dir w/ user code
 	execMountDir string // path to tmp execution dir w/ user code on docker host
-	path         string // path to execution script
 	image        string // name of docker image to run
 	timeout      time.Duration
 }
