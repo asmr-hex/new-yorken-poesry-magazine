@@ -37,7 +37,7 @@ func NewPlatform() *Platform {
 	p.Api = NewAPI(p.config, p.db)
 
 	// construct a Submissions system and pass it the db connection handle established above
-	p.Submissions = NewSubmissions(p.db)
+	p.Submissions = NewSubmissions(&p.config.ExecContext, p.db)
 
 	// print out server configuration
 	if p.config.DevEnv {

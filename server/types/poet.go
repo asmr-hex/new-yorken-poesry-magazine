@@ -294,7 +294,7 @@ func (p *Poet) Delete(db *sql.DB) error {
 	return nil
 }
 
-func ReadPoets(db *sql.DB) ([]*Poet, error) {
+func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 	var (
 		poets []*Poet = []*Poet{}
 		err   error
