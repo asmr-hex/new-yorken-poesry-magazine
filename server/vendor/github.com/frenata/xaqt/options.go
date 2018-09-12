@@ -1,9 +1,6 @@
 package xaqt
 
 import (
-	"log"
-	"os"
-	"path/filepath"
 	"runtime"
 	"time"
 )
@@ -15,19 +12,8 @@ import (
 // Idea taken from https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
 type option func(*Context) error
 
-func DataPath() string {
-	gopath, ok := os.LookupEnv("GOPATH")
-	if !ok {
-		log.Fatal("Fatal: 'GOPATH' is not set, cannot locate the data path.")
-	}
-
-	return filepath.Join(gopath, "src/github.com/frenata/xaqt/data/")
-}
-
 // defaultOptions provides some useful defaults if the user provides none.
 func defaultOptions(c *Context) error {
-
-	c.path = DataPath()
 
 	if runtime.GOOS == "darwin" {
 		c.execDir = "/tmp"
@@ -51,14 +37,6 @@ func Timeout(t time.Duration) option {
 func Image(i string) option {
 	return func(c *Context) error {
 		c.image = i
-		return nil
-	}
-}
-
-// Path configures the folder with the execution script and "Payload" dir.
-func Path(p string) option {
-	return func(c *Context) error {
-		c.path = p
 		return nil
 	}
 }
