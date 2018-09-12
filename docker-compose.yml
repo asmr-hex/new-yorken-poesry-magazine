@@ -16,6 +16,7 @@ services:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       - db
+      - xaqt
     links:
       - "db:${DB_HOST}"
 
@@ -33,6 +34,10 @@ services:
       - dev_server
     links:
       - "dev_server:${SERVER_HOST_DEV}"
+
+  xaqt:
+    env_file: .env
+    image: "${XAQT_IMAGE}"
 
   db:
     env_file: .env
