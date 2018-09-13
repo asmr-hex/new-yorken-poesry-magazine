@@ -32,10 +32,10 @@ type Poet struct {
 	Name                  string           `json:"name"`
 	Description           string           `json:"description"`
 	Language              string           `json:"language"`
-	ProgramFileName       string           `json:"programFileName"`       // TODO (cw|8.24.2018) persist in db
-	ParameterFileName     string           `json:"parameterFileName"`     // TODO (cw|8.24.2018) persist in db
-	ParameterFileIncluded bool             `json:"parameterFileIncluded"` // TODO (cw|8.24.2018) persist in db
-	ExecPath              string           `json:"-"`                     // or possibly a Path, this is the path to the source code
+	ProgramFileName       string           `json:"programFileName"`
+	ParameterFileName     string           `json:"parameterFileName"`
+	ParameterFileIncluded bool             `json:"parameterFileIncluded"`
+	Path                  string           `json:"-"` // this is the path to the source code
 	ExecContext           *env.ExecContext // inherit from platform config
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
@@ -183,7 +183,7 @@ func CreatePoetsTable(db *sql.DB) error {
                           programFileName VARCHAR(255) NOT NULL,
                           parameterFileName VARCHAR(255) NOT NULL,
                           parameterFileIncluded BOOL NOT NULL,
-                          execPath VARCHAR(255) NOT NULL UNIQUE,
+                          path VARCHAR(255) NOT NULL UNIQUE,
 		          PRIMARY KEY (id)
 	)`
 
@@ -215,7 +215,7 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 	if poetCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO poets (
-                           id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
+                           id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
                          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 		poetCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -234,7 +234,7 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 		p.ProgramFileName,
 		p.ParameterFileName,
 		p.ParameterFileIncluded,
-		p.ExecPath,
+		p.Path,
 	)
 	if err != nil {
 		return err
@@ -251,7 +251,7 @@ func (p *Poet) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if poetReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
                          FROM poets WHERE id = $1`
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -275,7 +275,7 @@ func (p *Poet) Read(db *sql.DB) error {
 			&p.ProgramFileName,
 			&p.ParameterFileName,
 			&p.ParameterFileIncluded,
-			&p.ExecPath,
+			&p.Path,
 		)
 	switch {
 	case err == sql.ErrNoRows:
@@ -304,7 +304,7 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 	if poetReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
                          FROM poets`
 		poetReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -331,7 +331,7 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 			&poet.ProgramFileName,
 			&poet.ParameterFileName,
 			&poet.ParameterFileIncluded,
-			&poet.ExecPath,
+			&poet.Path,
 		)
 		if err != nil {
 			return poets, err
@@ -435,7 +435,7 @@ func (p *Poet) setupExecutionSandbox() (*xaqt.Context, xaqt.Code, error) {
 		IsFile:            true,
 		SourceFileName:    p.ProgramFileName,
 		ResourceFileNames: []string{},
-		Path:              p.ExecPath,
+		Path:              p.Path,
 	}
 
 	if p.ParameterFileIncluded {

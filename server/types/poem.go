@@ -22,14 +22,13 @@ func (p *Poem) Validate() error {
 /*
    db methods
 */
-func (*Poem) CreateTable(db *sql.DB) error {
+func CreatePoemsTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS poems (
 		          id UUID NOT NULL UNIQUE,
                           date TIMESTAMP WITH TIME ZONE,
-                          author REFERENCES poets,
+                          author UUID REFERENCES poets NOT NULL,
                           content TEXT NOT NULL,
-                          issue UUID REFERENCES issues,
-                          likes INT DEFAULT 0 CONSTRAINT gtzero CHECK (likes > 0),
+                          issue UUID REFERENCES issues NOT NULL,
                           score NUMERIC(1) DEFAULT 0 CONSTRAINT normalized CHECK (score >= 0 and score <= 1),
 		          PRIMARY KEY (id)
 	)`

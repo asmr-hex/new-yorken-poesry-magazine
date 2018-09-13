@@ -539,7 +539,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		Description:     req.PostFormValue(POET_DESCRIPTION_PARAM),
 		Language:        req.PostFormValue(POET_LANGUAGE_PARAM),
 		ProgramFileName: POET_PROG_FILENAME,
-		ExecPath:        path.Join(POET_DIR, poetID),
+		Path:            path.Join(POET_DIR, poetID),
 	}
 
 	// validate the poet structure
@@ -565,7 +565,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create new poet directory
-	err = os.Mkdir(poet.ExecPath, os.ModePerm)
+	err = os.Mkdir(poet.Path, os.ModePerm)
 	if err != nil {
 		a.Error(err.Error())
 
@@ -576,7 +576,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create program file on fs
-	dstProg, err := os.Create(filepath.Join(poet.ExecPath, fds.program.Filename))
+	dstProg, err := os.Create(filepath.Join(poet.Path, fds.program.Filename))
 	defer dstProg.Close()
 	if err != nil {
 		a.Error(err.Error())
@@ -609,7 +609,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		}
 
 		// create parameters file on the fs
-		dstParam, err := os.Create(filepath.Join(poet.ExecPath, fds.parameters.Filename))
+		dstParam, err := os.Create(filepath.Join(poet.Path, fds.parameters.Filename))
 		defer dstParam.Close()
 		if err != nil {
 			a.Error(err.Error())
