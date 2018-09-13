@@ -346,7 +346,7 @@ func (u *User) GetPoets(db *sql.DB) ([]*Poet, error) {
 	// prepare statement if not already done so.
 	if poetOfUserReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, execPath
+		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, path
                          FROM poets WHERE designer = $1`
 		poetOfUserReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -373,7 +373,7 @@ func (u *User) GetPoets(db *sql.DB) ([]*Poet, error) {
 			&poet.DeathDate,
 			&poet.Description,
 			&poet.Language,
-			&poet.ExecPath,
+			&poet.Path,
 		)
 		if err != nil {
 			return poets, err

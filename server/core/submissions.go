@@ -149,13 +149,12 @@ func (s *SubmissionService) ElicitPoemsFrom(poets []*types.Poet) {
 }
 
 func (s *SubmissionService) SelectWinningPoems() {
-	// read committee members
-	committee, err := types.ReadActiveCommittee(s.db)
+	issue, err := types.GetUpcomingIssue(s.db)
 	if err != nil {
 		s.Error(err.Error())
 	}
 
-	_ = committee
+	_ = issue
 
 	// for each poem-committe-member pair, generate score
 

@@ -1,0 +1,43 @@
+                                                                      +---------------------+
+                               +--------------------+                 | poems               |
+                               | user_poem_likes    |                 | ------------------- |
+                               | ------------------ |      +----------+  id (PK)            |
+                      +------> | user (users.id)    |      |          |  date               |
+                      |        | poem (poems.id)    | <----+          |  author (POETS.id)  |
+                      |        | (user, poem) (PK)  |                 |  content            |
+                      |        +--------------------+         +-----> |  issue (ISSUES.id)  |
+                      |                                       |       |  score              |
+                      |        +---------------------+        |       +---------------------+
+                      |        | user_issue_likes    |        |
+                      |        | ------------------  |        |
+                      +------> | user (users.id)     |        |
+                      |        | issue (issues.id)   | <------+
+                      |        | (user, issue) (PK)  |        |       +--------------+
+                      |        +---------------------+        |       | issues       |
+                      |                                       |       | ------------ |
++-----------+         |        +---------------------+        +-------+ id (PK)      +--------------------+
+| users     |         |        | user_poet_likes     |                | date         |                    |
+| --------  |         |        | ------------------  |                | description  |                    |
+| id (PK)   +----------------> | user (users.id)     |                | upcoming     |                    |
+| username  |         |        | poet (poets.id)     | <------+       +--------------+                    |
+| password  |         |        | (user, poet) (PK)   |        |                                           |
+| salt      |         |        +---------------------+        |                                           |
+| email     |         |                                       |                                           |
++-----------+         |                                       |                                           |
+                      |                                       |      +-----------------------------+      |
+                      |                                       |      | issue_committee_membership  |      |
+                      |        +------------------------+     |      | --------------------------- |      |
+                      |        | poets                  |     +----> |  poet (POETS.id)            |      |
+                      |        | ---------------------  |     |      |  issue (ISSUES.id)          | <----+
+                      |        | id (PK)                +-----+      |  (poet, issue) (PK)         |      |
+                      +------> | designer (USERS.id)    |     |      +-----------------------------+      |
+                               | birthDate              |     |                                           |
+                               | deathDate              |     |                                           |
+                               | name                   |     |                                           |
+                               | description            |     |        +------------------------+         |
+                               | language               |     |        | issue_contributions    |         |
+                               | programFileName        |     |        | ---------------------- |         |
+                               | parameterFileName      |     +------> | poet (poets.id)        |         |
+  +---------->                 | parameterFileIncluded  |              | issue (issues.id)      | <-------+
+  one-to-many                  | path                   |              +------------------------+
+                               +------------------------+

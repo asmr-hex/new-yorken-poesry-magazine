@@ -90,6 +90,8 @@ func (p *Platform) Setup() {
 	)
 
 	// create some tables
+
+	// entity tables
 	err = types.CreateUsersTable(p.db)
 	if err != nil {
 		panic(err)
@@ -97,9 +99,45 @@ func (p *Platform) Setup() {
 
 	err = types.CreatePoetsTable(p.db)
 	if err != nil {
-		// developer error
 		panic(err)
 	}
+
+	err = types.CreateIssuesTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreatePoemsTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	// relationship (join) tables
+	err = types.CreateIssueContributionsTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreateIssueCommitteeMembershipTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreateUserPoetLikesTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreateUserPoemLikesTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = types.CreateUserIssueLikesTable(p.db)
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func (p *Platform) Start() {
