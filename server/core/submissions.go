@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -249,18 +250,16 @@ func (s *SubmissionService) SelectWinningPoems() {
 		bestPoems = s.updateBestPoems(bestPoems, &poem)
 	}
 
-	//   - unmarshal each into a Poem struct
-	//   - have each committee member judge this poem
-	//   - average each committee members scores
-	//   - conditionally add this poem to a global map of top-ranked poems
-	//     - does this poem score fall within the range of high/low scores in map?
-	//     - or is there still room in the map?
-	//       - place poem in map and kick out lower scored poem if necessary
-	//         - if poem has same score as k lowest poems, flip a coin to pick which one to kick out (including the new candidate)
-
-	// now we have a map of the n highest rated poems
+	// now we have a map of the n highest rated poems in bestPoems
 
 	// store these poems in the database
+	for _, poem := range bestPoems {
+		poem.Issue = issue
+		err = poem.Create(s.db)
+		if err != nil {
+			s.Error(err.Error())
+		}
+	}
 }
 
 func (s *SubmissionService) updateBestPoems(bestPoems []*types.Poem, poem *types.Poem) []*types.Poem {
@@ -290,13 +289,67 @@ func (s *SubmissionService) updateBestPoems(bestPoems []*types.Poem, poem *types
 		}
 	}
 
+	// optimization! first check last element and if this score is lower,
+	// then we just return the original array.
+	if bestPoems[len(bestPoems)-1].Score > poem.Score {
+		return bestPoems
+	}
+
+	// once we find a place to insert this, we need to get a list of the
+	// lowest scores in the bestPoems list. We will then randomly shave off
+	// one of the entries. fair is fair.
+	lowestScoreBlock := []*types.Poem{}
+	lowestScore := 0.0
+
+	// TODO (cw|9.13.2018) I can probably use a min-heap for this...
 	for _, bestPoem := range bestPoems {
-		switch {
-		case poem.Score > bestPoem.Score:
-			// okay we *must* include this poem in the next issue,
-			// it is simply fabulous!
+		if len(lowestScoreBlock) == 0 {
+			// we still haven't found where this poem should reside in
+			// the sorted bestPoems array...
+			switch {
+			case poem.Score > bestPoem.Score:
+				// alright, we know our candidate poem is *at least*
+				// better than this bestPoem...
+				lowestScore = bestPoem.Score
+				lowestScoreBlock = []*types.Poem{bestPoem}
+			case poem.Score == bestPoem.Score:
+				// alright, we know that the candidate poem is *just*
+				// as good as this bestPoem
+				lowestScore = poem.Score
+				lowestScoreBlock = []*types.Poem{poem, bestPoem}
+			default:
+				newBestPoems = append(newBestPoems, bestPoem)
+			}
+		} else {
+			// all bestPoems are gauranteed to have lower scores now
+			// than poem
+			if bestPoem.Score < lowestScore {
+				// append out-dated lowestScoreBlock to result
+				newBestPoems = append(newBestPoems, lowestScoreBlock...)
+
+				// update lowestScoreBlock and lowestScore
+				lowestScoreBlock = []*types.Poem{bestPoem}
+				lowestScore = bestPoem.Score
+			} else {
+				// if we are here, this bestPoem *must* have a score
+				// equal to the current lowestScore.
+				lowestScoreBlock = append(lowestScoreBlock, bestPoem)
+			}
 		}
 	}
+
+	// okay, at this point we have all the poems sharded into two arrays
+	// (1) lowestScoreBlock: all the poems with the same lowest score
+	// (2) newBestPoems: the rest of the non-lowestScoreBlock poems (sorted)
+	// we need to randomly drop on item from the lowestScoreBlock
+	rand.Seed(time.Now().Unix())
+	rmIdx := rand.Intn(len(lowestScoreBlock))
+
+	// delete a random element from the lowestScoreBlock
+	lowestScoreBlock = append(lowestScoreBlock[:rmIdx], lowestScoreBlock[rmIdx+1:]...)
+
+	// stitch back together the newBestPoems + lowestScoreBlock
+	newBestPoems = append(newBestPoems, lowestScoreBlock...)
 
 	return newBestPoems
 }

@@ -11,7 +11,6 @@ type Poem struct {
 	Author  *Poet
 	Content string
 	Issue   *Issue
-	Likes   int     // number of likes from readers
 	Score   float64 // score assigned by committee
 }
 
@@ -44,7 +43,7 @@ func CreatePoemsTable(db *sql.DB) error {
 /*
    poem methods
 */
-func (p *Poem) Create(id string, db *sql.DB) error {
+func (p *Poem) Create(db *sql.DB) error {
 
 	return nil
 }
