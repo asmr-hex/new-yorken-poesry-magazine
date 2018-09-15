@@ -66,7 +66,6 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/poets", a.GetPoets).
 		Get(pubPrefix+"/poems", a.GetPoems).
 		Get(pubPrefix+"/issues", a.GetIssues).
-		Get(pubPrefix+"/committees", a.GetCommittees).
 
 		// User RUD
 		Get(pubPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser).
@@ -85,9 +84,6 @@ func (a *API) BuildRouter() {
 		// Issue R (Issues can only be read via the API)
 		Get(pubPrefix+"/issue/:"+API_ID_PATH_PARAM, a.GetIssue).
 
-		// Committee R (Committees can only be read via the API)
-		Get(pubPrefix+"/committee/:"+API_ID_PATH_PARAM, a.GetCommittee).
-
 		// === Dashboard API ===
 		Post(dashPrefix+"/login", a.Login).
 		Post(dashPrefix+"/signup", a.SignUp).
@@ -101,6 +97,7 @@ func (a *API) BuildRouter() {
 
 	// set serve static middleware only if in production since in dev env mode
 	// we are using a hot-reloading node server for our frontend.
+	// TODO (cw|9.15.2018) get rid of this, we are using nginx to serve static pages
 	if a.Config.DevEnv == false {
 		currentRoot, err := os.Getwd()
 		if err != nil {

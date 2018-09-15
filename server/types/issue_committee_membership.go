@@ -30,6 +30,7 @@ var (
 	addCommitteeMemberStmt *sql.Stmt
 )
 
+// TODO (cw|9.15.2018) is there a way to do bulk inserts?....
 func (i *IssueCommitteeMembership) Add(db *sql.DB) error {
 	var (
 		err error

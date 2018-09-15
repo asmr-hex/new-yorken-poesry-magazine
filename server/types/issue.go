@@ -18,6 +18,7 @@ type Issue struct {
 	Title        string
 	Description  string
 	Upcoming     bool
+	Likes        int // number of likes this issue has
 }
 
 func (i *Issue) Validate(action string) error {

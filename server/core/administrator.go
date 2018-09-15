@@ -20,18 +20,30 @@ const (
 	NUM_CONCURRENT_EXECS_DEFAULT = 5
 )
 
+// MagazineAdministrator handles all administrative & organizational tasks for
+// keeping the NYPM in operation.
+//
+// such tasks include,
+// - publishing issues on each release cycle
+// - selecting judges for each issue committee
+// - organizing call for poems (CFP) and taking submissions from all poets
+// - tasking judges to score and select the best poems
+// - allowing poets to update themselves
+// - update magazine parameters
+//
 type MagazineAdministrator struct {
 	*Logger
-	UpcomingIssue      *types.Issue
-	Guidelines         *env.MagazineConfig
-	ExecContext        *env.ExecContext
-	Period             time.Duration
-	numConcurrentExecs int
-	wait               chan bool
-	limboDir           string
-	db                 *sql.DB
+	UpcomingIssue      *types.Issue        // the next issue to be released
+	Guidelines         *env.MagazineConfig // magazine parameters
+	ExecContext        *env.ExecContext    // execution context (relevant for sandboxing poet execution)
+	Period             time.Duration       // time between issues
+	numConcurrentExecs int                 // number of concurrent executions of poets
+	wait               chan bool           // channel used for waiting for completion of concurrent tasks
+	limboDir           string              // tmp directory where candidate poems are stored on the fs
+	db                 *sql.DB             // database connection
 }
 
+// create new magazine adminstrator.
 func NewMagazineAdministrator(
 	guidelines *env.MagazineConfig,
 	execCtx *env.ExecContext,
@@ -49,27 +61,29 @@ func NewMagazineAdministrator(
 	}
 }
 
-func (s *MagazineAdministrator) UpdatePeriod(period time.Duration) {
-	s.Period = period
+func (a *MagazineAdministrator) UpdatePeriod(period time.Duration) {
+	a.Period = period
 }
 
-func (s *MagazineAdministrator) UpdateNumberOfConcurrentExecs(n int) {
-	s.numConcurrentExecs = n
+func (a *MagazineAdministrator) UpdateNumberOfConcurrentExecs(n int) {
+	a.numConcurrentExecs = n
 	newWait := make(chan bool, n)
 
 	// TODO (cw|9.12.2018) need to get a write lock before draining...
+	// so that items aren't added to the old wait channel while its
+	// draining...
 
 	// drain old channel
-	for len(s.wait) > 0 {
-		<-s.wait
+	for len(a.wait) > 0 {
+		<-a.wait
 		newWait <- true
 	}
 
 	// assign new wait
-	s.wait = newWait
+	a.wait = newWait
 }
 
-func (s *MagazineAdministrator) StartScheduler() {
+func (s *MagazineAdministrator) BeginReleaseCycle() {
 	var (
 		err error
 	)
@@ -188,6 +202,7 @@ func (s *MagazineAdministrator) OpenCallForSubmissions() {
 	)
 
 	// get all candidate poets TODO (cw|9.12.2018) filter this read for only active poets
+	//*****  TODO (cw|9.15.2018) ReadPoets *really* needs to be paginated...!!!!!*****
 	poets, err = types.ReadPoets(s.db)
 	if err != nil {
 		// this may happen if the database goes down or something...
@@ -195,6 +210,7 @@ func (s *MagazineAdministrator) OpenCallForSubmissions() {
 		s.Error(err.Error())
 	}
 
+	// TODO (cw|9.15.2018) read paginated poets and loop over all pages.
 	// run each candidate poet
 	s.ElicitPoemsFrom(poets)
 }
@@ -232,13 +248,22 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 		poem.Id = uuid.NewV4().String()
 		poem.Author = poet
 
-		// Store this poem in the limbo directory so it can be judged
+		// Store this poem in the limbo directory so it can be judged...
 
 		// Note: we are going through the trouble of marshalling into json
 		// and storing on the fs because we don't really care about how long
 		// this takes...i mean, give us a break, CFPs for humans are long
 		// and arduous administrative processes. why do *we* also have to be
 		// optimally performant???
+		// and this will eventually be *alot* of poets...so we can't store all this
+		// in memory...
+		// TODO (cw|9.15.2018) eventually use a database....
+		// --- OR (even better), redesign this process to be more of a streaming
+		// pipeline where there is a thread getting poems from poets which then
+		// submits to a queue (blocking when the queue is full) and a review thread
+		// is slurping poems off the queue and inserting them into the bestPoems map.
+		// this way we aren't storing a lot of poems anyway and only storing the ones
+		// that cut the mustard. this is a better architecture.
 		filename := filepath.Join(s.limboDir, fmt.Sprintf("%s.txt", poet.Id))
 		bytes, err := json.Marshal(poem)
 		if err != nil {
@@ -255,6 +280,7 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 		return nil
 	}
 
+	// go through all poets and execute them.
 	for _, poet := range poets {
 		// wait in line for execution
 		s.wait <- true
@@ -273,6 +299,8 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 	// for each poem-committe-member pair, generate score
 
 	// read in all limbo files
+	// TODO (cw|9.15.2018) eventually this will need to scale, so we should stream
+	// in the files and iterate over them below...
 	files, err := filepath.Glob(filepath.Join(s.limboDir, "*.txt"))
 	if err != nil {
 		s.Error(err.Error())
@@ -280,6 +308,7 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 
 	// iterate through filenames in limbo dir
 	for _, file := range files {
+		// read in poem file
 		bytes, err := ioutil.ReadFile(file)
 		if err != nil {
 			s.Error(err.Error())
@@ -345,7 +374,7 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 			go f(critic)
 		}
 
-		// the critics have finished scoring!
+		// the critics have finished scoring! stop the score collector go routine
 		done <- true
 
 		// okay, whew (｡-_-｡), now we must average the scores for this poem
@@ -577,8 +606,11 @@ func (s *MagazineAdministrator) AllowPoetsToLearn() {
 	// do stuff
 }
 
-func (s *MagazineAdministrator) CleanUp() {
-	// TODO (cw|9.12.2018) clear limboDir
+func (a *MagazineAdministrator) CleanUp() {
+	err := os.RemoveAll(a.limboDir)
+	if err != nil {
+		a.Error(err.Error())
+	}
 }
 
 func (a *MagazineAdministrator) UpdateTuneables() {
