@@ -15,11 +15,12 @@ import (
 // update poets. A user must have a valid email address in order
 // to register for the site.
 type User struct {
-	Id       string  `json:"id"`
-	Username string  `json:"username"`
-	Password string  `json:"password"`
-	Email    string  `json:"email"`
-	Poets    []*Poet `json:"poets"`
+	Id                 string  `json:"id"`
+	Username           string  `json:"username"`
+	Password           string  `json:"password"`
+	Email              string  `json:"email"`
+	Poets              []*Poet `json:"poets"`
+	EmailNotifications bool    `json:"emailNotifications"`
 }
 
 // The parameters which should be supplied from the session context
@@ -136,6 +137,7 @@ func CreateUsersTable(db *sql.DB) error {
                           password VARCHAR(255) NOT NULL,
                           salt UUID NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
+                          emailNotifications BOOL NOT NULL,
 		          PRIMARY KEY (id)
 	)`
 
@@ -169,15 +171,22 @@ func (u *User) Create(id string, db *sql.DB) error {
 	if userCreateStmt == nil {
 		// create statement
 		stmt := `INSERT INTO users (
-                           id, username, password, salt, email
-                         ) VALUES ($1, $2, $3, $4, $5)`
+                           id, username, password, salt, email, emailNotifications
+                         ) VALUES ($1, $2, $3, $4, $5, $6)`
 		userCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = userCreateStmt.Exec(u.Id, u.Username, hashedPassword, salt, u.Email)
+	_, err = userCreateStmt.Exec(
+		u.Id,
+		u.Username,
+		hashedPassword,
+		salt,
+		u.Email,
+		u.EmailNotifications,
+	)
 	if err != nil {
 		return err
 	}
@@ -234,7 +243,7 @@ func (u *User) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, username, password, email
+		stmt := `SELECT id, username, password, email, emailNotifications
                          FROM users WHERE id = $1`
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -248,7 +257,7 @@ func (u *User) Read(db *sql.DB) error {
 	// NOTE: we are not joining from the poets tables
 	err = userReadStmt.
 		QueryRow(u.Id).
-		Scan(&u.Id, &u.Username, &u.Password, &u.Email)
+		Scan(&u.Id, &u.Username, &u.Password, &u.Email, &u.EmailNotifications)
 	switch {
 	case err == sql.ErrNoRows:
 		return fmt.Errorf("No user with id %s", u.Id)
@@ -260,6 +269,7 @@ func (u *User) Read(db *sql.DB) error {
 	// request is the user being read.
 
 	// read all the poets associated with this user
+	// TODO (cw|9.14.2018) WE SHOULD BE DOING A JOIN....
 	u.Poets, err = u.GetPoets(db)
 	if err != nil {
 		return err
@@ -307,7 +317,10 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	if userReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT id, username, email FROM users`
+		stmt := `
+                    SELECT id, username, email, emailNotifications
+                    FROM users
+                `
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return users, nil
@@ -322,7 +335,12 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	defer rows.Close()
 	for rows.Next() {
 		user := &User{}
-		err = rows.Scan(&user.Id, &user.Username, &user.Email)
+		err = rows.Scan(
+			&user.Id,
+			&user.Username,
+			&user.Email,
+			&user.EmailNotifications,
+		)
 		if err != nil {
 			return users, err
 		}

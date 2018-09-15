@@ -16,7 +16,7 @@ import (
 type Platform struct {
 	*Logger
 	Api         *API
-	Submissions *SubmissionService
+	Submissions *MagazineAdministrator
 	config      *env.Config
 	db          *sql.DB
 }
@@ -37,7 +37,11 @@ func NewPlatform() *Platform {
 	p.Api = NewAPI(p.config, p.db)
 
 	// construct a Submissions system and pass it the db connection handle established above
-	p.Submissions = NewSubmissions(&p.config.ExecContext, p.db)
+	p.Submissions = NewMagazineAdministrator(
+		&p.config.Magazine,
+		&p.config.ExecContext,
+		p.db,
+	)
 
 	// print out server configuration
 	if p.config.DevEnv {

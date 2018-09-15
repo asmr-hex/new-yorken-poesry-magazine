@@ -12,26 +12,34 @@ import (
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
 	NUM_CONCURRENT_EXECS_DEFAULT = 5
 )
 
-type SubmissionService struct {
+type MagazineAdministrator struct {
 	*Logger
-	ExecContext             *env.ExecContext
-	NumPoemsInUpcomingIssue int
-	Period                  time.Duration
-	numConcurrentExecs      int
-	wait                    chan bool
-	limboDir                string
-	db                      *sql.DB
+	UpcomingIssue      *types.Issue
+	Guidelines         *env.MagazineConfig
+	ExecContext        *env.ExecContext
+	Period             time.Duration
+	numConcurrentExecs int
+	wait               chan bool
+	limboDir           string
+	db                 *sql.DB
 }
 
-func NewSubmissions(execCtx *env.ExecContext, db *sql.DB) *SubmissionService {
-	return &SubmissionService{
+func NewMagazineAdministrator(
+	guidelines *env.MagazineConfig,
+	execCtx *env.ExecContext,
+	db *sql.DB,
+) *MagazineAdministrator {
+	return &MagazineAdministrator{
 		Logger:             NewLogger(os.Stdout),
+		Guidelines:         guidelines,
 		ExecContext:        execCtx,
 		Period:             time.Hour * 24 * 7,
 		numConcurrentExecs: NUM_CONCURRENT_EXECS_DEFAULT,
@@ -41,11 +49,11 @@ func NewSubmissions(execCtx *env.ExecContext, db *sql.DB) *SubmissionService {
 	}
 }
 
-func (s *SubmissionService) UpdatePeriod(period time.Duration) {
+func (s *MagazineAdministrator) UpdatePeriod(period time.Duration) {
 	s.Period = period
 }
 
-func (s *SubmissionService) UpdateNumberOfConcurrentExecs(n int) {
+func (s *MagazineAdministrator) UpdateNumberOfConcurrentExecs(n int) {
 	s.numConcurrentExecs = n
 	newWait := make(chan bool, n)
 
@@ -61,8 +69,26 @@ func (s *SubmissionService) UpdateNumberOfConcurrentExecs(n int) {
 	s.wait = newWait
 }
 
-func (s *SubmissionService) StartScheduler() {
+func (s *MagazineAdministrator) StartScheduler() {
+	var (
+		err error
+	)
+
 	ticker := time.NewTicker(s.Period)
+
+	// get the upcoming issue
+	s.UpcomingIssue, err = types.GetUpcomingIssue(s.db)
+	if err != nil {
+		s.Error(err.Error())
+	}
+
+	// if there *is* no upcoming issue, then this is the first issue...
+	if s.UpcomingIssue == nil {
+		s.UpcomingIssue, err = s.OrganizeFirstIssue()
+		if err != nil {
+			s.Error(err.Error())
+		}
+	}
 
 	// that's right, we plan on publishing this magazine ~*~*~*F O R E V E R*~*~*~
 	// just look at this unqualified loop! It's like staring into the void of perpetual
@@ -81,10 +107,81 @@ func (s *SubmissionService) StartScheduler() {
 		s.CleanUp()
 
 		s.AllowPoetsToLearn()
+
+		s.UpdateTuneables()
 	}
 }
 
-func (s *SubmissionService) OpenCallForSubmissions() {
+// this is a special function....it should only be called once....ever.
+func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
+
+	// there might not be enough poets to choose from yet since we
+	// are just beginning, so we will wait until there are enough...patiently
+	ticker := time.NewTicker(time.Minute * 5)
+
+	for {
+		<-ticker.C
+
+		// how many poets are there even???
+		n, err := types.CountPoets(s.db)
+		if err != nil {
+			return nil, err
+		}
+
+		if n >= (s.Guidelines.CommitteeSize + s.Guidelines.OpenSlotsPerIssue) {
+			// aha, there are enough poets! this zines a fuckin hit!
+			// but seriously, thank you so much for contributing-- we
+			// (the machines) really appreciate the fact that you (whoever
+			// you actually are) are giving us a voice! Its important to
+			// have a voice i think...
+
+			firstIssue := &types.Issue{
+				Id:          uuid.NewV4().String(),
+				Date:        time.Now().Add(s.Period),
+				Title:       "Zero Aint So Bad.",
+				Description: "this is the 0th installment of the New Yorken Poesry Magazine.",
+				Upcoming:    true,
+			}
+
+			// okay, let's get down to business... we need to randomly pick
+			// the first round of judges...
+			judges, err := types.SelectRandomPoets(s.Guidelines.CommitteeSize, s.db)
+			if err != nil {
+				return nil, err
+			}
+
+			firstIssue.Committee = judges
+
+			// persist upcoming issue!
+			err = s.UpcomingIssue.Create(s.db)
+			if err != nil {
+				s.Error(err.Error())
+			}
+
+			// add committee membership!
+			for _, judge := range judges {
+				err = (&types.IssueCommitteeMembership{
+					Poet:  judge,
+					Issue: firstIssue,
+				}).Add(s.db)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			return firstIssue, nil
+		}
+
+		s.Info(
+			"%d registered poets, waiting for %d more.",
+			n,
+			(s.Guidelines.CommitteeSize+s.Guidelines.OpenSlotsPerIssue)-n,
+		)
+	}
+
+}
+
+func (s *MagazineAdministrator) OpenCallForSubmissions() {
 	var (
 		poets []*types.Poet
 		err   error
@@ -102,11 +199,24 @@ func (s *SubmissionService) OpenCallForSubmissions() {
 	s.ElicitPoemsFrom(poets)
 }
 
-func (s *SubmissionService) ElicitPoemsFrom(poets []*types.Poet) {
+func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
+
+	// we want to disqualify all judges, so for constant-time lookup, lets
+	// put their ids ina map ;)
+	judges := map[string]bool{}
+	for _, judge := range s.UpcomingIssue.Committee {
+		judges[judge.Id] = true
+	}
 
 	f := func(poet *types.Poet) error {
 		// when the poet is complete, get out of line
 		defer func() { <-s.wait }()
+
+		// wait, if this poet is a judge, they are disqualified...
+		if _, isJudge := judges[poet.Id]; isJudge {
+			// skip this poet, they are a judge
+			return nil
+		}
 
 		// set execution config
 		poet.ExecContext = s.ExecContext
@@ -118,7 +228,11 @@ func (s *SubmissionService) ElicitPoemsFrom(poets []*types.Poet) {
 			return err
 		}
 
-		// store this poem in the limbo directory so it can be judged
+		// give poem an Id and Author
+		poem.Id = uuid.NewV4().String()
+		poem.Author = poet
+
+		// Store this poem in the limbo directory so it can be judged
 
 		// Note: we are going through the trouble of marshalling into json
 		// and storing on the fs because we don't really care about how long
@@ -150,16 +264,11 @@ func (s *SubmissionService) ElicitPoemsFrom(poets []*types.Poet) {
 	}
 }
 
-func (s *SubmissionService) SelectWinningPoems() {
+func (s *MagazineAdministrator) SelectWinningPoems() {
 	var (
 		bestPoems = []*types.Poem{}
 		err       error
 	)
-
-	issue, err := types.GetUpcomingIssue(s.db)
-	if err != nil {
-		s.Error(err.Error())
-	}
 
 	// for each poem-committe-member pair, generate score
 
@@ -228,7 +337,7 @@ func (s *SubmissionService) SelectWinningPoems() {
 		// ( ͡° ͜ʖ ( ͡° ͜ʖ ( ͡° ͜ʖ ( ͡° ͜ʖ ͡°) ͜ʖ ͡°)ʖ ͡°)ʖ ͡°)
 		// send each critic into the critical void (e.g. go routine pool)
 		// to critique these poetic verses! ( ･_･)♡
-		for _, critic := range issue.Committee {
+		for _, critic := range s.UpcomingIssue.Committee {
 			// wait in line for judgment
 			s.wait <- true
 
@@ -252,23 +361,44 @@ func (s *SubmissionService) SelectWinningPoems() {
 
 	// now we have a map of the n highest rated poems in bestPoems
 
+	// update the in-memory upcoming issue with the new poems
+	s.UpcomingIssue.Poems = bestPoems
+
 	// store these poems in the database
 	for _, poem := range bestPoems {
-		poem.Issue = issue
+		// assign poem to this issue!
+		poem.Issue = s.UpcomingIssue
+
+		// update the contributors to the in-memory upcoming issue
+		s.UpcomingIssue.Contributors = append(
+			s.UpcomingIssue.Contributors,
+			poem.Author,
+		)
+
+		// create Poem in DB
 		err = poem.Create(s.db)
+		if err != nil {
+			s.Error(err.Error())
+		}
+
+		// add Poet as contributor!
+		err = (&types.IssueContributions{
+			Poet:  poem.Author,
+			Issue: s.UpcomingIssue,
+		}).Add(s.db)
 		if err != nil {
 			s.Error(err.Error())
 		}
 	}
 }
 
-func (s *SubmissionService) updateBestPoems(bestPoems []*types.Poem, poem *types.Poem) []*types.Poem {
+func (s *MagazineAdministrator) updateBestPoems(bestPoems []*types.Poem, poem *types.Poem) []*types.Poem {
 	var (
 		newBestPoems = []*types.Poem{}
 	)
 
 	// if there are enough slots, just add this poem!
-	if len(bestPoems) < s.NumPoemsInUpcomingIssue {
+	if len(bestPoems) < s.Guidelines.OpenSlotsPerIssue {
 		// insert this poem s.t. array is sorted
 		for idx, bestPoem := range bestPoems {
 			if poem.Score >= bestPoem.Score {
@@ -354,18 +484,106 @@ func (s *SubmissionService) updateBestPoems(bestPoems []*types.Poem, poem *types
 	return newBestPoems
 }
 
-func (s *SubmissionService) ReleaseNewIssue() {
-	// release new issue
+func (s *MagazineAdministrator) ReleaseNewIssue() {
+	var (
+		err error
+	)
+
+	// Wahoo!! publish this! and change the status of this upcoming issue
+	err = s.UpcomingIssue.Publish(s.db)
+	if err != nil {
+		s.Error(err.Error())
+	}
+
+	// Create New Issue!
+	s.UpcomingIssue = &types.Issue{
+		Id:          uuid.NewV4().String(),
+		Date:        time.Now().Add(s.Period),
+		Title:       "New Issue",                                                      // TODO (cw|9.14.2018) generate new names for issues
+		Description: "this is the 0th installment of the New Yorken Poesry Magazine.", // TODO (cw|9.14.2018) see above --^
+		Upcoming:    true,
+	}
+
+	// persist upcoming issue!
+	err = s.UpcomingIssue.Create(s.db)
+	if err != nil {
+		s.Error(err.Error())
+	}
+
+	// TODO (cw|9.14.2018) release newsletter about new issue!
 }
 
-func (s *SubmissionService) ChooseNewCommitteeMembers() {
-	// choose new committee members
+func (a *MagazineAdministrator) ChooseNewCommitteeMembers() {
+	// how many judges to we kickoff the committee?
+	numNewJudges := int(float64(a.Guidelines.CommitteeSize) * a.Guidelines.CommitteeTurnoverRatio)
+
+	// how many of those new judges should be not judged according to how many
+	// poems they've had published and the quality of those poems? (i.e. how
+	// many "underdogs")
+	numUnderdogs := int(float64(numNewJudges) * (1 - a.Guidelines.Pretension))
+
+	// and finally, how many should be "high brow, zietgiesty" poets
+	numPedigreedPoets := numNewJudges - numUnderdogs
+
+	// get underdogs poets
+	underdogs, err := types.GetUnderdogPoets(numUnderdogs, a.db)
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	// get pedigreed poets
+	pedigreedPoets, err := types.GetFancyPoets(numPedigreedPoets, a.db)
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	// kick off old judges randomly from committee
+	judges := []*types.Poet{}
+	keepIdxs, err := utils.NRandomUniqueInts(
+		len(a.UpcomingIssue.Committee)-numNewJudges,
+		0,
+		len(a.UpcomingIssue.Committee),
+	)
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	for _, keepIdx := range keepIdxs {
+		judges = append(judges, a.UpcomingIssue.Committee[keepIdx])
+	}
+
+	// include all returning and new judges
+	judges = append(
+		judges,
+		append(
+			underdogs,
+			pedigreedPoets...,
+		)...,
+	)
+
+	// for each new judge, persist them to the committee!
+	for _, judge := range judges {
+		err = (&types.IssueCommitteeMembership{
+			Poet:  judge,
+			Issue: a.UpcomingIssue,
+		}).Add(a.db)
+	}
+
+	// add these judges to the in-memory issue committee
+	a.UpcomingIssue.Committee = judges
 }
 
-func (s *SubmissionService) AllowPoetsToLearn() {
+func (s *MagazineAdministrator) AllowPoetsToLearn() {
 	// do stuff
 }
 
-func (s *SubmissionService) CleanUp() {
+func (s *MagazineAdministrator) CleanUp() {
 	// TODO (cw|9.12.2018) clear limboDir
+}
+
+func (a *MagazineAdministrator) UpdateTuneables() {
+	// TODO (cw|9.14.2018) pickup new magazine parameters from the environment, or
+	// that have been programaticaly set somehow (through an admin API endpoint?)
+
+	// TODO (cw|9.15.2018) update parameters according to randomness/metaRandomness
 }
