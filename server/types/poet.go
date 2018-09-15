@@ -294,6 +294,94 @@ func (p *Poet) Delete(db *sql.DB) error {
 	return nil
 }
 
+func CountPoets(db *sql.DB) (int, error) {
+	var (
+		count int
+		err   error
+	)
+
+	err = db.QueryRow(`SELECT COUNT(*) FROM poets;`).Scan(&count)
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
+	var (
+		poets []*Poet
+		err   error
+	)
+
+	rows, err := db.Query(`
+            SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
+            FROM poets
+            ORDER BY RANDOM()
+            LIMIT $1
+        `, n)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		poet := &Poet{}
+		err = rows.Scan(
+			&poet.Id,
+			&poet.Designer,
+			&poet.Name,
+			&poet.BirthDate,
+			&poet.DeathDate,
+			&poet.Description,
+			&poet.Language,
+			&poet.ProgramFileName,
+			&poet.ParameterFileName,
+			&poet.ParameterFileIncluded,
+			&poet.Path,
+		)
+		if err != nil {
+			return poets, err
+		}
+
+		// append scanned user into list of all poets
+		poets = append(poets, poet)
+	}
+	if err := rows.Err(); err != nil {
+		return poets, err
+	}
+
+	return poets, nil
+}
+
+func GetUnderdogPoets(n int, db *sql.DB) ([]*Poet, error) {
+	// TODO (cw|9.14.2018) choose underdogs more equitably:
+	// * choose based on least popular programming languages
+	// * choose based on how new the poets are
+	// * choose based on if they haven't had poems published
+	// * choose based on if they have had poems published, but with low scores
+
+	// for now just select randomly
+	return SelectRandomPoets(n, db)
+}
+
+func GetFancyPoets(n int, db *sql.DB) ([]*Poet, error) {
+	// var (
+	// 	poets []*Poet
+	// 	err   error
+	// )
+
+	// select most prolific poets, order by their average quality
+
+	// maxPubs
+
+	// TODO (cw|9.14.2018) use a good metric for this combination score
+	// of prolificness and quality!
+
+	// For now, just randomly choose -___- but change that!!!
+	return SelectRandomPoets(n, db)
+}
+
 func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 	var (
 		poets []*Poet = []*Poet{}
@@ -337,7 +425,7 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 			return poets, err
 		}
 
-		// append scanned user into list of all users
+		// append scanned user into list of all poets
 		poets = append(poets, poet)
 	}
 	if err := rows.Err(); err != nil {
@@ -388,6 +476,11 @@ func (p *Poet) CritiquePoem(poem string) (float64, error) {
 	score, err = strconv.ParseFloat(results[0], 64)
 	if err != nil {
 		return score, err
+	}
+
+	// ensure that the score is within the range [0, 1]
+	if !(score >= 0 && score <= 1) {
+		return score, fmt.Errorf("invalid score (%f) given by poet %s", score, p.Name)
 	}
 
 	return score, nil

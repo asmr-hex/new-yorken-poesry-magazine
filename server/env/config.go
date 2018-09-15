@@ -12,8 +12,19 @@ const (
 type Config struct {
 	DevEnv      bool   `env:"DEV_ENV" envDefault:"false"`
 	Port        string `env:"SERVER_PORT" envDefault:"8080"`
+	Magazine    MagazineConfig
 	ExecContext ExecContext
 	DB          DB
+}
+
+// tuneable parameters for the magazine...
+type MagazineConfig struct {
+	CommitteeSize          int     `env:"COMMITTEE_SIZE" envDefault:"10"`             // number of judges on a committee
+	OpenSlotsPerIssue      int     `env:"OPEN_SLOTS_PER_ISSUE" envDefault:"13"`       // number of poems within a given issue
+	CommitteeTurnoverRatio float64 `env:"COMMITTEE_TURNOVER_RATIO" envDefault:"0.50"` // percent of committee which is *replaced* on each issue cycle
+	Randomness             float64 `env:"RANDOMNESS" envDefault:"0.10"`               // uhhh, randomness of parameters.....
+	MetaRandomness         float64 `env:"META_RANDOMNESS" envDefault:"0.05"`          // uhhh, randomness of the randomness parameter
+	Pretension             float64 `env:"PRETENSION" envDefault:"0.5"`                // percent of new judges who are chosen purely on the "quality/quantity" of their published work (i.e. how much to *not* select for "underdogs")
 }
 
 type ExecContext struct {
@@ -39,8 +50,20 @@ func NewConfig() *Config {
 		panic(err)
 	}
 
+	// parse Magazine conf
+	err = env.Parse(&conf.Magazine)
+	if err != nil {
+		panic(err)
+	}
+
 	// parse DB conf
 	err = env.Parse(&conf.DB)
+	if err != nil {
+		panic(err)
+	}
+
+	// parse execution context
+	err = env.Parse(&conf.ExecContext)
 	if err != nil {
 		panic(err)
 	}
