@@ -16,6 +16,7 @@ type Poem struct {
 	Content string
 	Issue   *Issue
 	Score   float64 // score assigned by committee
+	Likes   int     // number of users who liked this poem
 }
 
 func (p *Poem) Validate(action string) error {

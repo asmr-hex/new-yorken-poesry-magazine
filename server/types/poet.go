@@ -37,6 +37,7 @@ type Poet struct {
 	ParameterFileIncluded bool             `json:"parameterFileIncluded"`
 	Path                  string           `json:"-"` // this is the path to the source code
 	ExecContext           *env.ExecContext // inherit from platform config
+	Likes                 int              // number of likes this poet has
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
 

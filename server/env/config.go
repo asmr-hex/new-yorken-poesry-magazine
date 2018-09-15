@@ -10,11 +10,11 @@ const (
 
 // server conf
 type Config struct {
-	DevEnv      bool   `env:"DEV_ENV" envDefault:"false"`
-	Port        string `env:"SERVER_PORT" envDefault:"8080"`
-	Magazine    MagazineConfig
-	ExecContext ExecContext
-	DB          DB
+	DevEnv             bool   `env:"DEV_ENV" envDefault:"false"`
+	Port               string `env:"SERVER_PORT" envDefault:"8080"`
+	MagazineGuidelines MagazineConfig
+	ExecContext        ExecContext
+	DB                 DB
 }
 
 // tuneable parameters for the magazine...
@@ -51,7 +51,7 @@ func NewConfig() *Config {
 	}
 
 	// parse Magazine conf
-	err = env.Parse(&conf.Magazine)
+	err = env.Parse(&conf.MagazineGuidelines)
 	if err != nil {
 		panic(err)
 	}
