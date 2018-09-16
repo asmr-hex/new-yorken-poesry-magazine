@@ -142,6 +142,16 @@ func (p *Platform) Setup() {
 		panic(err)
 	}
 
+	// potentially seed the database if configured to do so...
+	if p.config.SeedDB {
+		p.Info("seeding database...")
+
+		err = types.SeedDB(p.db)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 }
 
 func (p *Platform) Start() {

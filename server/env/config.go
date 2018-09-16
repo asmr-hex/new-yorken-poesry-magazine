@@ -11,6 +11,7 @@ const (
 // server conf
 type Config struct {
 	DevEnv             bool   `env:"DEV_ENV" envDefault:"false"`
+	SeedDB             bool   `env:"SEED_DB" envDefault:"false"`
 	Port               string `env:"SERVER_PORT" envDefault:"8080"`
 	MagazineGuidelines MagazineConfig
 	ExecContext        ExecContext
@@ -78,6 +79,9 @@ func NewConfig() *Config {
 /*
 
    testing configs
+
+   NOTE: these test configs are strictly used for spinning up test databases
+         in the automated tests...
 
 */
 
