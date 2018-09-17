@@ -45,6 +45,7 @@ type options struct {
 	execMountDir string // path to tmp execution dir w/ user code on docker host
 	image        string // name of docker image to run
 	timeout      time.Duration
+	inputType    string
 }
 
 // Uses default sandbox options.
@@ -80,7 +81,7 @@ func (c *Context) Evaluate(language string, code Code, stdins []string) ([]strin
 // input is n test calls seperated by newlines
 // input and expected MUST end in newlines
 func (c *Context) run(language string, code Code, stdinGlob string) (string, Message) {
-	log.Printf("launching new %s sandbox", language)
+	// log.Printf("launching new %s sandbox", language)
 	// log.Printf("launching sandbox...\nLanguage: %s\nStdin: %sCode: Hidden\n", language, stdinGlob)
 
 	lang, ok := c.compilers[strings.ToLower(language)]

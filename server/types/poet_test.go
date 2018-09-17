@@ -74,20 +74,21 @@ func (s *PoetTestSuite) TestCreatePoet() {
 	poetId := uuid.NewV4().String()
 
 	// create user
-	user := &User{Username: "3jane", Password: "pwd", Email: "3j4n3@tessier.gov"}
-	err := user.Create(userId, s.db)
+	user := &User{Id: userId, Username: "3jane", Password: "pwd", Email: "3j4n3@tessier.gov"}
+	err := user.Create(s.db)
 	s.NoError(err)
 
 	// create poet
 	poet := &Poet{
-		Designer:    userId,
+		Id:          poetId,
+		Designer:    user,
 		Name:        "wintermute",
 		Description: "mutator of the immutable",
 		Language:    "python",
 		Path:        path.Join("/poets/", poetId),
 	}
 
-	err = poet.Create(poetId, s.db)
+	err = poet.Create(s.db)
 	s.NoError(err)
 }
 
@@ -96,20 +97,21 @@ func (s *PoetTestSuite) TestReadPoet() {
 	poetId := uuid.NewV4().String()
 
 	// create user
-	user := &User{Username: "hamilton", Password: "pwd", Email: "ijk@quaternion.idk"}
-	err := user.Create(userId, s.db)
+	user := &User{Id: userId, Username: "hamilton", Password: "pwd", Email: "ijk@quaternion.idk"}
+	err := user.Create(s.db)
 	s.NoError(err)
 
 	// create poet
 	poet := &Poet{
-		Designer:    userId,
+		Id:          poetId,
+		Designer:    &User{Id: user.Id},
 		Name:        "Chum of Chance",
 		Description: "explorer of some other dimensionality",
 		Language:    "forth",
 		Path:        path.Join("/poets/", poetId),
 	}
 
-	err = poet.Create(poetId, s.db)
+	err = poet.Create(s.db)
 	s.NoError(err)
 
 	expectedPoet := poet
@@ -143,28 +145,31 @@ func (s *PoetTestSuite) TestReadAllPoets() {
 	userId := uuid.NewV4().String()
 
 	// create user
-	user := &User{Username: "cat-eyed-boy", Password: "pwd", Email: "qt@spooky.jp"}
-	err := user.Create(userId, s.db)
+	user := &User{Id: userId, Username: "cat-eyed-boy", Password: "pwd", Email: "qt@spooky.jp"}
+	err := user.Create(s.db)
 	s.NoError(err)
 
 	// create poets
 	poets := []*Poet{
 		{
-			Designer:    userId,
+			Id:          poetIds[0],
+			Designer:    &User{Id: user.Id},
 			Name:        "ghostA",
 			Description: "haunts shoes",
 			Language:    "haskell",
 			Path:        path.Join("/poets/", poetIds[0]),
 		},
 		{
-			Designer:    userId,
+			Id:          poetIds[1],
+			Designer:    &User{Id: user.Id},
 			Name:        "ghostB",
 			Description: "haunts shoe stores",
 			Language:    "k",
 			Path:        path.Join("/poets/", poetIds[1]),
 		},
 		{
-			Designer:    userId,
+			Id:          poetIds[2],
+			Designer:    &User{Id: user.Id},
 			Name:        "ghostC",
 			Description: "isn't a ghost",
 			Language:    "apl",
@@ -173,7 +178,7 @@ func (s *PoetTestSuite) TestReadAllPoets() {
 	}
 
 	for i := 0; i < len(poetIds); i++ {
-		err = poets[i].Create(poetIds[i], s.db)
+		err = poets[i].Create(s.db)
 		s.NoError(err)
 	}
 

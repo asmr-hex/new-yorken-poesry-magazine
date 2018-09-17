@@ -18,7 +18,7 @@
 +-----------+         |        +---------------------+        +-------+ id (PK)      +--------------------+
 | users     |         |        | user_poet_likes     |                | date         |                    |
 | --------  |         |        | ------------------  |                | description  |                    |
-| id (PK)   +----------------> | user (users.id)     |                | upcoming     |                    |
+| id (PK)   +----------------> | user (users.id)     |                | upcoming    |                    |
 | username  |         |        | poet (poets.id)     | <------+       +--------------+                    |
 | password  |         |        | (user, poet) (PK)   |        |                                           |
 | salt      |         |        +---------------------+        |                                           |

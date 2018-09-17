@@ -149,7 +149,7 @@ func CreateUsersTable(db *sql.DB) error {
 	return nil
 }
 
-func (u *User) Create(id string, db *sql.DB) error {
+func (u *User) Create(db *sql.DB) error {
 	var (
 		hashedPassword string
 		salt           string
@@ -158,8 +158,7 @@ func (u *User) Create(id string, db *sql.DB) error {
 
 	// we assume that all validation/sanitization has already been called
 
-	// assign id
-	u.Id = id
+	// assume id have been assigned.
 
 	// generate salt for password
 	salt = uuid.NewV4().String()
@@ -382,10 +381,10 @@ func (u *User) GetPoets(db *sql.DB) ([]*Poet, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		poet := &Poet{}
+		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer,
+			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,

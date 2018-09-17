@@ -26,7 +26,7 @@ const (
 
 type Poet struct {
 	Id                    string           `json:"id"`
-	Designer              string           `json:"designer"`            // the writer of the poet (user)
+	Designer              *User            `json:"designer"`            // the writer of the poet (user)
 	BirthDate             time.Time        `json:"birthDate"`           // so we can show years active
 	DeathDate             time.Time        `json:"deathDate,omitempty"` // this should be set to null for currently active poets
 	Name                  string           `json:"name"`
@@ -45,7 +45,7 @@ type Poet struct {
 }
 
 type PoetValidationParams struct {
-	Designer       string
+	DesignerId     string
 	SupportedLangs map[string]bool
 }
 
@@ -88,7 +88,7 @@ func (p *Poet) Validate(action string, params ...PoetValidationParams) error {
 		}
 
 		// designer must be provided AND match the given validation parameter
-		if p.Designer == "" || p.Designer != params[0].Designer {
+		if p.Designer == nil || p.Designer.Id != params[0].DesignerId {
 			return fmt.Errorf("Invalid poet designer provided")
 		}
 
@@ -105,7 +105,7 @@ func (p *Poet) Validate(action string, params ...PoetValidationParams) error {
 		}
 
 		// designer must be provided AND match the given validation parameter
-		if p.Designer == "" || p.Designer != params[0].Designer {
+		if p.Designer == nil || p.Designer.Id != params[0].DesignerId {
 			return fmt.Errorf("Invalid poet designer provided")
 		}
 
@@ -133,7 +133,7 @@ func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 	// we already know that the Id field is valid
 
 	// designer must be provided AND match the given validation parameter
-	if p.Designer == "" || p.Designer != params.Designer {
+	if p.Designer == nil || p.Designer.Id != params.DesignerId {
 		return fmt.Errorf("Invalid poet designer provided")
 	}
 
@@ -201,13 +201,12 @@ func CreatePoetsTable(db *sql.DB) error {
 // that way, we have a cleaner function signature but also have the ability of
 // deterministicaly being able to control the value of the ID from outside of
 // the function for the sake of testing.
-func (p *Poet) Create(id string, db *sql.DB) error {
+func (p *Poet) Create(db *sql.DB) error {
 	var (
 		err error
 	)
 
-	// assign id
-	p.Id = id
+	// assume id is already assigned
 
 	// set birthday
 	p.BirthDate = time.Now().Truncate(time.Millisecond)
@@ -226,7 +225,7 @@ func (p *Poet) Create(id string, db *sql.DB) error {
 
 	_, err = poetCreateStmt.Exec(
 		p.Id,
-		p.Designer,
+		p.Designer.Id,
 		p.Name,
 		p.BirthDate,
 		p.DeathDate,
@@ -262,12 +261,17 @@ func (p *Poet) Read(db *sql.DB) error {
 
 	// make sure user Id is actually populated
 
+	// TODO (cw|9.16.2018) JOIN DESIGNER!
+
+	// initialize designer struct before accessing it
+	p.Designer = &User{}
+
 	// run prepared query over arguments
 	err = poetReadStmt.
 		QueryRow(p.Id).
 		Scan(
 			&p.Id,
-			&p.Designer,
+			&p.Designer.Id,
 			&p.Name,
 			&p.BirthDate,
 			&p.DeathDate,
@@ -327,10 +331,10 @@ func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		poet := &Poet{}
+		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer,
+			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,
@@ -408,10 +412,10 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		poet := &Poet{}
+		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer,
+			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,
@@ -448,9 +452,11 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 	}
 
 	// execute poem generation task
-	results, _ := ctx.Evaluate(p.Language, code, []string{"write"})
+	results, _ := ctx.Evaluate(p.Language, code, []string{"--write"})
 	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
 	// to extract the appropriate error.
+
+	fmt.Println(results)
 
 	poem = &Poem{
 		Date:    time.Now(),
@@ -472,7 +478,8 @@ func (p *Poet) CritiquePoem(poem string) (float64, error) {
 		return score, err
 	}
 
-	results, _ := ctx.Evaluate(p.Language, code, []string{"critique"})
+	results, msg := ctx.Evaluate(p.Language, code, []string{`--critique "` + poem + `"`})
+	fmt.Println(msg.Data)
 
 	score, err = strconv.ParseFloat(results[0], 64)
 	if err != nil {
@@ -493,7 +500,7 @@ func (p *Poet) StudyPoem(poem string) (bool, error) {
 		return false, err
 	}
 
-	results, _ := ctx.Evaluate(p.Language, code, []string{"study"})
+	results, _ := ctx.Evaluate(p.Language, code, []string{"--study"})
 
 	success, err := strconv.ParseBool(results[0])
 	if err != nil {
@@ -518,6 +525,7 @@ func (p *Poet) setupExecutionSandbox() (*xaqt.Context, xaqt.Code, error) {
 	// setup execution context
 	ctx, err = xaqt.NewContext(
 		xaqt.GetCompilers(),
+		xaqt.InputType(xaqt.ArgsInput),
 		xaqt.ExecDir(p.ExecContext.Dir),
 		xaqt.ExecMountDir(p.ExecContext.MountDir),
 	)

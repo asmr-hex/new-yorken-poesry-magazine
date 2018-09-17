@@ -41,6 +41,13 @@ func Image(i string) option {
 	}
 }
 
+func InputType(i string) option {
+	return func(c *Context) error {
+		c.inputType = i
+		return nil
+	}
+}
+
 // ExecDir configures where the user code will be executed and where the results
 // will reside upon completion. this function will also set the execMountDir if it
 // has not been previously set (making the assumption that execDir == execMountDir).

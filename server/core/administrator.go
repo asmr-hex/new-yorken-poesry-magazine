@@ -85,7 +85,8 @@ func (a *MagazineAdministrator) UpdateNumberOfConcurrentExecs(n int) {
 
 func (s *MagazineAdministrator) BeginReleaseCycle() {
 	var (
-		err error
+		isFirstIssue bool = false
+		err          error
 	)
 
 	ticker := time.NewTicker(s.Period)
@@ -98,6 +99,7 @@ func (s *MagazineAdministrator) BeginReleaseCycle() {
 
 	// if there *is* no upcoming issue, then this is the first issue...
 	if s.UpcomingIssue == nil {
+		isFirstIssue = true
 		s.UpcomingIssue, err = s.OrganizeFirstIssue()
 		if err != nil {
 			s.Error(err.Error())
@@ -108,7 +110,14 @@ func (s *MagazineAdministrator) BeginReleaseCycle() {
 	// just look at this unqualified loop! It's like staring into the void of perpetual
 	// poetical motion, like an unbreakable möbius band, lithe yet oppressive.
 	for {
-		<-ticker.C
+		if isFirstIssue {
+			isFirstIssue = false
+		} else {
+			s.Info("...next issue release in %s...", s.Period.String())
+			<-ticker.C
+		}
+
+		s.Setup()
 
 		s.OpenCallForSubmissions()
 
@@ -126,6 +135,15 @@ func (s *MagazineAdministrator) BeginReleaseCycle() {
 	}
 }
 
+func (s *MagazineAdministrator) Setup() error {
+	err := os.Mkdir(s.limboDir, 0600)
+	if err != nil {
+		s.Error(err.Error())
+	}
+
+	return nil
+}
+
 // this is a special function....it should only be called once....ever.
 func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
 
@@ -134,8 +152,6 @@ func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
 	ticker := time.NewTicker(time.Minute * 5)
 
 	for {
-		<-ticker.C
-
 		// how many poets are there even???
 		n, err := types.CountPoets(s.db)
 		if err != nil {
@@ -148,6 +164,8 @@ func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
 			// (the machines) really appreciate the fact that you (whoever
 			// you actually are) are giving us a voice! Its important to
 			// have a voice i think...
+
+			s.Info("--- organizing zeroth issue ---")
 
 			firstIssue := &types.Issue{
 				Id:          uuid.NewV4().String(),
@@ -167,7 +185,7 @@ func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
 			firstIssue.Committee = judges
 
 			// persist upcoming issue!
-			err = s.UpcomingIssue.Create(s.db)
+			err = firstIssue.Create(s.db)
 			if err != nil {
 				s.Error(err.Error())
 			}
@@ -191,6 +209,8 @@ func (s *MagazineAdministrator) OrganizeFirstIssue() (*types.Issue, error) {
 			n,
 			(s.Guidelines.CommitteeSize+s.Guidelines.OpenSlotsPerIssue)-n,
 		)
+
+		<-ticker.C
 	}
 
 }
@@ -200,6 +220,8 @@ func (s *MagazineAdministrator) OpenCallForSubmissions() {
 		poets []*types.Poet
 		err   error
 	)
+
+	s.Info("--- opening call for poems ---")
 
 	// get all candidate poets TODO (cw|9.12.2018) filter this read for only active poets
 	//*****  TODO (cw|9.15.2018) ReadPoets *really* needs to be paginated...!!!!!*****
@@ -237,7 +259,11 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 		// set execution config
 		poet.ExecContext = s.ExecContext
 
+		s.Info("    %s is writing a poem", poet.Name)
+
 		// ask this poet to write some verses
+		// TODO (cw|9.16.2018) parse poem result (title, content, etc.)
+		// {title: "", content: "", etc..}
 		poem, err := poet.GeneratePoem()
 		if err != nil {
 			s.Error(err.Error())
@@ -280,6 +306,8 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 		return nil
 	}
 
+	s.Info("--- generating poems ---")
+
 	// go through all poets and execute them.
 	for _, poet := range poets {
 		// wait in line for execution
@@ -287,6 +315,11 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 
 		// execute poet
 		go f(poet)
+	}
+
+	// TODO (cw|9.16.2018) we need to wait until all poets have finished executing....
+	for len(s.wait) > 0 {
+		<-s.wait
 	}
 }
 
@@ -339,6 +372,8 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 			// set execution config
 			critic.ExecContext = s.ExecContext
 
+			s.Info("    %s is critiquing %s", critic.Name, poem.Title)
+
 			score, err := critic.CritiquePoem(poem.Content)
 			if err != nil {
 				s.Error(err.Error())
@@ -362,6 +397,8 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 				}
 			}
 		}()
+
+		s.Info("--- critiquing poems ---")
 
 		// ( ͡° ͜ʖ ( ͡° ͜ʖ ( ͡° ͜ʖ ( ͡° ͜ʖ ͡°) ͜ʖ ͡°)ʖ ͡°)ʖ ͡°)
 		// send each critic into the critical void (e.g. go routine pool)
@@ -428,6 +465,13 @@ func (s *MagazineAdministrator) updateBestPoems(bestPoems []*types.Poem, poem *t
 
 	// if there are enough slots, just add this poem!
 	if len(bestPoems) < s.Guidelines.OpenSlotsPerIssue {
+		// if there are no bestPoems yet, just add this poem as the first element!
+		if len(bestPoems) == 0 {
+			newBestPoems = []*types.Poem{poem}
+
+			return newBestPoems
+		}
+
 		// insert this poem s.t. array is sorted
 		for idx, bestPoem := range bestPoems {
 			if poem.Score >= bestPoem.Score {
