@@ -240,6 +240,7 @@ func (s *sandbox) PrepareContainer() error {
 				srcFilename,
 				s.language.OptionalExecutable,
 				s.language.CompilerFlags,
+				s.options.inputType,
 			},
 			// run the sandbox container as a specific user.
 			User: "mysql", // TODO (cw|4.29.2018) change this to a constant

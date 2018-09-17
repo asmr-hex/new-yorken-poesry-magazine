@@ -68,5 +68,3 @@ RUN apt-get install -y haskell-platform
 
 # copy entrypoint directory into image.
 COPY ./entrypoint /entrypoint
-
-RUN chmod 700 /entrypoint/usercode

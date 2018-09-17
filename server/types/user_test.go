@@ -66,8 +66,8 @@ func (s *UserTestSuite) TestCreateTable() {
 }
 
 func (s *UserTestSuite) TestCreateUser() {
-	user := &User{Username: "tlon", Password: "axaxaxax", Email: "hr@worst.nightmare"}
 	id := uuid.NewV4().String()
+	user := &User{Id: id, Username: "tlon", Password: "axaxaxax", Email: "hr@worst.nightmare"}
 	expectedResult := &User{
 		Id:       id,
 		Username: "tlon",
@@ -75,7 +75,7 @@ func (s *UserTestSuite) TestCreateUser() {
 		Email:    "hr@worst.nightmare",
 	}
 
-	err := user.Create(id, testDB)
+	err := user.Create(testDB)
 	s.NoError(err)
 	s.EqualValues(user, expectedResult)
 }
@@ -83,6 +83,7 @@ func (s *UserTestSuite) TestCreateUser() {
 func (s *UserTestSuite) TestReadUser() {
 	id := uuid.NewV4().String()
 	expectedUser := &User{
+		Id:       id,
 		Username: "dagon",
 		Password: "bl4ckr33f",
 		Email:    "gasp@unknowable.horror",
@@ -90,7 +91,7 @@ func (s *UserTestSuite) TestReadUser() {
 	}
 
 	// create expected user in db
-	err := expectedUser.Create(id, testDB)
+	err := expectedUser.Create(testDB)
 	s.NoError(err)
 
 	user := &User{Id: id}
@@ -114,11 +115,12 @@ func (s *UserTestSuite) TestDeleteUser() {
 	id := uuid.NewV4().String()
 	// create a user
 	user := &User{
+		Id:       id,
 		Username: "colonel_buendias",
 		Password: "g0ld3nf15h",
 		Email:    "rogue@macondo.gov",
 	}
-	err := user.Create(id, testDB)
+	err := user.Create(testDB)
 	s.NoError(err)
 
 	// delete a user
@@ -136,13 +138,13 @@ func (s *UserTestSuite) TestReadAllUsers() {
 	// create three users
 	ids := []string{uuid.NewV4().String(), uuid.NewV4().String(), uuid.NewV4().String()}
 	expectedUsers := []*User{
-		&User{Username: "a", Password: "passwd", Email: "a@idk.org"},
-		&User{Username: "b", Password: "passwd", Email: "b@idk.org"},
-		&User{Username: "c", Password: "passwd", Email: "c@idk.org"},
+		&User{Id: ids[0], Username: "a", Password: "passwd", Email: "a@idk.org"},
+		&User{Id: ids[1], Username: "b", Password: "passwd", Email: "b@idk.org"},
+		&User{Id: ids[2], Username: "c", Password: "passwd", Email: "c@idk.org"},
 	}
 
 	for i := 0; i < len(ids); i++ {
-		err = expectedUsers[i].Create(ids[i], testDB)
+		err = expectedUsers[i].Create(testDB)
 		s.NoError(err)
 
 		// since we do not read passwords of users, we set them to empty string

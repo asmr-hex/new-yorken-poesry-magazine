@@ -144,9 +144,7 @@ func (p *Platform) Setup() {
 
 	// potentially seed the database if configured to do so...
 	if p.config.SeedDB {
-		p.Info("seeding database...")
-
-		err = types.SeedDB(p.db)
+		err = (&types.DBSeeder{PoetDir: POET_DIR}).SeedDB(p.db)
 		if err != nil {
 			panic(err)
 		}

@@ -142,10 +142,10 @@ func GetUpcomingIssue(db *sql.DB) (*Issue, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		poet := &Poet{}
+		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer,
+			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,

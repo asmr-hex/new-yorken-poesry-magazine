@@ -11,6 +11,7 @@ import (
 
 type Poem struct {
 	Id      string
+	Title   string
 	Date    time.Time
 	Author  *Poet
 	Content string
@@ -46,6 +47,7 @@ var (
 func CreatePoemsTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS poems (
 		          id UUID NOT NULL UNIQUE,
+                          title VARCHAR(255) NOT NULL,
                           date TIMESTAMP WITH TIME ZONE,
                           author UUID REFERENCES poets NOT NULL,
                           content TEXT NOT NULL,
@@ -79,8 +81,8 @@ func (p *Poem) Create(db *sql.DB) error {
 	if poemCreateStmt == nil {
 		stmt := `
                     INSERT INTO poems (
-                      id, date, author, content, issue, score
-                    ) VALUES ($1, $2, $3, $4, $5, $6)
+                      id, title, date, author, content, issue, score
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7)
                 `
 		poemCreateStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -90,6 +92,7 @@ func (p *Poem) Create(db *sql.DB) error {
 
 	_, err = poemCreateStmt.Exec(
 		p.Id,
+		p.Title,
 		p.Date,
 		p.Author.Id,
 		p.Content,

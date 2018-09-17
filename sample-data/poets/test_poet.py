@@ -12,8 +12,8 @@ def write_poem():
     print("buffalo buffalo buffalo buffalo buffalo buffalo")
 
 
-def critique_poem():
-    print("0.33")
+def critique_poem(poem):
+    print(0.33)
 
 
 def study_poem():
@@ -23,6 +23,6 @@ def study_poem():
 if args.write:
     write_poem()
 elif args.critique:
-    critique_poem()
+    critique_poem(args.critique)
 elif args.study:
     study_poem()

@@ -123,7 +123,7 @@ func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
 	user.Id = uuid.NewV4().String()
 
 	// insert data into db tables
-	err = user.Create(user.Id, a.db)
+	err = user.Create(a.db)
 	if err != nil {
 		a.Error(err.Error())
 

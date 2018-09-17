@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
@@ -237,7 +238,9 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 	// initialize poet struct
 	poet := &types.Poet{
-		Designer:        userId,
+		Id:              poetID,
+		Designer:        &types.User{Id: userId},
+		BirthDate:       time.Now(),
 		Name:            req.PostFormValue(POET_NAME_PARAM),
 		Description:     req.PostFormValue(POET_DESCRIPTION_PARAM),
 		Language:        req.PostFormValue(POET_LANGUAGE_PARAM),
@@ -251,7 +254,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		types.PoetValidationParams{
 			// ensure that the current logged in/authed user
 			// can only create a poet for themselves.
-			Designer: userId,
+			DesignerId: userId,
 			SupportedLangs: map[string]bool{
 				// TODO (cw|4.27.2018) get this list of
 				// supported langauges from somewhere.
@@ -337,7 +340,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create poet in db
-	err = poet.Create(poetID, a.db)
+	err = poet.Create(a.db)
 	if err != nil {
 		a.Error(err.Error())
 
