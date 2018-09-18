@@ -1,4 +1,5 @@
 import argparse
+import json
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
@@ -9,15 +10,34 @@ args = parser.parse_args()
 
 
 def write_poem():
-    print("buffalo buffalo buffalo buffalo buffalo buffalo")
+    poem = {
+        'title': 'buffalo buffalo',
+        'content': "buffalo buffalo buffalo buffalo buffalo buffalo",
+    }
+
+    s = json.dumps(poem)
+
+    print(s)
 
 
 def critique_poem(poem):
-    print(0.33)
+    critique = {
+        'score': 0.56,
+    }
+
+    s = json.dumps(critique)
+
+    print(s)
 
 
 def study_poem():
-    print("true")
+    update = {
+        'success': True,
+    }
+
+    s = json.dumps(update)
+
+    print(s)
 
 
 if args.write:
