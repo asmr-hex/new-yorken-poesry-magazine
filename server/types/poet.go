@@ -3,7 +3,6 @@ package types
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -452,16 +451,20 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 	}
 
 	// execute poem generation task
-	results, _ := ctx.Evaluate(p.Language, code, []string{"--write"})
+	results, _ := ctx.Evaluate(p.Language, code, PoetAPIGenerateArgs())
 	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
 	// to extract the appropriate error.
 
-	fmt.Println(results)
+	rawPoem, err := p.ParseRawPoem(results)
+	if err != nil {
+		return nil, err
+	}
 
 	poem = &Poem{
 		Date:    time.Now(),
 		Author:  p,
-		Content: results[0],
+		Title:   rawPoem.Title,
+		Content: rawPoem.Content,
 	}
 
 	return poem, nil
@@ -478,36 +481,30 @@ func (p *Poet) CritiquePoem(poem string) (float64, error) {
 		return score, err
 	}
 
-	results, msg := ctx.Evaluate(p.Language, code, []string{`--critique "` + poem + `"`})
-	fmt.Println(msg.Data)
+	results, _ := ctx.Evaluate(p.Language, code, PoetAPICritiqueArgs(poem))
 
-	score, err = strconv.ParseFloat(results[0], 64)
+	critique, err := p.ParseRawCritique(results)
 	if err != nil {
 		return score, err
 	}
 
-	// ensure that the score is within the range [0, 1]
-	if !(score >= 0 && score <= 1) {
-		return score, fmt.Errorf("invalid score (%f) given by poet %s", score, p.Name)
-	}
-
-	return score, nil
+	return critique.Score, nil
 }
 
-func (p *Poet) StudyPoem(poem string) (bool, error) {
+func (p *Poet) StudyPoems(poems ...string) (bool, error) {
 	ctx, code, err := p.setupExecutionSandbox()
 	if err != nil {
 		return false, err
 	}
 
-	results, _ := ctx.Evaluate(p.Language, code, []string{"--study"})
+	results, _ := ctx.Evaluate(p.Language, code, PoetAPIUpdateArgs(poems...))
 
-	success, err := strconv.ParseBool(results[0])
+	rawUpdate, err := p.ParseRawUpdate(results)
 	if err != nil {
 		return false, err
 	}
 
-	return success, nil
+	return rawUpdate.Success, nil
 }
 
 // creates and configures the execution sandbox.
@@ -569,7 +566,7 @@ func (p *Poet) TestPoet() error {
 	}
 
 	// test self updating
-	success, err := p.StudyPoem(consts.THE_BEST_POEM)
+	success, err := p.StudyPoems(consts.THE_BEST_POEM)
 	if err != nil {
 		return err
 	}

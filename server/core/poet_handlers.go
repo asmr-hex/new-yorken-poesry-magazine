@@ -371,6 +371,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	if err != nil {
 		a.Error(err.Error())
 	}
+	a.Info("%s is ok.", poet.Name)
 }
 
 func (*API) GetPoet(rw web.ResponseWriter, req *web.Request) {
