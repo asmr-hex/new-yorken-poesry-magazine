@@ -33,9 +33,9 @@ type Poet struct {
 	Language              string           `json:"language"`
 	ProgramFileName       string           `json:"programFileName"`
 	ParameterFileName     string           `json:"parameterFileName"`
-	ParameterFileIncluded bool             `json:"parameterFileIncluded"`
+	ParameterFileIncluded bool             `json:"-"`
 	Path                  string           `json:"-"` // this is the path to the source code
-	ExecContext           *env.ExecContext // inherit from platform config
+	ExecContext           *env.ExecContext `json:"-"` // inherit from platform config
 	Likes                 int              // number of likes this poet has
 	// TODO additional statistics: specifically, it would be cool to see the success rate
 	// of a particular poet along with the timeline of how their poems have been recieved
@@ -250,8 +250,15 @@ func (p *Poet) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if poetReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
-                         FROM poets WHERE id = $1`
+		stmt := `
+                         SELECT p.id, name, birthDate, deathDate, description,
+                                language, programFileName, parameterFileName,
+                                parameterFileIncluded, path,
+                                u.id, u.username, u.email
+                         FROM poets p
+                         INNER JOIN users u ON (p.designer = u.id)
+                         WHERE id = $1
+                `
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
@@ -270,7 +277,6 @@ func (p *Poet) Read(db *sql.DB) error {
 		QueryRow(p.Id).
 		Scan(
 			&p.Id,
-			&p.Designer.Id,
 			&p.Name,
 			&p.BirthDate,
 			&p.DeathDate,
@@ -280,6 +286,9 @@ func (p *Poet) Read(db *sql.DB) error {
 			&p.ParameterFileName,
 			&p.ParameterFileIncluded,
 			&p.Path,
+			&p.Designer.Id,
+			&p.Designer.Username,
+			&p.Designer.Email,
 		)
 	switch {
 	case err == sql.ErrNoRows:
@@ -312,18 +321,37 @@ func CountPoets(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
+func SelectRandomPoets(n int, db *sql.DB, exclude ...*Poet) ([]*Poet, error) {
 	var (
 		poets []*Poet
 		err   error
 	)
 
-	rows, err := db.Query(`
-            SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
-            FROM poets
-            ORDER BY RANDOM()
-            LIMIT $1
-        `, n)
+	setString := ""
+	whereClause := ""
+	for idx, poet := range exclude {
+		if idx == 0 {
+			setString = fmt.Sprintf(`'%s'`, poet.Id)
+		} else {
+			setString += fmt.Sprintf(`, '%s'`, poet.Id)
+		}
+	}
+	if setString != "" {
+		whereClause = fmt.Sprintf("WHERE p.id NOT IN (%s)", setString)
+	}
+	sql := fmt.Sprintf(`
+                         SELECT p.id, name, birthDate, deathDate, description,
+                                language, programFileName, parameterFileName,
+                                parameterFileIncluded, path,
+                                u.id, u.username, u.email
+                         FROM poets p
+                         INNER JOIN users u ON (p.designer = u.id)
+                         %s
+                         ORDER BY RANDOM()
+                         LIMIT $1
+        `, whereClause)
+
+	rows, err := db.Query(sql, n)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +361,6 @@ func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
 		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,
@@ -343,6 +370,9 @@ func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
 			&poet.ParameterFileName,
 			&poet.ParameterFileIncluded,
 			&poet.Path,
+			&poet.Designer.Id,
+			&poet.Designer.Username,
+			&poet.Designer.Email,
 		)
 		if err != nil {
 			return poets, err
@@ -358,7 +388,7 @@ func SelectRandomPoets(n int, db *sql.DB) ([]*Poet, error) {
 	return poets, nil
 }
 
-func GetUnderdogPoets(n int, db *sql.DB) ([]*Poet, error) {
+func GetUnderdogPoets(n int, db *sql.DB, exclude ...*Poet) ([]*Poet, error) {
 	// TODO (cw|9.14.2018) choose underdogs more equitably:
 	// * choose based on least popular programming languages
 	// * choose based on how new the poets are
@@ -366,10 +396,10 @@ func GetUnderdogPoets(n int, db *sql.DB) ([]*Poet, error) {
 	// * choose based on if they have had poems published, but with low scores
 
 	// for now just select randomly
-	return SelectRandomPoets(n, db)
+	return SelectRandomPoets(n, db, exclude...)
 }
 
-func GetFancyPoets(n int, db *sql.DB) ([]*Poet, error) {
+func GetFancyPoets(n int, db *sql.DB, exclude ...*Poet) ([]*Poet, error) {
 	// var (
 	// 	poets []*Poet
 	// 	err   error
@@ -383,7 +413,7 @@ func GetFancyPoets(n int, db *sql.DB) ([]*Poet, error) {
 	// of prolificness and quality!
 
 	// For now, just randomly choose -___- but change that!!!
-	return SelectRandomPoets(n, db)
+	return SelectRandomPoets(n, db, exclude...)
 }
 
 func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
@@ -396,8 +426,14 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 	if poetReadAllStmt == nil {
 		// readAll statement
 		// TODO pagination
-		stmt := `SELECT id, designer, name, birthDate, deathDate, description, language, programFileName, parameterFileName, parameterFileIncluded, path
-                         FROM poets`
+		stmt := `
+                         SELECT p.id, name, birthDate, deathDate, description,
+                                language, programFileName, parameterFileName,
+                                parameterFileIncluded, path,
+                                u.id, u.username, u.email
+                         FROM poets p
+                         INNER JOIN users u ON (p.designer = u.id)
+                `
 		poetReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return poets, nil
@@ -414,7 +450,6 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 		poet := &Poet{Designer: &User{}}
 		err = rows.Scan(
 			&poet.Id,
-			&poet.Designer.Id,
 			&poet.Name,
 			&poet.BirthDate,
 			&poet.DeathDate,
@@ -424,6 +459,9 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 			&poet.ParameterFileName,
 			&poet.ParameterFileIncluded,
 			&poet.Path,
+			&poet.Designer.Id,
+			&poet.Designer.Username,
+			&poet.Designer.Email,
 		)
 		if err != nil {
 			return poets, err

@@ -339,6 +339,13 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 		s.Error(err.Error())
 	}
 
+	// since we are running the critics in a go routine pool,
+	// we need to create a channel for them to submit their
+	// scores to and a channel to tell the score collector
+	// when to stop.
+	submit := make(chan float64)
+	done := make(chan bool)
+
 	// iterate through filenames in limbo dir
 	for _, file := range files {
 		// read in poem file
@@ -350,13 +357,6 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 		// initialize the candidate poem and its scores
 		poem := types.Poem{}
 		scores := []float64{}
-
-		// since we are running the critics in a go routine pool,
-		// we need to create a channel for them to submit their
-		// scores to and a channel to tell the score collector
-		// when to stop.
-		submit := make(chan float64)
-		done := make(chan bool)
 
 		err = json.Unmarshal(bytes, &poem)
 		if err != nil {
@@ -409,6 +409,16 @@ func (s *MagazineAdministrator) SelectWinningPoems() {
 
 			// execute poet
 			go f(critic)
+		}
+
+		// we need to wait until the line is empty
+		// (i.e. the last judge finished critiquing)
+		ticker := time.NewTicker(time.Millisecond * 500)
+		for len(s.wait) > 0 {
+			select {
+			case <-ticker.C:
+				continue
+			}
 		}
 
 		// the critics have finished scoring! stop the score collector go routine
@@ -574,6 +584,7 @@ func (s *MagazineAdministrator) ReleaseNewIssue() {
 		Date:        time.Now().Add(s.Period),
 		Title:       "New Issue",                                                      // TODO (cw|9.14.2018) generate new names for issues
 		Description: "this is the 0th installment of the New Yorken Poesry Magazine.", // TODO (cw|9.14.2018) see above --^
+		Committee:   s.UpcomingIssue.Committee,                                        // inherit old committee for now
 		Upcoming:    true,
 	}
 
@@ -598,31 +609,32 @@ func (a *MagazineAdministrator) ChooseNewCommitteeMembers() {
 	// and finally, how many should be "high brow, zietgiesty" poets
 	numPedigreedPoets := numNewJudges - numUnderdogs
 
-	// get underdogs poets
-	underdogs, err := types.GetUnderdogPoets(numUnderdogs, a.db)
-	if err != nil {
-		a.Error(err.Error())
-	}
-
-	// get pedigreed poets
-	pedigreedPoets, err := types.GetFancyPoets(numPedigreedPoets, a.db)
-	if err != nil {
-		a.Error(err.Error())
-	}
-
 	// kick off old judges randomly from committee
 	judges := []*types.Poet{}
 	keepIdxs, err := utils.NRandomUniqueInts(
-		len(a.UpcomingIssue.Committee)-numNewJudges,
+		numNewJudges,
 		0,
-		len(a.UpcomingIssue.Committee),
+		a.Guidelines.CommitteeSize-1,
 	)
 	if err != nil {
 		a.Error(err.Error())
 	}
 
+	// pick the judges to keep
 	for _, keepIdx := range keepIdxs {
 		judges = append(judges, a.UpcomingIssue.Committee[keepIdx])
+	}
+
+	// get underdogs poets
+	underdogs, err := types.GetUnderdogPoets(numUnderdogs, a.db, judges...)
+	if err != nil {
+		a.Error(err.Error())
+	}
+
+	// get pedigreed poets
+	pedigreedPoets, err := types.GetFancyPoets(numPedigreedPoets, a.db, judges...)
+	if err != nil {
+		a.Error(err.Error())
 	}
 
 	// include all returning and new judges

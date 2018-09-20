@@ -16,3 +16,7 @@ func TestMain(m *testing.M) {
 func TestStrCheckSuite(t *testing.T) {
 	suite.Run(t, &StrCheckTestSuite{})
 }
+
+func TestRandomSuite(t *testing.T) {
+	suite.Run(t, &RandomTestSuite{})
+}
