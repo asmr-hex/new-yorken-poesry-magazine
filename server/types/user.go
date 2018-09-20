@@ -17,9 +17,9 @@ import (
 type User struct {
 	Id                 string  `json:"id"`
 	Username           string  `json:"username"`
-	Password           string  `json:"password"`
+	Password           string  `json:"password,omitempty"`
 	Email              string  `json:"email"`
-	Poets              []*Poet `json:"poets"`
+	Poets              []*Poet `json:"poets,omitempty"`
 	EmailNotifications bool    `json:"emailNotifications"`
 }
 
@@ -317,8 +317,12 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 		// readAll statement
 		// TODO pagination
 		stmt := `
-                    SELECT id, username, email, emailNotifications
-                    FROM users
+                    SELECT u.id, username, email, emailNotifications,
+                           p.id, name, birthDate, deathDate, description,
+                           language, programFileName, parameterFileName,
+                           parameterFileIncluded, path
+                    FROM users u
+                    INNER JOIN poets p ON (u.id = p.designer)
                 `
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -334,18 +338,38 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	defer rows.Close()
 	for rows.Next() {
 		user := &User{}
+		poet := &Poet{}
 		err = rows.Scan(
 			&user.Id,
 			&user.Username,
 			&user.Email,
 			&user.EmailNotifications,
+			&poet.Id,
+			&poet.Name,
+			&poet.BirthDate,
+			&poet.DeathDate,
+			&poet.Description,
+			&poet.Language,
+			&poet.ProgramFileName,
+			&poet.ParameterFileName,
+			&poet.ParameterFileIncluded,
+			&poet.Path,
 		)
 		if err != nil {
 			return users, err
 		}
 
-		// append scanned user into list of all users
-		users = append(users, user)
+		if len(users) != 0 && user.Id == users[len(users)-1].Id {
+			// consolidate poets into one slice according to user
+			users[len(users)-1].Poets = append(
+				users[len(users)-1].Poets,
+				poet,
+			)
+		} else {
+			// append scanned user into list of all users
+			user.Poets = []*Poet{poet}
+			users = append(users, user)
+		}
 	}
 	if err := rows.Err(); err != nil {
 		return users, err

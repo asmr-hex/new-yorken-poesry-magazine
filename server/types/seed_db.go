@@ -69,50 +69,50 @@ func (s *DBSeeder) SeedDB(db *sql.DB) error {
 }
 
 func (s *DBSeeder) SeedUsers(db *sql.DB) error {
-	users := []User{
-		{
+	users := []*User{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "aulani",
 			Password: "psst",
 			Email:    "heavenly.traveller@public.ki",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "akilah",
 			Password: "psst",
 			Email:    "brainiac@pazz.az",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "aabha",
 			Password: "psst",
 			Email:    "glow@shimmer.in",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "ai",
 			Password: "psst",
 			Email:    "indigo@blue.jp",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "fang",
 			Password: "psst",
 			Email:    "fragrant@flower.cn",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "aboagye",
 			Password: "psst",
 			Email:    "heavey.lifter@complete.gh",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "akina",
 			Password: "psst",
 			Email:    "covalence@symmetry.tz",
 		},
-		{
+		&User{
 			Id:       uuid.NewV4().String(),
 			Username: "achill",
 			Password: "psst",
@@ -121,7 +121,7 @@ func (s *DBSeeder) SeedUsers(db *sql.DB) error {
 	}
 
 	for _, user := range users {
-		s.users[user.Username] = &user
+		s.users[user.Username] = user
 
 		err := user.Create(db)
 		if err != nil {
@@ -133,8 +133,8 @@ func (s *DBSeeder) SeedUsers(db *sql.DB) error {
 }
 
 func (s *DBSeeder) SeedPoets(db *sql.DB) error {
-	poets := []Poet{
-		{
+	poets := []*Poet{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aulani"],
 			BirthDate:             time.Now(),
@@ -145,7 +145,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aulani"],
 			BirthDate:             time.Now(),
@@ -156,7 +156,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aulani"],
 			BirthDate:             time.Now(),
@@ -167,7 +167,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akilah"],
 			BirthDate:             time.Now(),
@@ -178,7 +178,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akilah"],
 			BirthDate:             time.Now(),
@@ -189,7 +189,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akilah"],
 			BirthDate:             time.Now(),
@@ -200,7 +200,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aabha"],
 			BirthDate:             time.Now(),
@@ -211,7 +211,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aabha"],
 			BirthDate:             time.Now(),
@@ -222,7 +222,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aabha"],
 			BirthDate:             time.Now(),
@@ -233,7 +233,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["ai"],
 			BirthDate:             time.Now(),
@@ -244,7 +244,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["ai"],
 			BirthDate:             time.Now(),
@@ -255,7 +255,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["ai"],
 			BirthDate:             time.Now(),
@@ -266,7 +266,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["fang"],
 			BirthDate:             time.Now(),
@@ -277,7 +277,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["fang"],
 			BirthDate:             time.Now(),
@@ -288,7 +288,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["fang"],
 			BirthDate:             time.Now(),
@@ -299,7 +299,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aboagye"],
 			BirthDate:             time.Now(),
@@ -310,7 +310,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aboagye"],
 			BirthDate:             time.Now(),
@@ -321,7 +321,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["aboagye"],
 			BirthDate:             time.Now(),
@@ -332,7 +332,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akina"],
 			BirthDate:             time.Now(),
@@ -343,7 +343,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akina"],
 			BirthDate:             time.Now(),
@@ -354,7 +354,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["akina"],
 			BirthDate:             time.Now(),
@@ -365,7 +365,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["achill"],
 			BirthDate:             time.Now(),
@@ -376,7 +376,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["achill"],
 			BirthDate:             time.Now(),
@@ -387,7 +387,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 			ParameterFileName:     "",
 			ParameterFileIncluded: false,
 		},
-		{
+		&Poet{
 			Id:                    uuid.NewV4().String(),
 			Designer:              s.users["achill"],
 			BirthDate:             time.Now(),
@@ -402,7 +402,7 @@ func (s *DBSeeder) SeedPoets(db *sql.DB) error {
 
 	for _, poet := range poets {
 		poet.Path = path.Join(s.PoetDir, poet.Id)
-		s.poets[poet.Name] = &poet
+		s.poets[poet.Name] = poet
 
 		err := poet.Create(db)
 		if err != nil {
@@ -500,8 +500,8 @@ func (s *DBSeeder) SeedIssues(db *sql.DB) error {
 }
 
 func (s *DBSeeder) SeedPoems(db *sql.DB) error {
-	poems := []Poem{
-		{
+	poems := []*Poem{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "a",
 			Date:    time.Now(),
@@ -510,7 +510,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.99,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "b",
 			Date:    time.Now(),
@@ -519,7 +519,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.83,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "c",
 			Date:    time.Now(),
@@ -528,7 +528,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.66,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "d",
 			Date:    time.Now(),
@@ -537,7 +537,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.00,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "e",
 			Date:    time.Now(),
@@ -546,7 +546,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   1.0,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "f",
 			Date:    time.Now(),
@@ -555,7 +555,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.33,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "g",
 			Date:    time.Now(),
@@ -564,7 +564,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.52,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "h",
 			Date:    time.Now(),
@@ -573,7 +573,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.02,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "a",
 			Date:    time.Now(),
@@ -582,7 +582,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 			Issue:   s.issues[""],
 			Score:   0.99,
 		},
-		{
+		&Poem{
 			Id:      uuid.NewV4().String(),
 			Title:   "a",
 			Date:    time.Now(),
@@ -594,7 +594,7 @@ func (s *DBSeeder) SeedPoems(db *sql.DB) error {
 	}
 
 	for _, poem := range poems {
-		s.poems[poem.Title] = &poem
+		s.poems[poem.Title] = poem
 
 		err := poem.Create(db)
 		if err != nil {

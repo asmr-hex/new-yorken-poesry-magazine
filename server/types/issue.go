@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -100,6 +101,139 @@ func (i *Issue) Create(db *sql.DB) error {
 	return nil
 }
 
+func ReadIssues(db *sql.DB) ([]*Issue, error) {
+	var (
+		issues    = []*Issue{}
+		issuesMap = map[string]*Issue{}
+		err       error
+	)
+
+	// TODO (cw|9.18.2018) make this more efficient...im being lazy rn?
+	// read issues and judges
+	rows, err := db.Query(`
+                    SELECT i.id, i.date, i.title, i.description, i.upcoming,
+                           j.id, j.designer, j.name, j.birthDate, j.deathDate, j.description,
+                           j.language, j.programFileName, j.parameterFileName,
+                           j.parameterFileIncluded, j.path
+                    FROM issues i
+                    INNER JOIN issue_committee_membership m
+                    ON (i.id = m.issue)
+                    INNER JOIN poets j
+                    ON (m.poet = j.id)
+                `)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		issue := &Issue{
+			Committee: []*Poet{},
+		}
+		judge := &Poet{Designer: &User{}}
+		err = rows.Scan(
+			&issue.Id,
+			&issue.Date,
+			&issue.Title,
+			&issue.Description,
+			&issue.Upcoming,
+			&judge.Id,
+			&judge.Designer.Id,
+			&judge.Name,
+			&judge.BirthDate,
+			&judge.DeathDate,
+			&judge.Description,
+			&judge.Language,
+			&judge.ProgramFileName,
+			&judge.ParameterFileName,
+			&judge.ParameterFileIncluded,
+			&judge.Path,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(issues) != 0 && issue.Id == issues[len(issues)-1].Id {
+			// consolidate poets into one slice according to user
+			issuesMap[issue.Id].Committee = append(
+				issuesMap[issue.Id].Committee,
+				judge,
+			)
+		} else {
+			issue.Committee = []*Poet{judge}
+			issuesMap[issue.Id] = issue
+		}
+		issues = append(issues, issue)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	issuesIds := []string{}
+	// read contributors
+	rows, err = db.Query(`
+                    SELECT i.id,
+                           c.id, c.designer, c.name, c.birthDate, c.deathDate, c.description,
+                           c.language, c.programFileName, c.parameterFileName,
+                           c.parameterFileIncluded, c.path
+                    FROM issues i
+                    INNER JOIN issue_contributions ctr
+                    ON (i.id = ctr.issue)
+                    INNER JOIN poets c
+                    ON (ctr.poet = c.id)
+                `)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var issueId string
+		contributor := &Poet{Designer: &User{}}
+		err = rows.Scan(
+			&issueId,
+			&contributor.Id,
+			&contributor.Designer.Id,
+			&contributor.Name,
+			&contributor.BirthDate,
+			&contributor.DeathDate,
+			&contributor.Description,
+			&contributor.Language,
+			&contributor.ProgramFileName,
+			&contributor.ParameterFileName,
+			&contributor.ParameterFileIncluded,
+			&contributor.Path,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(issuesIds) != 0 && issueId == issuesIds[len(issuesIds)-1] {
+			// consolidate poets into one map according to issue
+			issuesMap[issueId].Contributors = append(
+				issuesMap[issueId].Contributors,
+				contributor,
+			)
+		} else {
+			issuesMap[issueId].Contributors = []*Poet{contributor}
+		}
+		issuesIds = append(issuesIds, issueId)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	bytes, err := json.MarshalIndent(issuesMap, "    ", "")
+	fmt.Println(string(bytes))
+
+	issues = []*Issue{}
+	for _, issue := range issuesMap {
+		issues = append(issues, issue)
+	}
+
+	return issues, nil
+}
+
 func GetUpcomingIssue(db *sql.DB) (*Issue, error) {
 	var (
 		issue     Issue
@@ -188,7 +322,7 @@ func (i *Issue) Publish(db *sql.DB) error {
 		}
 	}
 
-	_, err = poemCreateStmt.Exec(i.Id)
+	_, err = issuePublishStmt.Exec(i.Id)
 	if err != nil {
 		return err
 	}
