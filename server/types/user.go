@@ -322,7 +322,7 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
                            language, programFileName, parameterFileName,
                            parameterFileIncluded, path
                     FROM users u
-                    INNER JOIN poets p ON (u.id = p.designer)
+                    LEFT OUTER JOIN poets p ON (u.id = p.designer)
                 `
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -338,26 +338,38 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 	defer rows.Close()
 	for rows.Next() {
 		user := &User{}
-		poet := &Poet{}
+		poetNullable := &PoetNullable{}
 		err = rows.Scan(
 			&user.Id,
 			&user.Username,
 			&user.Email,
 			&user.EmailNotifications,
-			&poet.Id,
-			&poet.Name,
-			&poet.BirthDate,
-			&poet.DeathDate,
-			&poet.Description,
-			&poet.Language,
-			&poet.ProgramFileName,
-			&poet.ParameterFileName,
-			&poet.ParameterFileIncluded,
-			&poet.Path,
+			&poetNullable.Id,
+			&poetNullable.Name,
+			&poetNullable.BirthDate,
+			&poetNullable.DeathDate,
+			&poetNullable.Description,
+			&poetNullable.Language,
+			&poetNullable.ProgramFileName,
+			&poetNullable.ParameterFileName,
+			&poetNullable.ParameterFileIncluded,
+			&poetNullable.Path,
 		)
 		if err != nil {
 			return users, err
 		}
+
+		// check to see if poetNullable is null...
+		if !poetNullable.Id.Valid {
+			// if the poet is null, then there must be only one user
+			// so add this user and no poets.
+			users = append(users, user)
+
+			continue
+		}
+
+		// cool, the poet is not null
+		poet := poetNullable.Convert()
 
 		if len(users) != 0 && user.Id == users[len(users)-1].Id {
 			// consolidate poets into one slice according to user
