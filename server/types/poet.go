@@ -11,7 +11,7 @@ import (
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
 	"github.com/frenata/xaqt"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 const (
@@ -41,6 +41,41 @@ type Poet struct {
 	// of a particular poet along with the timeline of how their poems have been recieved
 
 	// what if we also had a poet obituary for when poets are "retired"
+}
+
+// this struct is strictly for extracting possibly null valued
+// fields from the database -___-
+// we will only use this struct if we are OUTER JOINING poets on
+// another table (e.g. users, since some users might not have poets)
+// TODO (cw|9.20.2018) figure out a better way to do this...
+type PoetNullable struct {
+	Id                    sql.NullString
+	DesignerId            sql.NullString
+	BirthDate             pq.NullTime
+	DeathDate             pq.NullTime
+	Name                  sql.NullString
+	Description           sql.NullString
+	Language              sql.NullString
+	ProgramFileName       sql.NullString
+	ParameterFileName     sql.NullString
+	ParameterFileIncluded sql.NullBool
+	Path                  sql.NullString
+}
+
+func (pn *PoetNullable) Convert() *Poet {
+	return &Poet{
+		Id:                    pn.Id.String,
+		Designer:              &User{Id: pn.DesignerId.String},
+		BirthDate:             pn.BirthDate.Time,
+		DeathDate:             pn.DeathDate.Time,
+		Name:                  pn.Name.String,
+		Description:           pn.Description.String,
+		Language:              pn.Language.String,
+		Path:                  pn.Path.String,
+		ProgramFileName:       pn.ProgramFileName.String,
+		ParameterFileName:     pn.ParameterFileName.String,
+		ParameterFileIncluded: pn.ParameterFileIncluded.Bool,
+	}
 }
 
 type PoetValidationParams struct {
