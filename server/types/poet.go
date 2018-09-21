@@ -300,10 +300,6 @@ func (p *Poet) Read(db *sql.DB) error {
 		}
 	}
 
-	// make sure user Id is actually populated
-
-	// TODO (cw|9.16.2018) JOIN DESIGNER!
-
 	// initialize designer struct before accessing it
 	p.Designer = &User{}
 
