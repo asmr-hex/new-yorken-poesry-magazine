@@ -7,6 +7,7 @@ import (
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
+	"github.com/lib/pq"
 )
 
 type Poem struct {
@@ -18,6 +19,29 @@ type Poem struct {
 	Issue   *Issue
 	Score   float64 // score assigned by committee
 	Likes   int     // number of users who liked this poem
+}
+
+// this struct is strictly for extracting possibly null valued
+// fields from the database -___-
+// we will only use this struct if we are OUTER JOINING poets on
+// another table (e.g. users, since some users might not have poets)
+// TODO (cw|9.20.2018) figure out a better way to do this...
+type PoemNullable struct {
+	Id      sql.NullString
+	Title   sql.NullString
+	Date    pq.NullTime
+	Content sql.NullString
+	Score   sql.NullFloat64 // score assigned by committee
+}
+
+func (pn *PoemNullable) Convert() *Poem {
+	return &Poem{
+		Id:      pn.Id.String,
+		Title:   pn.Title.String,
+		Date:    pn.Date.Time,
+		Content: pn.Content.String,
+		Score:   pn.Score.Float64,
+	}
 }
 
 func (p *Poem) Validate(action string) error {

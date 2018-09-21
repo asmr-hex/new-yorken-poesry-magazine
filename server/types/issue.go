@@ -8,10 +8,12 @@ import (
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/utils"
+	"github.com/lib/pq"
 )
 
 type Issue struct {
 	Id           string
+	Volume       int64
 	Date         time.Time
 	Committee    []*Poet
 	Contributors []*Poet
@@ -20,6 +22,31 @@ type Issue struct {
 	Description  string
 	Upcoming     bool
 	Likes        int // number of likes this issue has
+}
+
+// this struct is strictly for extracting possibly null valued
+// fields from the database -___-
+// we will only use this struct if we are OUTER JOINING poets on
+// another table (e.g. users, since some users might not have poets)
+// TODO (cw|9.20.2018) figure out a better way to do this...
+type IssueNullable struct {
+	Id          sql.NullString
+	Volume      sql.NullInt64
+	Date        pq.NullTime
+	Title       sql.NullString
+	Description sql.NullString
+	Upcoming    sql.NullBool
+}
+
+func (in *IssueNullable) Convert() *Issue {
+	return &Issue{
+		Id:          in.Id.String,
+		Volume:      in.Volume.Int64,
+		Date:        in.Date.Time,
+		Title:       in.Title.String,
+		Description: in.Description.String,
+		Upcoming:    in.Upcoming.Bool,
+	}
 }
 
 func (i *Issue) Validate(action string) error {
@@ -49,6 +76,7 @@ var (
 func CreateIssuesTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS issues (
 		          id UUID NOT NULL UNIQUE,
+                          volume SERIAL
                           date TIMESTAMP WITH TIME ZONE NOT NULL,
                           title VARCHAR(255) NOT NULL,
                           description TEXT NOT NULL,
