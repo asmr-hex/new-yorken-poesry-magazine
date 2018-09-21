@@ -104,7 +104,7 @@ func (s *PoetTestSuite) TestReadPoet() {
 	// create poet
 	poet := &Poet{
 		Id:          poetId,
-		Designer:    &User{Id: user.Id},
+		Designer:    &User{Id: user.Id, Username: user.Username, Email: user.Email},
 		Name:        "Chum of Chance",
 		Description: "explorer of some other dimensionality",
 		Language:    "forth",
@@ -150,26 +150,26 @@ func (s *PoetTestSuite) TestReadAllPoets() {
 	s.NoError(err)
 
 	// create poets
-	poets := []*Poet{
-		{
+	poets := map[string]*Poet{
+		poetIds[0]: {
 			Id:          poetIds[0],
-			Designer:    &User{Id: user.Id},
+			Designer:    &User{Id: userId, Username: user.Username, Email: user.Email},
 			Name:        "ghostA",
 			Description: "haunts shoes",
 			Language:    "haskell",
 			Path:        path.Join("/poets/", poetIds[0]),
 		},
-		{
+		poetIds[1]: {
 			Id:          poetIds[1],
-			Designer:    &User{Id: user.Id},
+			Designer:    &User{Id: userId, Username: user.Username, Email: user.Email},
 			Name:        "ghostB",
 			Description: "haunts shoe stores",
 			Language:    "k",
 			Path:        path.Join("/poets/", poetIds[1]),
 		},
-		{
+		poetIds[2]: {
 			Id:          poetIds[2],
-			Designer:    &User{Id: user.Id},
+			Designer:    &User{Id: userId, Username: user.Username, Email: user.Email},
 			Name:        "ghostC",
 			Description: "isn't a ghost",
 			Language:    "apl",
@@ -177,29 +177,31 @@ func (s *PoetTestSuite) TestReadAllPoets() {
 		},
 	}
 
-	for i := 0; i < len(poetIds); i++ {
-		err = poets[i].Create(s.db)
+	for _, p := range poets {
+		err = p.Create(s.db)
 		s.NoError(err)
 	}
 
 	resultPoets, err := ReadPoets(s.db)
 	s.NoError(err)
-	for j := 0; j < len(resultPoets); j++ {
+	for _, p := range resultPoets {
+		id := p.Id
+
 		// compare formatted string times (since postgres and go have different formats -___-)
 		s.EqualValues(
-			poets[j].BirthDate.Format(time.RFC3339),
-			resultPoets[j].BirthDate.Format(time.RFC3339),
+			poets[id].BirthDate.Format(time.RFC3339),
+			p.BirthDate.Format(time.RFC3339),
 		)
 		s.EqualValues(
-			poets[j].DeathDate.Format(time.RFC3339),
-			resultPoets[j].DeathDate.Format(time.RFC3339),
+			poets[id].DeathDate.Format(time.RFC3339),
+			p.DeathDate.Format(time.RFC3339),
 		)
 
-		resultPoets[j].BirthDate = time.Time{}
-		resultPoets[j].DeathDate = time.Time{}
-		poets[j].BirthDate = time.Time{}
-		poets[j].DeathDate = time.Time{}
-	}
+		p.BirthDate = time.Time{}
+		p.DeathDate = time.Time{}
+		poets[id].BirthDate = time.Time{}
+		poets[id].DeathDate = time.Time{}
 
-	s.EqualValues(poets, resultPoets)
+		s.EqualValues(poets[id], p)
+	}
 }

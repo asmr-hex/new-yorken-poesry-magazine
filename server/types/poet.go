@@ -292,7 +292,7 @@ func (p *Poet) Read(db *sql.DB) error {
                                 u.id, u.username, u.email
                          FROM poets p
                          INNER JOIN users u ON (p.designer = u.id)
-                         WHERE id = $1
+                         WHERE p.id = $1
                 `
 		poetReadStmt, err = db.Prepare(stmt)
 		if err != nil {

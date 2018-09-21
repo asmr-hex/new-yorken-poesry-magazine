@@ -23,6 +23,29 @@ type User struct {
 	EmailNotifications bool    `json:"emailNotifications"`
 }
 
+// this struct is strictly for extracting possibly null valued
+// fields from the database -___-
+// we will only use this struct if we are OUTER JOINING poets on
+// another table (e.g. users, since some users might not have poets)
+// TODO (cw|9.20.2018) figure out a better way to do this...
+type UserNullable struct {
+	Id                 sql.NullString
+	Username           sql.NullString
+	Password           sql.NullString
+	Email              sql.NullString
+	EmailNotifications sql.NullBool
+}
+
+func (un *UserNullable) Convert() *User {
+	return &User{
+		Id:                 un.Id.String,
+		Username:           un.Username.String,
+		Password:           un.Password.String,
+		Email:              un.Email.String,
+		EmailNotifications: un.EmailNotifications.Bool,
+	}
+}
+
 // The parameters which should be supplied from the session context
 // in order to properly validate the user.
 type UserValidationParams struct {
