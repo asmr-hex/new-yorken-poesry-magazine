@@ -265,8 +265,15 @@ func (u *User) Read(db *sql.DB) error {
 	// prepare statement if not already done so.
 	if userReadStmt == nil {
 		// read statement
-		stmt := `SELECT id, username, password, email, emailNotifications
-                         FROM users WHERE id = $1`
+		stmt := `
+                         SELECT u.id, username, password, email, emailNotifications,
+                                p.id, p.name, p.birthDate, p.deathDate, p.description,
+                                p.language, p.path
+                         FROM users u
+                         LEFT OUTER JOIN poets p
+                         ON (u.id = p.designer)
+                         WHERE u.id = $1
+                `
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
 			return err
@@ -276,15 +283,50 @@ func (u *User) Read(db *sql.DB) error {
 	// make sure user Id is actually populated
 
 	// run prepared query over arguments
-	// NOTE: we are not joining from the poets tables
-	err = userReadStmt.
-		QueryRow(u.Id).
-		Scan(&u.Id, &u.Username, &u.Password, &u.Email, &u.EmailNotifications)
-	switch {
-	case err == sql.ErrNoRows:
-		return fmt.Errorf("No user with id %s", u.Id)
-	case err != nil:
+	rows, err := userReadStmt.Query(u.Id)
+	if err != nil {
 		return err
+	}
+
+	// initialize poets slice
+	u.Poets = []*Poet{}
+
+	nRows := 0
+	defer rows.Close()
+	for rows.Next() {
+		poetNullable := &PoetNullable{}
+		err = rows.Scan(
+			&u.Id,
+			&u.Username,
+			&u.Password,
+			&u.Email,
+			&u.EmailNotifications,
+			&poetNullable.Id,
+			&poetNullable.Name,
+			&poetNullable.BirthDate,
+			&poetNullable.DeathDate,
+			&poetNullable.Description,
+			&poetNullable.Language,
+			&poetNullable.Path,
+		)
+		if err != nil {
+			return err
+		}
+
+		// append non-null poets to list
+		if poetNullable.Id.Valid {
+			u.Poets = append(u.Poets, poetNullable.Convert())
+		}
+
+		nRows += 1
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	// if there are no rows, we have an non-existent user
+	if nRows == 0 {
+		return fmt.Errorf("user with id %s does not exist.", u.Id)
 	}
 
 	// TODO ensure that we only allow reading of passwords if the user making the
@@ -292,10 +334,10 @@ func (u *User) Read(db *sql.DB) error {
 
 	// read all the poets associated with this user
 	// TODO (cw|9.14.2018) WE SHOULD BE DOING A JOIN....
-	u.Poets, err = u.GetPoets(db)
-	if err != nil {
-		return err
-	}
+	// u.Poets, err = u.GetPoets(db)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
