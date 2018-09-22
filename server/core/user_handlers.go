@@ -37,8 +37,6 @@ func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(usersJSON)
-
-	a.Info("successfully read all users")
 }
 
 // TODO send email verification

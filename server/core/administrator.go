@@ -632,7 +632,11 @@ func (a *MagazineAdministrator) ChooseNewCommitteeMembers() {
 	}
 
 	// get pedigreed poets
-	pedigreedPoets, err := types.GetFancyPoets(numPedigreedPoets, a.db, judges...)
+	pedigreedPoets, err := types.GetFancyPoets(
+		numPedigreedPoets,
+		a.db,
+		append(judges, underdogs...)...,
+	)
 	if err != nil {
 		a.Error(err.Error())
 	}

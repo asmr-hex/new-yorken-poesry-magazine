@@ -35,8 +35,6 @@ func (a *API) GetIssues(rw web.ResponseWriter, req *web.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(issuesJSON)
-
-	a.Info("successfully read all issues")
 }
 
 func (*API) GetIssue(rw web.ResponseWriter, req *web.Request) {
