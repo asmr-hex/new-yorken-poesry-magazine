@@ -2,7 +2,6 @@ package types
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -131,7 +130,8 @@ func (i *Issue) Create(db *sql.DB) error {
 
 func ReadIssues(db *sql.DB) ([]*Issue, error) {
 	var (
-		issues = map[string]*Issue{}
+		// issues = map[string]*Issue{}
+		issues = map[string]map[string]map[string]interface{}{}
 
 		err error
 	)
@@ -237,38 +237,51 @@ func ReadIssues(db *sql.DB) ([]*Issue, error) {
 		}
 
 		if _, ok := issues[issue.Id]; !ok {
-			issues[issue.Id] = issue
+			issues[issue.Id] = map[string]map[string]interface{}{
+				"issue":        map[string]interface{}{issue.Id: issue},
+				"judges":       map[string]interface{}{},
+				"contributors": map[string]interface{}{},
+				"poems":        map[string]interface{}{},
+			}
 		}
 
 		// oki oki, this issue has been scanned already, lets fill it in...
 		// consolidate judges, contributors, and poems into slices
 
+		// quick closure to detect if a field has already been scanned...
+		// im sorry i know this is confusing.... :(((((())))))
+		alreadyScanned := func(field, fieldId string) bool {
+			_, ok := issues[issue.Id][field][fieldId]
+			return ok
+		}
+
 		// insert judge, contributor, and poem into slices if they aren't null
 		if judgeNullable.Id.Valid {
-			designer := judgeDesignerNullable.Convert()
-			judge := judgeNullable.Convert()
-			judge.Designer = designer
-			issues[issue.Id].Committee = append(
-				issues[issue.Id].Committee,
-				judge,
-			)
+			// has this judge already been scanned?
+			if ok := alreadyScanned("judges", judgeNullable.Id.String); !ok {
+				designer := judgeDesignerNullable.Convert()
+				judge := judgeNullable.Convert()
+				judge.Designer = designer
+				issues[issue.Id]["judges"][judge.Id] = judge
+			}
 		}
 
 		if contributorNullable.Id.Valid {
-			designer := contributorDesignerNullable.Convert()
-			contributor := contributorNullable.Convert()
-			contributor.Designer = designer
-			issues[issue.Id].Contributors = append(
-				issues[issue.Id].Contributors,
-				contributor,
-			)
+			// has this contributor already been scanned?
+			if ok := alreadyScanned("contributors", contributorNullable.Id.String); !ok {
+				designer := contributorDesignerNullable.Convert()
+				contributor := contributorNullable.Convert()
+				contributor.Designer = designer
+				issues[issue.Id]["contributors"][contributor.Id] = contributor
+			}
 		}
 
 		if poemNullable.Id.Valid {
-			issues[issue.Id].Poems = append(
-				issues[issue.Id].Poems,
-				poemNullable.Convert(),
-			)
+			// has this contributor already been scanned?
+			if ok := alreadyScanned("poems", poemNullable.Id.String); !ok {
+				poem := poemNullable.Convert()
+				issues[issue.Id]["poems"][poem.Id] = poem
+			}
 		}
 
 	}
@@ -276,11 +289,34 @@ func ReadIssues(db *sql.DB) ([]*Issue, error) {
 		return nil, err
 	}
 
-	bytes, err := json.MarshalIndent(issues, "    ", "")
-	fmt.Println(string(bytes))
-
 	issuesSlice := []*Issue{}
-	for _, issue := range issues {
+	for id, typeMap := range issues {
+		issue := typeMap["issue"][id].(*Issue)
+
+		// append judges
+		for _, judgeInt := range typeMap["judges"] {
+			issue.Committee = append(
+				issue.Committee,
+				judgeInt.(*Poet),
+			)
+		}
+
+		// append contributors
+		for _, contributorInt := range typeMap["contributors"] {
+			issue.Contributors = append(
+				issue.Contributors,
+				contributorInt.(*Poet),
+			)
+		}
+
+		// append poems
+		for _, poemInt := range typeMap["poems"] {
+			issue.Poems = append(
+				issue.Poems,
+				poemInt.(*Poem),
+			)
+		}
+
 		issuesSlice = append(issuesSlice, issue)
 	}
 

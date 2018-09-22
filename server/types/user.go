@@ -428,6 +428,10 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
 
 		// cool, the poet is not null
 		poet := poetNullable.Convert()
+		poet.Designer.Id = user.Id
+		poet.Designer.Username = user.Username
+		poet.Designer.Email = user.Email
+		poet.Designer.EmailNotifications = user.EmailNotifications
 
 		if len(users) != 0 && user.Id == users[len(users)-1].Id {
 			// consolidate poets into one slice according to user
