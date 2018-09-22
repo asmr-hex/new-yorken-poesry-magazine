@@ -76,7 +76,7 @@ var (
 func CreateIssuesTable(db *sql.DB) error {
 	mkTableStmt := `CREATE TABLE IF NOT EXISTS issues (
 		          id UUID NOT NULL UNIQUE,
-                          volume SERIAL
+                          volume SERIAL,
                           date TIMESTAMP WITH TIME ZONE NOT NULL,
                           title VARCHAR(255) NOT NULL,
                           description TEXT NOT NULL,
@@ -131,23 +131,48 @@ func (i *Issue) Create(db *sql.DB) error {
 
 func ReadIssues(db *sql.DB) ([]*Issue, error) {
 	var (
-		issues    = []*Issue{}
-		issuesMap = map[string]*Issue{}
-		err       error
+		issues = map[string]*Issue{}
+
+		err error
 	)
 
-	// TODO (cw|9.18.2018) make this more efficient...im being lazy rn?
 	// read issues and judges
 	rows, err := db.Query(`
                     SELECT i.id, i.date, i.title, i.description, i.upcoming,
+
                            j.id, j.designer, j.name, j.birthDate, j.deathDate, j.description,
                            j.language, j.programFileName, j.parameterFileName,
-                           j.parameterFileIncluded, j.path
+                           j.parameterFileIncluded, j.path,
+
+                           ju.id, ju.username, ju.email,
+
+                           c.id, c.designer, c.name, c.birthDate, c.deathDate, c.description,
+                           c.language, c.programFileName, c.parameterFileName,
+                           c.parameterFileIncluded, c.path,
+
+                           cu.id, cu.username, cu.email,
+
+                           p.id, p.title, p.date, p.author, p.content, p.issue, p.score
                     FROM issues i
+
                     INNER JOIN issue_committee_membership m
                     ON (i.id = m.issue)
                     INNER JOIN poets j
                     ON (m.poet = j.id)
+
+                    INNER JOIN users ju
+                    ON (j.designer = ju.id)
+
+                    INNER JOIN issue_contributions ctr
+                    ON (i.id = ctr.issue)
+                    INNER JOIN poets c
+                    ON (ctr.poet = c.id)
+
+                    INNER JOIN users cu
+                    ON (c.designer = cu.id)
+
+                    INNER JOIN poems p
+                    ON (i.id = p.issue)
                 `)
 	if err != nil {
 		return nil, err
@@ -156,110 +181,110 @@ func ReadIssues(db *sql.DB) ([]*Issue, error) {
 	defer rows.Close()
 	for rows.Next() {
 		issue := &Issue{
-			Committee: []*Poet{},
+			Committee:    []*Poet{},
+			Contributors: []*Poet{},
+			Poems:        []*Poem{},
 		}
-		judge := &Poet{Designer: &User{}}
+		judgeNullable := &PoetNullable{}
+		judgeDesignerNullable := &UserNullable{}
+		contributorNullable := &PoetNullable{}
+		contributorDesignerNullable := &UserNullable{}
+		poemNullable := &PoemNullable{}
 		err = rows.Scan(
 			&issue.Id,
 			&issue.Date,
 			&issue.Title,
 			&issue.Description,
 			&issue.Upcoming,
-			&judge.Id,
-			&judge.Designer.Id,
-			&judge.Name,
-			&judge.BirthDate,
-			&judge.DeathDate,
-			&judge.Description,
-			&judge.Language,
-			&judge.ProgramFileName,
-			&judge.ParameterFileName,
-			&judge.ParameterFileIncluded,
-			&judge.Path,
+			&judgeNullable.Id,
+			&judgeNullable.DesignerId,
+			&judgeNullable.Name,
+			&judgeNullable.BirthDate,
+			&judgeNullable.DeathDate,
+			&judgeNullable.Description,
+			&judgeNullable.Language,
+			&judgeNullable.ProgramFileName,
+			&judgeNullable.ParameterFileName,
+			&judgeNullable.ParameterFileIncluded,
+			&judgeNullable.Path,
+			&judgeDesignerNullable.Id,
+			&judgeDesignerNullable.Username,
+			&judgeDesignerNullable.Email,
+			&contributorNullable.Id,
+			&contributorNullable.DesignerId,
+			&contributorNullable.Name,
+			&contributorNullable.BirthDate,
+			&contributorNullable.DeathDate,
+			&contributorNullable.Description,
+			&contributorNullable.Language,
+			&contributorNullable.ProgramFileName,
+			&contributorNullable.ParameterFileName,
+			&contributorNullable.ParameterFileIncluded,
+			&contributorNullable.Path,
+			&contributorDesignerNullable.Id,
+			&contributorDesignerNullable.Username,
+			&contributorDesignerNullable.Email,
+			&poemNullable.Id,
+			&poemNullable.Title,
+			&poemNullable.Date,
+			&poemNullable.AuthorId,
+			&poemNullable.Content,
+			&poemNullable.IssueId,
+			&poemNullable.Score,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(issues) != 0 && issue.Id == issues[len(issues)-1].Id {
-			// consolidate poets into one slice according to user
-			issuesMap[issue.Id].Committee = append(
-				issuesMap[issue.Id].Committee,
+		if _, ok := issues[issue.Id]; !ok {
+			issues[issue.Id] = issue
+		}
+
+		// oki oki, this issue has been scanned already, lets fill it in...
+		// consolidate judges, contributors, and poems into slices
+
+		// insert judge, contributor, and poem into slices if they aren't null
+		if judgeNullable.Id.Valid {
+			designer := judgeDesignerNullable.Convert()
+			judge := judgeNullable.Convert()
+			judge.Designer = designer
+			issues[issue.Id].Committee = append(
+				issues[issue.Id].Committee,
 				judge,
 			)
-		} else {
-			issue.Committee = []*Poet{judge}
-			issuesMap[issue.Id] = issue
-		}
-		issues = append(issues, issue)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	issuesIds := []string{}
-	// read contributors
-	rows, err = db.Query(`
-                    SELECT i.id,
-                           c.id, c.designer, c.name, c.birthDate, c.deathDate, c.description,
-                           c.language, c.programFileName, c.parameterFileName,
-                           c.parameterFileIncluded, c.path
-                    FROM issues i
-                    INNER JOIN issue_contributions ctr
-                    ON (i.id = ctr.issue)
-                    INNER JOIN poets c
-                    ON (ctr.poet = c.id)
-                `)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-		var issueId string
-		contributor := &Poet{Designer: &User{}}
-		err = rows.Scan(
-			&issueId,
-			&contributor.Id,
-			&contributor.Designer.Id,
-			&contributor.Name,
-			&contributor.BirthDate,
-			&contributor.DeathDate,
-			&contributor.Description,
-			&contributor.Language,
-			&contributor.ProgramFileName,
-			&contributor.ParameterFileName,
-			&contributor.ParameterFileIncluded,
-			&contributor.Path,
-		)
-		if err != nil {
-			return nil, err
 		}
 
-		if len(issuesIds) != 0 && issueId == issuesIds[len(issuesIds)-1] {
-			// consolidate poets into one map according to issue
-			issuesMap[issueId].Contributors = append(
-				issuesMap[issueId].Contributors,
+		if contributorNullable.Id.Valid {
+			designer := contributorDesignerNullable.Convert()
+			contributor := contributorNullable.Convert()
+			contributor.Designer = designer
+			issues[issue.Id].Contributors = append(
+				issues[issue.Id].Contributors,
 				contributor,
 			)
-		} else {
-			issuesMap[issueId].Contributors = []*Poet{contributor}
 		}
-		issuesIds = append(issuesIds, issueId)
+
+		if poemNullable.Id.Valid {
+			issues[issue.Id].Poems = append(
+				issues[issue.Id].Poems,
+				poemNullable.Convert(),
+			)
+		}
+
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	bytes, err := json.MarshalIndent(issuesMap, "    ", "")
+	bytes, err := json.MarshalIndent(issues, "    ", "")
 	fmt.Println(string(bytes))
 
-	issues = []*Issue{}
-	for _, issue := range issuesMap {
-		issues = append(issues, issue)
+	issuesSlice := []*Issue{}
+	for _, issue := range issues {
+		issuesSlice = append(issuesSlice, issue)
 	}
 
-	return issues, nil
+	return issuesSlice, nil
 }
 
 func GetUpcomingIssue(db *sql.DB) (*Issue, error) {
