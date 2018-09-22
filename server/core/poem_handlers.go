@@ -35,8 +35,6 @@ func (a *API) GetPoems(rw web.ResponseWriter, req *web.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(poemsJSON)
-
-	a.Info("successfully read all poems")
 }
 
 func (a *API) GetPoem(rw web.ResponseWriter, req *web.Request) {

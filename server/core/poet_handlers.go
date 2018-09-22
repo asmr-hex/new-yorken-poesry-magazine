@@ -43,8 +43,6 @@ func (a *API) GetPoets(rw web.ResponseWriter, req *web.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.Write(poetsJSON)
-
-	a.Info("successfully read all poets")
 }
 
 // creates a poet for a valid, authenticated user.
