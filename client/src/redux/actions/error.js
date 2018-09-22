@@ -11,8 +11,8 @@ export const resetErrorMsg = () => dispatch =>
 // TODO (cw|4.24.2018) wrap fetch in a status checker?
 export const checkResponse = response => {
   if (response.ok) {
-    // decode response body from json
-    return response.json()
+      // decode response body from json
+      return response.json() 
   }
 
   // TODO (cw|4.24.2018) create custom error classes?

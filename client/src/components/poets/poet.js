@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
+import Highlight from 'react-highlight'
 import {getPoetCode} from '../../redux/selectors/poets'
 import {requestReadPoetCode} from '../../redux/actions/poets'
 
@@ -34,9 +35,11 @@ export class poet extends Component {
     } = this.props
     
     return (
-      <div>
+      <div styles={{textAlign: 'left !important'}}>
         <h3>{code.filename}</h3>
-        <p>{code.code}</p>
+        <Highlight className="python" styles={{textAlign: 'left'}}>
+          {code.code}
+        </Highlight>
       </div>
     )
   }
