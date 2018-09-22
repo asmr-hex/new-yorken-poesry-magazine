@@ -27,11 +27,13 @@ type Poem struct {
 // another table (e.g. users, since some users might not have poets)
 // TODO (cw|9.20.2018) figure out a better way to do this...
 type PoemNullable struct {
-	Id      sql.NullString
-	Title   sql.NullString
-	Date    pq.NullTime
-	Content sql.NullString
-	Score   sql.NullFloat64 // score assigned by committee
+	Id       sql.NullString
+	Title    sql.NullString
+	Date     pq.NullTime
+	AuthorId sql.NullString
+	Content  sql.NullString
+	IssueId  sql.NullString
+	Score    sql.NullFloat64 // score assigned by committee
 }
 
 func (pn *PoemNullable) Convert() *Poem {
@@ -39,7 +41,9 @@ func (pn *PoemNullable) Convert() *Poem {
 		Id:      pn.Id.String,
 		Title:   pn.Title.String,
 		Date:    pn.Date.Time,
+		Author:  &Poet{Id: pn.AuthorId.String},
 		Content: pn.Content.String,
+		Issue:   &Issue{Id: pn.IssueId.String},
 		Score:   pn.Score.Float64,
 	}
 }
