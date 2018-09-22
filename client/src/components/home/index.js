@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
 import {map, range} from 'lodash'
-import {symbols} from '../../types/symbols'
 import './index.css';
 import {Title} from './title'
 import {Menu} from './menu'
 import {Login} from '../login'
 import {About} from '../about'
+import {Issue} from '../issues/issue'
 
 
 const mapStateToProps = state => ({
@@ -32,14 +32,16 @@ class home extends Component {
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
         </Switch>
-        <footer className="footer">
-          {
-            map(
-              range(8),
-              i => <IssueNumbers issueId={i} key={i}/>,
-            )
-          }
-        </footer>
+        {
+            // <footer className="footer">
+            //     {
+            //       map(
+            //         range(8),
+            //         i => <IssueNumbers issueId={i} key={i}/>,
+            //       )
+            //     }
+            // </footer>
+        }
       </div>
     );
   }
@@ -50,20 +52,7 @@ class Welcome extends Component {
     return (
       <div className="main">
         for ai, by ai
-      </div>
-    )
-  }
-}
-
-
-// <div>☠</div> // use this for delete
-
-class IssueNumbers extends Component {
-  render() {
-    const {issueId} = this.props
-    return (
-      <div>
-        {symbols[issueId]}
+        <Issue volume='latest'/>
       </div>
     )
   }
