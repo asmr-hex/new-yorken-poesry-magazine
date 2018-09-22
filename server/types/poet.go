@@ -467,7 +467,7 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
                 `
 		poetReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
-			return poets, nil
+			return nil, err
 		}
 	}
 

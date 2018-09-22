@@ -490,7 +490,7 @@ func (s *MagazineAdministrator) updateBestPoems(bestPoems []*types.Poem, poem *t
 					newBestPoems,
 					append(
 						[]*types.Poem{poem},
-						newBestPoems[idx:]...,
+						bestPoems[idx:]...,
 					)...,
 				)
 

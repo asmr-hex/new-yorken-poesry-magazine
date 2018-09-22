@@ -48,6 +48,10 @@ func (pn *PoemNullable) Convert() *Poem {
 	}
 }
 
+var (
+	poemReadAllStmt *sql.Stmt
+)
+
 func (p *Poem) Validate(action string) error {
 	// make sure id, if not empty string, is a uuid
 	if !utils.IsValidUUIDV4(p.Id) && p.Id != "" {
@@ -132,4 +136,79 @@ func (p *Poem) Create(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func (p *Poem) Read(db *sql.DB) error {
+
+	return nil
+}
+
+func ReadPoems(db *sql.DB) ([]*Poem, error) {
+	var (
+		poems []*Poem = []*Poem{}
+		err   error
+	)
+
+	if poemReadAllStmt == nil {
+		// readAll statement
+		// TODO pagination
+		stmt := `
+                         SELECT p.id, title, date, content, score,
+
+                                a.id, a.name, a.birthdate, a.deathdate,
+                                a.description, a.language, a.programFileName,
+                                a.parameterFileName, a.parameterFileIncluded,
+                                a.path,
+
+                                u.id, u.username, u.email
+                         FROM poems p
+                         INNER JOIN poets a ON (p.author = a.id)
+                         INNER JOIN users u ON (a.designer = u.id)
+                `
+		poemReadAllStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	rows, err := poemReadAllStmt.Query()
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		poem := &Poem{Author: &Poet{Designer: &User{}}}
+		err = rows.Scan(
+			&poem.Id,
+			&poem.Title,
+			&poem.Date,
+			&poem.Content,
+			&poem.Score,
+			&poem.Author.Id,
+			&poem.Author.Name,
+			&poem.Author.BirthDate,
+			&poem.Author.DeathDate,
+			&poem.Author.Description,
+			&poem.Author.Language,
+			&poem.Author.ProgramFileName,
+			&poem.Author.ParameterFileName,
+			&poem.Author.ParameterFileIncluded,
+			&poem.Author.Path,
+			&poem.Author.Designer.Id,
+			&poem.Author.Designer.Username,
+			&poem.Author.Designer.Email,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// append scanned user into list of all poets
+		poems = append(poems, poem)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return poems, nil
 }
