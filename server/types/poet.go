@@ -200,10 +200,11 @@ func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 
 // package level globals for storing prepared sql statements
 var (
-	poetCreateStmt  *sql.Stmt
-	poetReadStmt    *sql.Stmt
-	poetReadAllStmt *sql.Stmt
-	poetDeleteStmt  *sql.Stmt
+	poetCreateStmt   *sql.Stmt
+	poetReadStmt     *sql.Stmt
+	poetReadAllStmt  *sql.Stmt
+	poetDeleteStmt   *sql.Stmt
+	poetCodeReadStmt *sql.Stmt
 )
 
 func CreatePoetsTable(db *sql.DB) error {
@@ -329,6 +330,51 @@ func (p *Poet) Read(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func (p *Poet) ReadCode(db *sql.DB) (*Code, error) {
+	var (
+		code *Code = &Code{}
+		err  error
+	)
+
+	// prepare statement if not already done so.
+	if poetCodeReadStmt == nil {
+		// read statement
+		stmt := `
+                         SELECT id, language, programFileName, path
+                         FROM poets
+                         WHERE id = $1
+                `
+		poetCodeReadStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// run prepared query over arguments
+	err = poetCodeReadStmt.
+		QueryRow(p.Id).
+		Scan(
+			&code.Author,
+			&code.Language,
+			&code.FileName,
+			&code.Path,
+		)
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, fmt.Errorf("No poet with id %s", p.Id)
+	case err != nil:
+		return nil, err
+	}
+
+	// read code in from file
+	err = code.Read()
+	if err != nil {
+		return nil, err
+	}
+
+	return code, nil
 }
 
 // delete should keep meta about poets in the system along with their poems, but

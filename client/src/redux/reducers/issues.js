@@ -1,10 +1,10 @@
 import {map} from 'lodash'
-import {READ_ISSUE_SUCCESSFULL} from '../actions/issues'
+import {READ_ISSUE_SUCCESSFUL} from '../actions/issues'
 
 
 export const issuesByVolume = (state = {}, action) => {
   switch (action.type) {
-  case READ_ISSUE_SUCCESSFULL:
+  case READ_ISSUE_SUCCESSFUL:
     return mergeIssueByVolume(state, action.payload)
   default:
     return state

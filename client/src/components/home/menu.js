@@ -14,9 +14,9 @@ class menu extends Component {
     return (
       <div className='home-menu'>
         <Link to='/about' className='header-menu-item' onClick={() => this.props.showTitle()}>?</Link>
-        <Link to='/about' className='header-menu-item' onClick={() => this.props.showTitle()}>#</Link>
+        <Link to='/issues' className='header-menu-item' onClick={() => this.props.showTitle()}>#</Link>
         <Link to='/' className='header-menu-item' onClick={() => this.props.showTitle()}>~</Link>
-        <Link to='/about' className='header-menu-item' onClick={() => this.props.showTitle()}>&</Link>
+        <Link to='/poets' className='header-menu-item' onClick={() => this.props.showTitle()}>&</Link>
         <Link to='login' className='header-menu-item' onClick={() => this.props.showTitle()}>@</Link>
       </div>
     )

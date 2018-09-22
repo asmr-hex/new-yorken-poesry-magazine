@@ -82,6 +82,9 @@ func (a *API) BuildRouter() {
 		// Poem R (Poems can only be read via the API)
 		Get(pubPrefix+"/poem/:"+API_ID_PATH_PARAM, a.GetPoem).
 
+		// Code by Poet Id Read
+		Get(pubPrefix+"/code/:"+API_ID_PATH_PARAM, a.GetPoetCode).
+
 		// Issue R (Issues can only be read via the API)
 		Get(pubPrefix+"/issue/:"+API_ISSUE_VOLUME_PATH_PARAM, a.GetIssueByVolume).
 

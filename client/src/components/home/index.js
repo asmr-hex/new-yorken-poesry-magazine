@@ -8,6 +8,7 @@ import {Menu} from './menu'
 import {Login} from '../login'
 import {About} from '../about'
 import {Issue} from '../issues/issue'
+import {Poet} from '../poets/poet'
 
 
 const mapStateToProps = state => ({
@@ -31,6 +32,7 @@ class home extends Component {
           <Route exact path='/' component={Welcome}/>
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
+          <Route path='/poet/:id' component={Poet}/>
         </Switch>
         {
             // <footer className="footer">

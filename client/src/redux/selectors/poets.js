@@ -8,16 +8,19 @@ export const getPoetsOfUser = state =>
     [],
   )
 
-export const getJudgesByIssueVolume = (state, volume) =>
+export const getJudgesByIssueVolume = (volume, state) =>
   map(
     get(state, `issuesByVolume.${volume}.committee`, []),
     id => get(state, `poets.${id}`, {}),
     [],
   )
 
-export const getContributorsByIssueVolume = (state, volume) =>
+export const getContributorsByIssueVolume = (volume, state) =>
   map(
     get(state, `issuesByVolume.${volume}.contributors`, []),
     id => get(state, `poets.${id}`, {}),
     [],
   )
+
+export const getPoetCode = (id, state) =>
+  get(state, `codeByPoetId.${id}`, `preview not available...`)
