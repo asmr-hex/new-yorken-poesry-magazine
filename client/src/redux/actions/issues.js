@@ -25,11 +25,11 @@ export const requestReadIssue = ({volume = 'latest'}) => dispatch => {
 }
 
 
-export const READ_ISSUE_SUCCESSFULL = 'READ_ISSUE_SUCCESSFUL'
+export const READ_ISSUE_SUCCESSFUL = 'READ_ISSUE_SUCCESSFUL'
 export const readIssueSuccessful = issue => dispatch =>
   dispatch({
     payload: issue,
-    type: READ_ISSUE_SUCCESSFULL,
+    type: READ_ISSUE_SUCCESSFUL,
   })
 
 export const READ_ISSUE_FAILED = 'CREATE_ISSUE_FAILED'

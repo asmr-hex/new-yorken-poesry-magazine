@@ -1,12 +1,12 @@
 import {reduce} from 'lodash'
 import {LOGIN_SUCCESSFUL} from '../actions/login'
 import {CREATE_POET_SUCCESSFUL} from '../actions/poets'
-import {READ_ISSUE_SUCCESSFULL} from '../actions/issues'
+import {READ_ISSUE_SUCCESSFUL} from '../actions/issues'
 
 
 export const poets = (state = {}, action) => {
   switch (action.type) {
-  case READ_ISSUE_SUCCESSFULL:
+  case READ_ISSUE_SUCCESSFUL:
     // since issues come loaded with poets (judges + contributors)
     // we need to normalize the issue and load in poets here
     const issue = action.payload

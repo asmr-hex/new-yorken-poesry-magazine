@@ -6,6 +6,7 @@ import {session} from './session'
 import {poets} from './poets'
 import {issuesByVolume} from './issues'
 import {poems} from './poems'
+import {codeByPoetId} from './code'
 
 
 export const reducers = combineReducers({
@@ -14,6 +15,7 @@ export const reducers = combineReducers({
   poets,
   poems,
   issuesByVolume,
+  codeByPoetId,
   session,
   ui,
 })
