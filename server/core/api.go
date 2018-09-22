@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	API_VERSION           = "v1"
-	API_DASHBOARD         = "dashboard"
-	API_ID_PATH_PARAM     = "id"
-	API_VERIFY_PATH_PARAM = "verify"
+	API_VERSION                 = "v1"
+	API_DASHBOARD               = "dashboard"
+	API_ID_PATH_PARAM           = "id"
+	API_ISSUE_VOLUME_PATH_PARAM = "volume"
+	API_VERIFY_PATH_PARAM       = "verify"
 )
 
 type API struct {
@@ -82,7 +83,7 @@ func (a *API) BuildRouter() {
 		Get(pubPrefix+"/poem/:"+API_ID_PATH_PARAM, a.GetPoem).
 
 		// Issue R (Issues can only be read via the API)
-		Get(pubPrefix+"/issue/:"+API_ID_PATH_PARAM, a.GetIssue).
+		Get(pubPrefix+"/issue/:"+API_ISSUE_VOLUME_PATH_PARAM, a.GetIssueByVolume).
 
 		// === Dashboard API ===
 		Post(dashPrefix+"/login", a.Login).

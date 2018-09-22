@@ -11,14 +11,14 @@ import (
 )
 
 type Poem struct {
-	Id      string
-	Title   string
-	Date    time.Time
-	Author  *Poet
-	Content string
-	Issue   *Issue
-	Score   float64 // score assigned by committee
-	Likes   int     // number of users who liked this poem
+	Id      string    `json:"id"`
+	Title   string    `json:"title"`
+	Date    time.Time `json:"date"`
+	Author  *Poet     `json:"author"`
+	Content string    `json:"content"`
+	Issue   *Issue    `json:"issue"`
+	Score   float64   `json:"score"` // score assigned by committee
+	Likes   int       `json:"likes"` // number of users who liked this poem
 }
 
 // this struct is strictly for extracting possibly null valued
