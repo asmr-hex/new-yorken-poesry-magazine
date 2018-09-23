@@ -10,7 +10,6 @@ class app extends Component {
     return (
       <Switch>
         {/* we *must* specify routes in a specific order so the matching works -__- */}
-        <Route path='/dashboard' component={Dashboard}/>
         <Route path='/' component={Home}/>
       </Switch>
     )

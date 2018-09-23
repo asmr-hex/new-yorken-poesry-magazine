@@ -18,7 +18,7 @@ class login extends Component {
   redirectUponLogin = () => {
     const {history} = this.props
 
-    history.push('/dashboard')
+    history.push('/profile')
   }
   
   login = values => {

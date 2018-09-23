@@ -10,6 +10,9 @@ const actions = {
 
 class menu extends Component {
   render() {
+    const {
+      loggedIn,
+    } = this.props
     
     return (
       <div className='home-menu'>
@@ -17,7 +20,11 @@ class menu extends Component {
         <Link to='/issues' className='header-menu-item' onClick={() => this.props.showTitle()}>#</Link>
         <Link to='/' className='header-menu-item' onClick={() => this.props.showTitle()}>~</Link>
         <Link to='/poets' className='header-menu-item' onClick={() => this.props.showTitle()}>&</Link>
-        <Link to='login' className='header-menu-item' onClick={() => this.props.showTitle()}>@</Link>
+        {
+          loggedIn ?
+              <Link to='/profile' className='header-menu-item' onClick={() => this.props.showTitle()}>@</Link>
+            : <Link to='/login' className='header-menu-item' onClick={() => this.props.showTitle()}>@</Link>
+        }
       </div>
     )
   }
