@@ -72,7 +72,59 @@
     cursor: pointer;
 }
 
+.poet-body-content {
+    padding-top: 2em;
+}
+
 .poet-body-code {
     text-align: left;
 }
 
+.poet-overview {
+    display: flex;
+}
+
+.poet-overview-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.poet-overview-details-birthday {
+    font-size: 1.4em;
+    white-space: pre-wrap;
+}
+
+.poet-overview-details-description {
+    font-size: 1.6em;
+    white-space: pre-wrap;
+    padding-top: 1em;
+    font-style: italic;
+}
+
+.poet-overview-generate-poem {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.poet-overview-generate-poem-button {
+    padding: 1em;
+    background-color: #222;
+    border: 1px solid #222;
+    font-size: 1.3em;
+    color: #eee;
+    font-weight: 500;
+}
+
+
+.poet-overview-generate-poem-button:hover {
+    padding: 1em;
+    background-color: #fff;
+    border: 1px solid #222;
+    font-size: 1.3em;
+    color: #222;
+    font-weight: 500;
+}
