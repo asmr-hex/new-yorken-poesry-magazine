@@ -5,11 +5,13 @@ import {map, range} from 'lodash'
 import './index.css';
 import {Title} from './title'
 import {Menu} from './menu'
+import {Dashboard} from '../dashboard'
 import {Login} from '../login'
 import {About} from '../about'
 import {Issue} from '../issues/issue'
 import {Issues} from '../issues/issues'
 import {Poet} from '../poets/poet'
+import {Poets} from '../poets/poets'
 
 
 const mapStateToProps = state => ({
@@ -23,18 +25,22 @@ const mapStateToProps = state => ({
 class home extends Component {
   render() {
     const {showTitle} = this.props.ui
+    const {loggedIn} = this.props
    
     return (
       <div className="App">
         {
-          showTitle ? <Title /> : <Menu />
+          showTitle ? <Title /> : <Menu loggedIn={loggedIn}/>
         }
         <Switch>
           <Route exact path='/' component={Welcome}/>
+          <Route exact path='/profile' component={Dashboard}/>
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
+          <Route path='/poets' component={Poets}/>
           <Route path='/poet/:id' component={Poet}/>
           <Route path='/issues' component={Issues}/>
+          <Route path='/issue/:id' component={Issues}/>
         </Switch>
         {
             // <footer className="footer">

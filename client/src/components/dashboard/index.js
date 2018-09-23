@@ -19,11 +19,10 @@ class dashboard extends Component {
 
   render() {
     return (
-      <div>
+      <div className='main'>
         <div className='about-tabs'>
-          <div className='header-menu-item' onClick={this.manageUserPage(true)}>a</div>
-          <div className='header-menu-item' onClick={this.manageUserPage(false)}>p</div>
-          <Link to='/' className='header-menu-item'>?</Link>
+          <div className='about-tab' onClick={this.manageUserPage(true)}>a</div>
+          <div className='about-tab' onClick={this.manageUserPage(false)}>p</div>
         </div>
         <div>
           {
