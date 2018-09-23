@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
 import Highlight from 'react-highlight'
+import {get, isEmpty} from 'lodash'
 import {getPoetCode} from '../../redux/selectors/poets'
-import {requestReadPoetCode} from '../../redux/actions/poets'
+import {
+  requestReadPoet,
+  requestReadPoetCode,
+} from '../../redux/actions/poets'
 
 
 const mapStateToProps = (state, ownProps) => {
@@ -14,30 +18,48 @@ const mapStateToProps = (state, ownProps) => {
   return {
     id,
     code: getPoetCode(id, state),
+    poet: get(state, `poets.${id}`, {}),
   }
 }
 
 const actions = {
+  fetchPoet: requestReadPoet,
   fetchCode: requestReadPoetCode,
 }
 
 export class poet extends Component {
   componentDidMount() {
-    const {id, fetchCode} = this.props
+    const {
+      id,
+      fetchPoet,
+      fetchCode,
+      poet,
+      code,
+    } = this.props
 
     // fetch the code for this poet
-    fetchCode(id)
+    if (isEmpty(code)) {
+      fetchCode(id)      
+    }
+
+    // fetch poet if we don't already have it
+    if (isEmpty(poet)) {
+      fetchPoet(id)
+    }
+
   }
   
   render() {
     const {
-      code
+      code,
+      poet,
     } = this.props
-    
+
     return (
-      <div styles={{textAlign: 'left !important'}}>
+      <div>
         <h3>{code.filename}</h3>
-        <Highlight className="python" styles={{textAlign: 'left'}}>
+        <p>{poet.name}</p>
+        <Highlight className="python">
           {code.code}
         </Highlight>
       </div>

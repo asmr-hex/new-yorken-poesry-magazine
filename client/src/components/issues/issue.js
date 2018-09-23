@@ -91,6 +91,7 @@ class TOC extends Component {
   }
 }
 
+// TODO (cw|9.22.2018) move this to component/poems directory
 class Poem extends Component {
   render() {
     const {
