@@ -1,0 +1,78 @@
+.poet-container {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    padding-bottom: 8em;
+}
+
+.poet-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 2em;
+    border-bottom: 1px solid #ccc;
+}
+
+.poet-header-name {
+    font-size: 4.6em;
+    font-weight: 300;
+}
+
+.poet-subheader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 1em;
+}
+
+.poet-subheader-language {
+    font-family: monospace;
+    font-size: 1.7em;
+    padding-left: 0.3em;
+}
+
+.poet-subheader-designer-text {
+    font-size: 1.8em;
+}
+
+.poet-subheader-designer {
+    padding-left: 0.5em;
+}
+
+.poet-subheader-designer:hover {
+    font-weight: 400;
+}
+
+.poet-body {
+    
+}
+
+.poet-body-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 2em;
+    padding-bottom: 2em;
+}
+
+.poet-body-menu-item {
+    font-size: 2.4em;
+    font-weight: 300;
+    padding: 0.4em;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+
+.poet-body-menu-item-selected {
+    font-size: 2.4em;
+    font-weight: 300;
+    padding: 0.4em;
+    border: 1px solid #444;
+    cursor: pointer;
+}
+
+.poet-body-code {
+    text-align: left;
+}
+
