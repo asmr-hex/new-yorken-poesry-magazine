@@ -1,16 +1,25 @@
 import {reduce} from 'lodash'
 import {LOGIN_SUCCESSFUL} from '../actions/login'
-import {CREATE_POET_SUCCESSFUL} from '../actions/poets'
-import {READ_ISSUE_SUCCESSFUL} from '../actions/issues'
+import {
+  CREATE_POET_SUCCESSFUL,
+  READ_POET_SUCCESSFUL,
+} from '../actions/poets'
+import {
+  READ_ISSUES_SUCCESSFUL,
+  READ_ISSUE_SUCCESSFUL,
+} from '../actions/issues'
 
 
 export const poets = (state = {}, action) => {
   switch (action.type) {
+  case READ_ISSUES_SUCCESSFUL:
+    return mergePoetsFromIssues(state, action.payload)
   case READ_ISSUE_SUCCESSFUL:
     // since issues come loaded with poets (judges + contributors)
     // we need to normalize the issue and load in poets here
     const issue = action.payload
     return mergePoetsById(state, [...issue.committee, ...issue.contributors])
+  case READ_POET_SUCCESSFUL:
   case CREATE_POET_SUCCESSFUL:
     return {...state, [action.payload.id]: action.payload}
   case LOGIN_SUCCESSFUL:
@@ -21,6 +30,13 @@ export const poets = (state = {}, action) => {
     return state
   }
 }
+
+export const mergePoetsFromIssues = (state, issues) =>
+  reduce(
+    issues,
+    (acc, issue) => mergePoetsById(acc, [...issue.committee, ...issue.contributors]),
+    state,
+  )
 
 export const mergePoetsById = (state, poets) =>
   reduce(

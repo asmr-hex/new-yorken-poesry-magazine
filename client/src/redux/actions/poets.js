@@ -67,6 +67,46 @@ export const createPoetFailed = error => dispatch => {
 }
 
 
+export const READ_POET_REQUESTED = 'READ_POET_REQUESTED'
+export const requestReadPoet = poetId => dispatch => {
+  const payload = {poetId}
+
+  dispatch({
+    payload,
+    type: READ_POET_REQUESTED,
+  })
+
+  // make request for poet
+  fetch(
+    `/api/v1/poet/${poetId}`,
+    {
+      method: 'GET',
+    })
+    .then(checkResponse)
+    .then(
+      poet => dispatch(readPoetSuccessful(poet)),
+      error => dispatch(readPoetFailed(error)),
+    )  
+}
+
+export const READ_POET_SUCCESSFUL = 'READ_POET_SUCCESSFUL'
+export const readPoetSuccessful = poet => dispatch =>
+  dispatch({
+    payload: poet,
+    type: READ_POET_SUCCESSFUL,
+  })
+
+export const READ_POET_FAILED = 'READ_POET_FAILED'
+export const readPoetFailed = error => dispatch => {
+  error.message = 'read poet failed: ' + error.message
+  
+  dispatch({
+    error,
+    type: READ_POET_FAILED,
+  })
+}
+
+
 export const READ_POET_CODE_REQUESTED = 'READ_POET_CODE_REQUESTED'
 export const requestReadPoetCode = poetId => dispatch => {
   const payload = {poetId}

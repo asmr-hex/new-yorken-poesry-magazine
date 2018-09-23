@@ -8,6 +8,7 @@ import {Menu} from './menu'
 import {Login} from '../login'
 import {About} from '../about'
 import {Issue} from '../issues/issue'
+import {Issues} from '../issues/issues'
 import {Poet} from '../poets/poet'
 
 
@@ -33,6 +34,7 @@ class home extends Component {
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>
           <Route path='/poet/:id' component={Poet}/>
+          <Route path='/issues' component={Issues}/>
         </Switch>
         {
             // <footer className="footer">

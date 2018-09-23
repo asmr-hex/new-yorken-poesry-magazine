@@ -1,15 +1,27 @@
-import {map} from 'lodash'
-import {READ_ISSUE_SUCCESSFUL} from '../actions/issues'
+import {map, reduce} from 'lodash'
+import {
+  READ_ISSUES_SUCCESSFUL,
+  READ_ISSUE_SUCCESSFUL,
+} from '../actions/issues'
 
 
 export const issuesByVolume = (state = {}, action) => {
   switch (action.type) {
   case READ_ISSUE_SUCCESSFUL:
     return mergeIssueByVolume(state, action.payload)
+  case READ_ISSUES_SUCCESSFUL:
+    return mergeIssuesByVolume(state, action.payload)
   default:
     return state
   }
 }
+
+export const mergeIssuesByVolume = (state, issues) =>
+  reduce(
+    issues,
+    (acc, issue) => mergeIssueByVolume(acc, issue),
+    state
+  )
 
 export const mergeIssueByVolume = (state, issue) => {
   // since issues come in with all associations contained

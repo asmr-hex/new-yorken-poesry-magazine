@@ -23,4 +23,4 @@ export const getContributorsByIssueVolume = (volume, state) =>
   )
 
 export const getPoetCode = (id, state) =>
-  get(state, `codeByPoetId.${id}`, `preview not available...`)
+  get(state, `codeByPoetId.${id}`, {})

@@ -401,8 +401,32 @@ func (a *API) GetPoetCode(rw web.ResponseWriter, req *web.Request) {
 	rw.Write(codeJSON)
 }
 
-func (*API) GetPoet(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO GET POET")
+func (a *API) GetPoet(rw web.ResponseWriter, req *web.Request) {
+	// extracting the poetId path param
+	poetId := req.PathParams[API_ID_PATH_PARAM]
+
+	poet := &types.Poet{Id: poetId}
+
+	err := poet.Read(a.db)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	poetJSON, err := json.Marshal(poet)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(poetJSON)
 }
 
 func (*API) UpdatePoet(rw web.ResponseWriter, req *web.Request) {
