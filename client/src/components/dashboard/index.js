@@ -21,8 +21,8 @@ class dashboard extends Component {
     return (
       <div className='main'>
         <div className='about-tabs'>
-          <div className='about-tab' onClick={this.manageUserPage(true)}>a</div>
-          <div className='about-tab' onClick={this.manageUserPage(false)}>p</div>
+          <div className='about-tab' onClick={this.manageUserPage(true)}>profile</div>
+          <div className='about-tab' onClick={this.manageUserPage(false)}>poets</div>
         </div>
         <div>
           {

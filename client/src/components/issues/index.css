@@ -1,0 +1,192 @@
+/*  issues page styles  */
+.issues-header {
+    font-size: xx-large;
+    letter-spacing: 0.7em;
+    font-weight: 400;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.issues-summaries-container {
+    width: 40%;
+}
+
+.issue-row-container {
+    
+}
+
+.issue-row {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border: 1px solid #fff;
+}
+
+.issue-row:hover {
+    border: 1px solid #444;
+}
+
+
+.issue-row-title-line {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.issue-row-volume-item {
+    margin-left: 1em;
+    font-weight: 400;
+}
+
+.issue-row-title-item {
+    margin-left: 1em;
+    font-weight: 500;
+}
+
+.issue-row-description {
+    text-align: left;
+    width: 100%;
+    margin-left: 1em;
+}
+
+
+/* issue page styles  */
+.issue-page-container {
+    width: 40%;    
+}
+
+.issue-toc {
+    padding-top: 2em;
+    border-bottom: 1px solid #ccc;    
+}
+
+.issue-toc-header {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-bottom: 1px solid #ccc;
+}
+
+.issue-toc-title {
+    font-size: xx-large;
+    letter-spacing: 0.7em;
+    font-weight: 400;
+    border-bottom: 1px solid #ccc;
+}
+
+.issue-toc-subheader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.issue-toc-volume-item {
+    margin-top: 0.5em;
+    font-size: large;
+    font-weight: 300;   
+}
+
+.issue-toc-date-item {
+    margin-top: 0.5em;
+    font-size: large;
+    font-weight: 300;   
+}
+
+.issue-toc-description-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5em;
+}
+
+.issue-toc-description {
+    width: 60%;
+    text-align: justify;
+    font-style: italic;
+    font-size: large
+}
+
+.issue-toc-poems-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 2em;
+}
+
+.issue-toc-poems-header {
+    font-size: x-large;
+    margin-bottom: 0.8em;
+}
+
+.issue-toc-poems {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
+
+.issue-toc-poem {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.9em;
+    letter-spacing: 0.1em;
+}
+
+.issue-toc-poem:hover {    
+    font-weight: 500;
+}
+
+.issue-toc-poem-title {
+    font-size: large; 
+}
+
+.issue-toc-poem-author {
+    font-style: italic;
+    font-size: large    
+}
+
+/* issue poem styles  */
+.issue-poems-container {
+    padding-top: 5em;
+}
+
+.issue-poem {
+    padding-bottom: 10em;
+}
+
+.issue-poem-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.issue-poem-title {
+    font-size: xx-large;
+    font-weight: 500;
+    width: 50%;
+    text-align: justify;
+    letter-spacing: 0.05em;
+}
+
+.issue-poem-subheader {
+    font-size: larger;
+}
+
+.issue-poem-author {
+    letter-spacing: 0.1em;
+    margin-left: 1em;
+    font-weight: 400;
+}
+
+.issue-poem-author:hover {
+    font-weight: 550;
+}
+
+.issue-poem-content {
+    padding-top: 1em;
+    font-size: x-large;
+    text-align: left;
+    white-space: pre-wrap;
+    letter-spacing: 0.05em;
+}

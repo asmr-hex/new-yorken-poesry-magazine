@@ -29,6 +29,8 @@ a {
 
 .main {
     grid-area: main;
+    display: flex;
+    justify-content: center;
     margin-left: 1%;
     margin-right: 1%;
 }

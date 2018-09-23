@@ -40,7 +40,7 @@ class home extends Component {
           <Route path='/poets' component={Poets}/>
           <Route path='/poet/:id' component={Poet}/>
           <Route path='/issues' component={Issues}/>
-          <Route path='/issue/:id' component={Issues}/>
+          <Route path='/issue/:volume' component={Issue}/>
         </Switch>
         {
             // <footer className="footer">
@@ -60,7 +60,7 @@ class home extends Component {
 class Welcome extends Component {
   render() {
     return (
-      <div className="main">
+      <div>
         for ai, by ai
         <Issue volume='latest'/>
       </div>
