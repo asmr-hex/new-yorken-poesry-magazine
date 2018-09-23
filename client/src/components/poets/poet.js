@@ -4,6 +4,7 @@ import {connect} from 'react-redux'
 import Highlight from 'react-highlight'
 import {Link} from 'react-router-dom'
 import {get, isEmpty} from 'lodash'
+import {formatDate} from '../../types/date'
 import {getPoetCode} from '../../redux/selectors/poets'
 import {
   requestReadPoet,
@@ -120,14 +121,32 @@ export class poet extends Component {
 export const Poet = connect(mapStateToProps, actions)(poet)
 
 export class PoetOverview extends Component {
+  writePoem(poetId) {
+    // do something
+  }
+  
   render() {
     const {
       poet
     } = this.props
-    
+
     return (
       <div className='poet-overview'>
-        yoo
+        <div className='poet-overview-details'>
+          <span className='poet-overview-details-birthday'>
+            birthday:   {formatDate(poet.birthDate)}
+          </span>
+          <span className='poet-overview-details-description'>
+            {poet.description}
+          </span>
+        </div>
+        <div className='poet-overview-generate-poem'>
+          <div className='poet-overview-generate-poem-button'
+               onClick={() => this.writePoem(poet.id)}
+            >
+            generate a poem
+          </div>
+        </div>
       </div>
     )
   }

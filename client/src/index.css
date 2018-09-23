@@ -3,6 +3,8 @@
 html, body {
     height: 100%;
     width: 100%;
+    /*force scroll bar to get rid of center jumps*/
+    overflow-y: scroll;
 }
 
 #root{
