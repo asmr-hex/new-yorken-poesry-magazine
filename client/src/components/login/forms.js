@@ -7,10 +7,10 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
     floatingLabelText={label}
-    hintStyle={{color: '#fff', fontSize: '1.5em'}}
-    inputStyle={{color: '#fff', fontSize: '1.5em'}}
-    underlineStyle={{borderColor: '#fff'}}
-    underlineFocusStyle={{borderColor: '#fff'}}
+    hintStyle={{color: '#222', fontSize: '1.5em'}}
+    inputStyle={{color: '#222', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#222'}}
+    underlineFocusStyle={{borderColor: '#222'}}
     errorText={touched && error}
     {...input}
     {...custom}
@@ -45,15 +45,15 @@ const signupForm = props => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <Field name="email" component="input" type="text" placeholder="email address"/>
+        <Field name="email" component={renderTextField} type="text" placeholder="email address"/>
       </div>
       <div>
-        <Field name="username" component="input" type="text" placeholder="username"/>
+        <Field name="username" component={renderTextField} type="text" placeholder="username"/>
       </div>
       <div>
-        <Field name="password" component="input" type="text" placeholder="password"/>
+        <Field name="password" component={renderTextField} type="text" placeholder="password"/>
       </div>
-      <button type="submit">signup</button>
+      <button className='signin-button' type="submit">signup</button>
     </form> 
   )
 }
