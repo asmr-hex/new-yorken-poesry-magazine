@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
 import {filter, get, isEmpty, map, values} from 'lodash'
@@ -9,7 +8,7 @@ import './index.css'
 
 
 const mapStateToProps = (state, ownProps) => ({
-  issues: values(filter(get(state, `issuesByVolume`, {}), (v, k) => k != 'latest')),
+  issues: values(filter(get(state, `issuesByVolume`, {}), (v, k) => k !== 'latest')),
 })
 
 const actions = {
@@ -65,7 +64,7 @@ export class IssueRow extends Component {
     } = this.props.issue
 
     return (
-      <Link to={`/issue/${volume}`} onClick={() => this.props.showTitle()}>
+      <Link to={`/issue/${volume}`}>
         <div className='issue-row-container'>
           <div className='issue-row'>
             <div className='issue-row-title-line'>

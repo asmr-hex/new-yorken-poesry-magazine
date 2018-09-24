@@ -1,0 +1,27 @@
+.login-page {
+    width: 30%;
+}
+
+.login-container {
+    margin-top: 3em;
+    border: 1px solid #222;
+    background-color: #222;
+    padding: 3em;
+}
+
+.signin-button {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #fff;
+    font-family: 'Source Sans Pro', sans-serif;;
+    font-size: 1.6em;
+    outline:none;
+    margin: 0.4em;
+    font-weight: normal;
+}
+
+.signin-button:hover {
+    background-color: #fff;
+    color: #222;
+    border: 1px solid #fff;
+}

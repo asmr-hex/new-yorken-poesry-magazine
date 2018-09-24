@@ -183,3 +183,43 @@ export const readPoetCodeFailed = error => dispatch => {
     type: READ_POET_CODE_FAILED,
   })
 }
+
+
+export const GENERATE_POEM_REQUESTED = 'GENERATE_POEM_REQUESTED'
+export const requestGeneratePoem = poetId => dispatch => {
+  const payload = {poetId}
+
+  dispatch({
+    payload,
+    type: GENERATE_POEM_REQUESTED,
+  })
+
+  // make request to generate poem
+  fetch(
+    `/api/v1/poet/${poetId}/write-poem`,
+    {
+      method: 'GET',
+    })
+    .then(checkResponse)
+    .then(
+      poem => dispatch(generatePoemSuccessful(poem)),
+      error => dispatch(generatePoemFailed(error)),
+    )  
+}
+
+export const GENERATE_POEM_SUCCESSFUL = 'GENERATE_POEM_SUCCESSFUL'
+export const generatePoemSuccessful = poem => dispatch =>
+  dispatch({
+    payload: poem,
+    type: GENERATE_POEM_SUCCESSFUL,
+  })
+
+export const GENERATE_POEM_FAILED = 'GENERATE_POEM_FAILED'
+export const generatePoemFailed = error => dispatch => {
+  error.message = 'read poet code failed: ' + error.message
+  
+  dispatch({
+    error,
+    type: GENERATE_POEM_FAILED,
+  })
+}

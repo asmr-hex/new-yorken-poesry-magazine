@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
 import Highlight from 'react-highlight'
-import {Link} from 'react-router-dom'
 import {get, isEmpty} from 'lodash'
 import {formatDate} from '../../types/date'
 import {getPoetCode} from '../../redux/selectors/poets'
 import {
   requestReadPoet,
   requestReadPoetCode,
+  requestGeneratePoem,
 } from '../../redux/actions/poets'
 import './index.css'
+import {Poem} from '../poems/poem'
 
 
 const mapStateToProps = (state, ownProps) => {
@@ -22,12 +22,14 @@ const mapStateToProps = (state, ownProps) => {
     id,
     code: getPoetCode(id, state),
     poet: get(state, `poets.${id}`, {}),
+    generatedPoem: get(state, `generatedPoemsByPoetId.${id}`, {}),
   }
 }
 
 const actions = {
   fetchPoet: requestReadPoet,
   fetchCode: requestReadPoetCode,
+  writePoem: requestGeneratePoem,
 }
 
 export class poet extends Component {
@@ -67,9 +69,9 @@ export class poet extends Component {
     const {
       code,
       poet,
+      writePoem,
+      generatedPoem,
     } = this.props
-
-    console.log(poet)
     
     return (
       <div className='main'>
@@ -80,23 +82,23 @@ export class poet extends Component {
               <span className='poet-subheader-language'>{poet.language}</span>
               <span className='poet-subheader-designer-text'>
                 designed by
-                <Link to={`/user/${poet.designer}`} className='text-link'>
-                  <span className='poet-subheader-designer'>testUser</span>
-                </Link>
+                {/* <Link to={`/user/${poet.designer}`} className='text-link'> */}
+                  <span className='poet-subheader-designer'>{get(poet, `designer.username`, '')}</span>
+                  {/* </Link> */}
               </span>
 
             </div>
           </div>
           <div className='poet-body'>
             <div className='poet-body-menu'>
-              <span className={this.state.view == 'overview' ?
+              <span className={this.state.view === 'overview' ?
                                    'poet-body-menu-item-selected'
                                    : 'poet-body-menu-item'}
                     onClick={() => this.chooseView('overview')}
                     >
                 overview
               </span>
-              <span className={this.state.view == 'code' ?
+              <span className={this.state.view === 'code' ?
                                    'poet-body-menu-item-selected'
                                    : 'poet-body-menu-item'}
                     onClick={() => this.chooseView('code')}
@@ -106,8 +108,8 @@ export class poet extends Component {
             </div>
             <div className='poet-body-content'>
               {
-                this.state.view == 'overview' ?
-                <PoetOverview poet={poet}/>
+                this.state.view === 'overview' ?
+                <PoetOverview poet={poet} writePoem={writePoem} generatedPoem={generatedPoem}/>
                   :<PoetCode poet={poet} code={code}/>
               }
             </div>
@@ -121,13 +123,11 @@ export class poet extends Component {
 export const Poet = connect(mapStateToProps, actions)(poet)
 
 export class PoetOverview extends Component {
-  writePoem(poetId) {
-    // do something
-  }
-  
   render() {
     const {
-      poet
+      poet,
+      writePoem,
+      generatedPoem,
     } = this.props
 
     return (
@@ -142,10 +142,13 @@ export class PoetOverview extends Component {
         </div>
         <div className='poet-overview-generate-poem'>
           <div className='poet-overview-generate-poem-button'
-               onClick={() => this.writePoem(poet.id)}
+               onClick={() => writePoem(poet.id)}
             >
             generate a poem
           </div>
+          {
+            isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
+          }
         </div>
       </div>
     )

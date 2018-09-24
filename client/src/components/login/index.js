@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {LoginForm, SignupForm} from './forms'
 import {requestLogin} from '../../redux/actions/login'
 import {requestSignup} from '../../redux/actions/signup'
+import './index.css'
 
 
 class login extends Component {
@@ -72,19 +73,21 @@ class login extends Component {
     const {loginFormShown} = this.state
 
     return (
-      <div>
-        {
-          loginFormShown ?
+      <div className='main'>
+        <div className='login-page'>
+          <div className='login-container'>
+            {
+              loginFormShown ?
               <LoginForm onSubmit={this.login}/>
-            : <SignupForm onSubmit={this.signup}/>
-            
-        }
-        <div>
-          <span onClick={this.showLoginForm}>login</span>/
-          <span onClick={this.showSignupForm}>signup</span>
+                : <SignupForm onSubmit={this.signup}/> 
+            }
+            <div className='login-signup-choose-box-thing'>
+              <span onClick={this.showLoginForm}>login</span>/
+              <span onClick={this.showSignupForm}>signup</span>
+            </div>
+          </div>
         </div>
       </div>
-      
     )
   }
 }

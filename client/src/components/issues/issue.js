@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {Link} from 'react-router-dom'
 import {HashLink} from 'react-router-hash-link';
 import {isEmpty, map} from 'lodash'
 import {showTitle} from '../../redux/actions/ui'
@@ -13,6 +11,7 @@ import {
   getContributorsByIssueVolume,
 } from '../../redux/selectors/poets'
 import {getPoemsByIssueVolume} from '../../redux/selectors/poems'
+import {Poem} from '../poems/poem'
 
 
 const mapStateToProps = (state, ownProps) => {
@@ -108,8 +107,8 @@ class TOC extends Component {
               map(
                 this.props.poems,
                 (poem, idx) => (
-                  <HashLink to={`#${mkHashLinkId(poem)}`} className='text-link'>
-                    <div className='issue-toc-poem' key={idx}>
+                  <HashLink to={`#${mkHashLinkId(poem)}`} className='text-link' key={idx}>
+                    <div className='issue-toc-poem'>
                       <span className='issue-toc-poem-title'>{poem.title}</span>
                       <span className='issue-toc-poem-author'>{poem.author.name}</span>
                     </div>
@@ -119,37 +118,6 @@ class TOC extends Component {
               )
           }
           </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-// TODO (cw|9.22.2018) move this to component/poems directory
-class Poem extends Component {
-  render() {
-    const {
-      id,
-      title,
-      date,
-      author,
-      content,
-      likes,
-    } = this.props.poem
-
-    return (
-      <div className='issue-poem' id={this.props.elemId}>
-        <div className='issue-poem-header'>
-          <span className='issue-poem-title'>{title}</span>
-          <span className='issue-poem-subheader'>
-            <span>by</span>
-            <Link to={`/poet/${author.id}`} className='text-link'>
-              <span className='issue-poem-author'>{author.name}</span>
-            </Link>
-          </span>
-        </div>
-        <div className='issue-poem-content'>
-          {content}
         </div>
       </div>
     )
