@@ -82,8 +82,8 @@ class login extends Component {
                 : <SignupForm onSubmit={this.signup}/> 
             }
             <div className='login-signup-choose-box-thing'>
-              <span onClick={this.showLoginForm}>login</span>/
-              <span onClick={this.showSignupForm}>signup</span>
+              <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
+              <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
             </div>
           </div>
         </div>
