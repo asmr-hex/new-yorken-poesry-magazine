@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {map, range} from 'lodash'
 import './index.css';
 import {Title} from './title'
 import {Menu} from './menu'

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
-import {get, isEmpty, map, values} from 'lodash'
+import {get, map, values} from 'lodash'
 import {requestReadPoets} from '../../redux/actions/poets'
 
 
@@ -17,7 +16,6 @@ const actions = {
 export class poets extends Component {
   componentDidMount() {
     const {
-      poets,
       fetchPoets,
     } = this.props
 
@@ -30,19 +28,45 @@ export class poets extends Component {
     } = this.props
     
     return (
-      <div>
-        {
-          map(
-            poets,
-            (poet, idx) => (
-              <div key={idx}>{poet.name}</div>
-            ),
-            [],
-          )
-        }
+      <div className='main'>
+        <div className='poets-summaries-container'>
+          <div className='poets-header'>poets</div>
+          {
+            map(
+              poets,
+              (poet, idx) => (
+                <PoetRow poet={poet} key={idx}/>
+              ),
+              [],
+            )
+          }
+        </div>
       </div>
     )
   }
 }
 
 export const Poets = connect(mapStateToProps, actions)(poets)
+
+export class PoetRow extends Component {
+  render() {
+    const {
+      id,
+      name,
+      language,
+    } = this.props.poet
+    
+    return (
+      <Link to={`/poet/${id}`}>
+        <div className='poet-row-container'>
+          <div className='poet-row'>
+            <div className='poet-row-name-line'>
+              <span className='poet-row-name-item'>{name}</span>
+              <span className='poet-row-language-item'>{language}</span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    )
+  }
+}

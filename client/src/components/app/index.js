@@ -2,16 +2,18 @@ import React, { Component } from 'react';
 import {Route, Switch, withRouter} from 'react-router-dom'
 import {connect} from 'react-redux'
 import {Home} from '../home'
-import {Dashboard} from '../dashboard'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 
 class app extends Component {
   render() {
     return (
-      <Switch>
-        {/* we *must* specify routes in a specific order so the matching works -__- */}
-        <Route path='/' component={Home}/>
-      </Switch>
+      <MuiThemeProvider>
+        <Switch>
+          {/* we *must* specify routes in a specific order so the matching works -__- */}
+          <Route path='/' component={Home}/>
+        </Switch>
+      </MuiThemeProvider>
     )
   }
 }
