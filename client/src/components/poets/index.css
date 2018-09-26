@@ -134,6 +134,7 @@
     align-items: flex-start;
     width: 50%;
     border-right: 1px solid #ccc;
+    padding-right: 2em;
 }
 
 .poet-overview-details-birthday {
@@ -145,7 +146,7 @@
     font-size: 1.6em;
     white-space: pre-wrap;
     padding-top: 1em;
-    font-style: italic;
+    text-align: justify;
 }
 
 .poet-overview-generate-poem {

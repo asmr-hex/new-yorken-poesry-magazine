@@ -1,0 +1,173 @@
+.profile-container {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 2em;
+}
+
+.profile-tabs {
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 2em;
+    border-bottom: 1px solid #ccc;
+}
+
+.profile-tab {
+    padding: 0.5em;
+    border: 1px solid #222;
+    font-size: 1.9em;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+.profile-tab:hover {
+    padding: 0.5em;
+    border: 1px solid #222;
+    font-size: 1.9em;
+    font-weight: 300;
+    background-color: #222;
+    color: #fff;
+}
+
+.profile-tab-selected {
+    padding: 0.5em;
+    border: 1px solid #222;
+    font-size: 1.9em;
+    font-weight: 300;
+    color: #fff;
+    background-color: #222;
+    cursor: pointer;
+}
+
+.profile-body {
+    display: flex;
+    justify-content: center;
+    padding-top: 2em;
+}
+
+.profile-user-details-container {
+    width: 40%;
+}
+
+.profile-user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.5em;
+    font-weight: 400;
+}
+
+.profile-poets-container {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+}
+
+.profile-poets-list-header {
+    font-size: 2em;
+    font-weight: 400;
+    padding-bottom: 1em;
+}
+
+.profile-poets-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 40%;
+}
+
+.profile-poet-summary {
+    padding: 1em;
+    margin-bottom: 3em;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #fff;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.profile-poet-summary:hover {
+    border: 1px solid #222;
+}
+
+.profile-poet-name-language {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 0.5em;
+}
+
+.profile-poet-name {
+    font-size: 2em;
+    font-weight: 300;
+}
+
+.profile-poet-language {
+    font-size: 1.4em;
+    font-family: monospace;
+}
+
+.profile-poet-description {
+    text-align: justify;
+    font-size: 1.2em;
+    font-weight: 300;
+}
+
+.create-poet-form {
+    border: 1px solid #222;
+    padding: 4em;
+}
+
+.profile-poet-button {
+    margin: 1em;
+    display: flex;
+    justify-content: left;
+}
+
+.profile-poet-file-button {
+    margin-top:2em;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.profile-poet-file-button + label {
+    font-size: 1.25em;
+    font-weight: 300;
+    padding: 0.3em;
+    color: white;
+    background-color: #222;
+    border: 1px solid #222;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.profile-poet-file-button:focus + label,
+.profile-poet-file-button + label:hover {
+    /* outline: 1px dotted #000; */
+    /* outline: -webkit-focus-ring-color auto 5px; */
+    background-color: #fff;
+    border: 1px solid #222;
+    color: #222;
+}
+
+.profile-poet-submit-button {
+    background-color: #fff;
+    color: #282a36;
+    border: 2px solid #222;
+    font-family: 'Source Sans Pro', sans-serif;;
+    font-size: 1.7em;
+    outline:none;
+    margin: 0.4em;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+.profile-poet-submit-button:hover {
+    background-color: #fff;
+    color: #2040ff;
+    border: 2px solid #ffb8e1;
+}

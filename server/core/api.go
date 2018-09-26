@@ -85,6 +85,9 @@ func (a *API) BuildRouter() {
 		// Code by Poet Id Read
 		Get(pubPrefix+"/code/:"+API_ID_PATH_PARAM, a.GetPoetCode).
 
+		// Supported Languages
+		Get(pubPrefix+"/supported-languages", a.GetSupportedLanguages).
+
 		// Generate Poem
 		Get(pubPrefix+"/poet/:"+API_ID_PATH_PARAM+"/write-poem", a.GeneratePoem).
 

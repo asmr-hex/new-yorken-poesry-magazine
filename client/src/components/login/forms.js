@@ -26,7 +26,7 @@ const loginForm = props => {
         <Field name="username" component={renderTextField} type="text" placeholder="username"/>
       </div>
       <div>
-        <Field name="password" component={renderTextField} type="text" placeholder="password"/>
+        <Field name="password" component={renderTextField} type="password" placeholder="password"/>
       </div>
       <button className='signin-button' type="submit">login</button>
     </form> 
@@ -42,6 +42,7 @@ export const LoginForm = reduxForm({
 
 const signupForm = props => {
   const { handleSubmit } = props
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -51,13 +52,35 @@ const signupForm = props => {
         <Field name="username" component={renderTextField} type="text" placeholder="username"/>
       </div>
       <div>
-        <Field name="password" component={renderTextField} type="text" placeholder="password"/>
+        <Field name="password" component={renderTextField} type="password" placeholder="password"/>
+      </div>
+      <div>
+        <Field name="confirmPassword" component={renderTextField} type="password" placeholder="confirm password"/>
       </div>
       <button className='signin-button' type="submit">signup</button>
     </form> 
   )
 }
 
+const validate = values => {
+  const errors = {}
+  if (!values.password) {
+    errors.password = 'required.'
+  } else if (values.password.length <= 10) {
+    errors.password = 'must be 10 characters or more.'
+  }
+
+  if (!values.confirmPassword) {
+    errors.confirmPassword = 'required.'
+  } else if (values.confirmPassword !== values.password) {
+    errors.confirmPassword = 'mismatch with password.'
+  }
+
+  return errors
+}
+
+
 export const SignupForm = reduxForm({
-  form: 'signup'
+  form: 'signup',
+  validate,
 })(signupForm)
