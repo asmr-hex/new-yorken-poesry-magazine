@@ -1,5 +1,6 @@
 import argparse
 import json
+import random
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
@@ -9,10 +10,42 @@ group.add_argument("--study", type=str, help="learn from new poems")
 args = parser.parse_args()
 
 
+dictionary = {
+    'noun': ['people', 'food', 'data', 'theory', 'software', 'science'],
+    'adj': ['colossal', 'poised', 'soupy', 'voluminous', 'zealous'],
+    'verb': ['is', 'becomes', 'interprets', 'buffalos', 'overshadows'],
+    'article': ['a', 'the']
+}
+
+grammar = {
+    'sentence': [
+        'noun verb adj noun',
+        'article noun verb noun',
+        'adj noun verb adj noun',
+    ],
+    'title': [
+        'article noun',
+        'adj noun',
+    ],
+}
+
+
+def choose_grammar(grammar_type):
+    return random.choice(grammar[grammar_type])
+
+
+def fill_structure(structure):
+    result = ''
+    for pos in structure.split(' '):
+        result += random.choice(dictionary[pos]) + ' '
+
+    return result
+
+
 def write_poem():
     poem = {
-        'title': 'buffalo buffalo',
-        'content': "buffalo buffalo buffalo buffalo buffalo buffalo",
+        'title': fill_structure(choose_grammar('title')),
+        'content': fill_structure(choose_grammar('sentence')),
     }
 
     s = json.dumps(poem)

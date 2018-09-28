@@ -7,6 +7,7 @@ services:
     image: "${DOCKER_IMAGE}"
     volumes:
       - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
+      - "${POET_MOUNT_DIR}:/poets"
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
@@ -24,6 +25,8 @@ services:
   db:
     env_file: .env
     image: postgres
+    volumes:
+      - "${DB_MOUNT_DIR}:/var/lib/postgresql"
     restart: always
 
   adminer:
