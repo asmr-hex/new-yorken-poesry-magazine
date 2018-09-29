@@ -26,7 +26,7 @@ services:
     env_file: .env
     image: postgres
     volumes:
-      - "${DB_MOUNT_DIR}:/var/lib/postgresql"
+      - "${DB_MOUNT_DIR}:/var/lib/postgresql/data"
     restart: always
 
   adminer:
