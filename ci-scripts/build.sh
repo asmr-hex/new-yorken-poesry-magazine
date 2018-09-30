@@ -12,11 +12,12 @@ npm install -qy      # re-install dependencies
 npm run build        # this should put the bundle within ./build
 cd ..
 
-# package up bundles frontend, docker-compose.prod.yml, .env into directory
+# package up bundles frontend, docker-compose.prod.yml, .env, migrations into directory
 mkdir prod-deploy
 mv ./client/build/* ./prod-deploy
 mv docker-compose.prod.yml ./prod-deploy/docker-compose.yml
 mv .env ./prod-deploy/.env
+mv ./migrations ./prod-deploy/migrations
 
 # build app docker image for prod
 echo "--- BUILDING APP DOCKER IMAGE FOR PROD ---"

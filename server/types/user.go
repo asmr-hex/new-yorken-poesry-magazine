@@ -161,6 +161,7 @@ func CreateUsersTable(db *sql.DB) error {
                           salt UUID NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
                           emailNotifications BOOL NOT NULL,
+                          deleted BOOL NOT NULL DEFAULT false,
 		          PRIMARY KEY (id)
 	)`
 

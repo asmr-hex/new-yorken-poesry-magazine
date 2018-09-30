@@ -270,6 +270,12 @@
 			"revisionTime": "2018-02-02T15:35:43Z"
 		},
 		{
+			"checksumSHA1": "eFuYRKwsEiG6ZV8787PP2s7Cbt8=",
+			"path": "github.com/pressly/goose",
+			"revision": "a4bf952640be3a699394ff804813019226feaab0",
+			"revisionTime": "2018-05-17T18:16:47Z"
+		},
+		{
 			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
 			"path": "github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",

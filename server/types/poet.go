@@ -220,6 +220,7 @@ func CreatePoetsTable(db *sql.DB) error {
                           parameterFileName VARCHAR(255) NOT NULL,
                           parameterFileIncluded BOOL NOT NULL,
                           path VARCHAR(255) NOT NULL UNIQUE,
+                          deleted BOOL NOT NULL DEFAULT false,
 		          PRIMARY KEY (id)
 	)`
 
