@@ -61,7 +61,6 @@ class poetMgmt extends Component {
 
   render() {
     const {
-      poets,
       languages,
       retirePoet,
     } = this.props
@@ -184,7 +183,7 @@ export class createPoetForm extends Component {
           <div styles={{marginTop: '1.5em'}}>
             <Field name='description' component={renderTextField} type='text' placeholder='description'/>
           </div>
-          <div>
+          <div className='create-poet-form-language-select'>
             <Field name='language' component={renderSelectField} label='language'>
               {
                 map(

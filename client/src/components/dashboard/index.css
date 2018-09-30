@@ -144,10 +144,15 @@
 .create-poet-form {
     border: 1px solid #222;
     padding: 4em;
+    text-align: left;
+}
+
+.create-poet-form-language-select {
+    margin-bottom: 1em;
 }
 
 .profile-poet-button {
-    margin: 1em;
+    margin-bottom: 1em;
     display: flex;
     justify-content: left;
 }
@@ -166,8 +171,8 @@
     font-size: 1.25em;
     font-weight: 300;
     padding: 0.3em;
-    color: white;
-    background-color: #222;
+    color: #222;
+    background-color: #fff;
     border: 1px solid #222;
     display: inline-block;
     cursor: pointer;
@@ -177,9 +182,9 @@
 .profile-poet-file-button + label:hover {
     /* outline: 1px dotted #000; */
     /* outline: -webkit-focus-ring-color auto 5px; */
-    background-color: #fff;
+    background-color: #222;
     border: 1px solid #222;
-    color: #222;
+    color: #fff;
 }
 
 .profile-poet-submit-button {
@@ -189,13 +194,13 @@
     font-family: 'Source Sans Pro', sans-serif;;
     font-size: 1.7em;
     outline:none;
-    margin: 0.4em;
-    font-weight: 300;
+    margin-top: 0.4em;
+    font-weight: 400;
     cursor: pointer;
 }
 
 .profile-poet-submit-button:hover {
-    background-color: #fff;
-    color: #2040ff;
-    border: 2px solid #ffb8e1;
+    background-color: #a7ff9d;
+    color: #222;
+    border: 2px solid #222;
 }
