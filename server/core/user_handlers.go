@@ -228,6 +228,8 @@ func (a *API) login(user *types.User, rw web.ResponseWriter) {
 
 		// return response
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
 	}
 
 	user.Sanitize()
@@ -239,6 +241,8 @@ func (a *API) login(user *types.User, rw web.ResponseWriter) {
 
 		// return response
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
 	}
 
 	a.Info("user %s successfully logged in!", user.Username)

@@ -8,7 +8,10 @@ import MenuItem from 'material-ui/MenuItem'
 import {get, isEmpty, map} from 'lodash'
 import {formatDate} from '../../types/date'
 import {getPoetsOfUser} from '../../redux/selectors/poets'
-import {requestCreatePoet} from '../../redux/actions/poets'
+import {
+  requestCreatePoet,
+  requestDeletePoet,
+} from '../../redux/actions/poets'
 import {requestReadLanguages} from  '../../redux/actions/languages'
 
 
@@ -21,6 +24,7 @@ const mapStateToProps = (state, ownProps) => ({
 const actions = {
   requestCreatePoet,
   requestReadLanguages,
+  retirePoet: requestDeletePoet,
 }
 
 class poetMgmt extends Component {
@@ -59,6 +63,7 @@ class poetMgmt extends Component {
     const {
       poets,
       languages,
+      retirePoet,
     } = this.props
     
     return (
@@ -69,7 +74,7 @@ class poetMgmt extends Component {
             map(
               this.props.poets,
               (poet, idx) => (
-                <PoetSummary poet={poet} key={idx}/>
+                <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
               ),
               [],
             )
@@ -82,12 +87,24 @@ class poetMgmt extends Component {
 }
 
 export class PoetSummary extends Component {
+  deletePoet() {
+    const {
+      poet,
+      retirePoet,
+    } = this.props
+    
+    // alert(`are you sure you want to retire ${poet.name}?`)
+
+    retirePoet(poet.id)
+  }
+  
   render() {
     const {
       poet,
     } = this.props
     
     return (
+      <div className='profile-poet-summary-container'>
         <Link className='profile-poet-summary' to={`/poet/${poet.id}`}>
           <div className='profile-poet-name-language'>
             <div className='profile-poet-name'>{poet.name}</div>
@@ -96,6 +113,10 @@ export class PoetSummary extends Component {
           <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
           <div className='profile-poet-description'>{poet.description}</div>
         </Link>
+        <div className='profile-poet-delete-container' onClick={() => this.deletePoet()}>
+          <div className='profile-poet-delete-button'>x</div>
+        </div>
+      </div>
     )
   }
 }

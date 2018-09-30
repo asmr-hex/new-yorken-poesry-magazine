@@ -21,7 +21,6 @@ export const requestCreatePoet = ({name, description, language, program, paramet
   reduce(
     payload,
     (_, v, k) => {
-      console.log(k, v)
       formData.append(k, v) 
     },
     {},
@@ -221,5 +220,43 @@ export const generatePoemFailed = error => dispatch => {
   dispatch({
     error,
     type: GENERATE_POEM_FAILED,
+  })
+}
+
+
+export const DELETE_POET_REQUESTED = 'DELETE_POET_REQUESTED'
+export const requestDeletePoet = poetId => dispatch => {
+  dispatch({
+    payload: poetId,
+    type: DELETE_POET_REQUESTED,
+  })
+
+  // make request for poet
+  fetch(
+    `/dashboard/poet/${poetId}`,
+    {
+      method: 'DELETE',
+    })
+    .then(checkResponse)
+    .then(
+      poets => dispatch(deletePoetSuccessful(poets)),
+      error => dispatch(deletePoetFailed(error)),
+    )  
+}
+
+export const DELETE_POET_SUCCESSFUL = 'DELETE_POET_SUCCESSFUL'
+export const deletePoetSuccessful = poet => dispatch =>
+  dispatch({
+    payload: poet,
+    type: DELETE_POET_SUCCESSFUL,
+  })
+
+export const DELETE_POET_FAILED = 'DELETE_POET_FAILED'
+export const deletePoetFailed = error => dispatch => {
+  error.message = 'read poet failed: ' + error.message
+  
+  dispatch({
+    error,
+    type: DELETE_POET_FAILED,
   })
 }

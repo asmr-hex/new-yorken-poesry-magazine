@@ -76,14 +76,21 @@
     width: 40%;
 }
 
-.profile-poet-summary {
+.profile-poet-summary-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
     padding: 1em;
     margin-bottom: 3em;
+}
+
+.profile-poet-summary {
     display: flex;
     flex-direction: column;
     border: 1px solid #fff;
     align-items: flex-start;
-    width: 100%;
+    margin-right: 0.8em;
+    flex-grow: 1;
 }
 
 .profile-poet-summary:hover {
@@ -112,6 +119,27 @@
     font-size: 1.2em;
     font-weight: 300;
 }
+
+.profile-poet-delete-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.7em;
+    color: #999;
+    cursor: pointer;
+}
+
+.profile-poet-delete-container:hover {
+    background-color: #f14a4a;
+    color: #fff;
+}
+
+.profile-poet-delete-button {
+    text-align: center;
+    font-weight: 400;
+    cursor: pointer;
+}
+
 
 .create-poet-form {
     border: 1px solid #222;

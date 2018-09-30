@@ -200,11 +200,14 @@ func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 
 // package level globals for storing prepared sql statements
 var (
-	poetCreateStmt   *sql.Stmt
-	poetReadStmt     *sql.Stmt
-	poetReadAllStmt  *sql.Stmt
-	poetDeleteStmt   *sql.Stmt
-	poetCodeReadStmt *sql.Stmt
+	poetCreateStmt     *sql.Stmt
+	poetReadStmt       *sql.Stmt
+	poetReadAllStmt    *sql.Stmt
+	poetDeleteStmt     *sql.Stmt
+	poetCodeReadStmt   *sql.Stmt
+	countPoetPoemsStmt *sql.Stmt
+	deletePoetStmt     *sql.Stmt
+	softDeletePoetStmt *sql.Stmt
 )
 
 func CreatePoetsTable(db *sql.DB) error {
@@ -345,7 +348,7 @@ func (p *Poet) ReadCode(db *sql.DB) (*Code, error) {
 		stmt := `
                          SELECT id, language, programFileName, path
                          FROM poets
-                         WHERE id = $1
+                         WHERE id = $1 AND deleted = false
                 `
 		poetCodeReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -378,9 +381,62 @@ func (p *Poet) ReadCode(db *sql.DB) (*Code, error) {
 	return code, nil
 }
 
-// delete should keep meta about poets in the system along with their poems, but
-// should remove all files from the file system and assign a death date.
+// hard delete if a poet has not published anything. soft-delete if a poet has published...
 func (p *Poet) Delete(db *sql.DB) error {
+	var (
+		poems int
+		err   error
+	)
+
+	// assume that we delete the poet directory within the caller scope
+
+	if countPoetPoemsStmt == nil {
+		stmt := `SELECT COUNT(*) FROM poems p WHERE p.author = $1`
+		countPoetPoemsStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	// how many poems has this poet published?
+	err = countPoetPoemsStmt.QueryRow(p.Id).Scan(&poems)
+	if err != nil {
+		return err
+	}
+
+	// if the poet has published at least 1 poem, we will keep its meta-data up here.
+	// otherwise, we will delete the entire record.
+	if poems == 0 {
+		// delete this poet and its files
+		if deletePoetStmt == nil {
+			stmt := `DELETE FROM poets WHERE id = $1`
+			deletePoetStmt, err = db.Prepare(stmt)
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = deletePoetStmt.Exec(p.Id)
+		if err != nil {
+			return err
+		}
+
+	} else {
+		// delete the files and update the deathdate
+		if softDeletePoetStmt == nil {
+			stmt := `UPDATE poets SET deleted = true, deathDate = $2  WHERE id = $1`
+			softDeletePoetStmt, err = db.Prepare(stmt)
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = softDeletePoetStmt.Exec(p.Id, time.Now())
+		if err != nil {
+			return err
+		}
+
+	}
 
 	return nil
 }

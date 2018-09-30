@@ -450,6 +450,97 @@ func (*API) UpdatePoet(rw web.ResponseWriter, req *web.Request) {
 	fmt.Println("TODO UPDATE POET")
 }
 
-func (*API) DeletePoet(rw web.ResponseWriter, req *web.Request) {
-	fmt.Println("TODO DELETE POET")
+func (a *API) DeletePoet(rw web.ResponseWriter, req *web.Request) {
+	// extracting the poetId path param
+	poetId := req.PathParams[API_ID_PATH_PARAM]
+
+	poet := &types.Poet{Id: poetId}
+
+	// anyone who sends this request *must* have a session token in their
+	// request header (or cookies?) since only logged in users can delete poets.
+
+	// get session token from cookie (maybe use golang CookieJar)
+	tokenCookie, err := req.Cookie(SESSION_TOKEN_COOKIE_NAME)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
+
+	token := tokenCookie.Value
+
+	// get username from token
+	userId, validToken := a.Sessions.GetUserByToken(token)
+	if !validToken {
+		err = fmt.Errorf("invalid session token!")
+
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
+
+		return
+	}
+
+	// read poet to get designer id
+	err = poet.Read(a.db)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// if the user making this request is *not* the user who created this poet,
+	// tell them to back off!
+	if poet.Designer.Id != userId {
+		err = fmt.Errorf("You cannot delete a poet you did not create!")
+
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusUnauthorized)
+
+		return
+	}
+
+	// okay delete this poet...sorry lil one
+	err = poet.Delete(a.db)
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// delete files from fs
+	err = os.RemoveAll(path.Join(POET_DIR, poet.Id))
+	if err != nil {
+		// handle this error
+		a.Error("User Error: %s", err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	// send back the deleted poet
+	poetJSON, err := json.Marshal(poet)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(poetJSON)
 }
