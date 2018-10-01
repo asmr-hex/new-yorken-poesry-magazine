@@ -163,9 +163,8 @@ export class createPoetForm extends Component {
     parametersFileText: 'select parameters file...',
   }
 
-  onChangeProgram = event => {
-    console.log(event)
-    this.setState({ProgramFileText: event.target.value});
+  onChangeFileName = fileName => text => {
+    this.setState({[fileName]: text});
   }
   
   render() {
@@ -197,11 +196,11 @@ export class createPoetForm extends Component {
             </Field>
           </div>
           <div className='profile-poet-button'>
-        <Field className='profile-poet-file-button' id='program' name='program' component={FileInput}/>
+        <Field className='profile-poet-file-button' id='program' name='program' component={FileInput(this.onChangeFileName('programFileText').bind(this))}/>
             <label htmlFor="program">{this.state.programFileText}</label>
           </div>
           <div className='profile-poet-button'>
-            <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput}/>
+        <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput(this.onChangeFileName('parametersFileText').bind(this))}/>
             <label htmlFor="parameters">{this.state.parametersFileText}</label>
             <span style={{padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
           </div>
@@ -235,10 +234,15 @@ export const CreatePoetForm = reduxForm({
 })(createPoetForm)
 
 // TODO (cw|4.27.2018) refactor this into something much nicer -__-
-const adaptFileEventToValue = delegate =>
-      e => delegate(e.target.files[0])
+const adaptFileEventToValue = (delegate, handler) =>
+      e => {
+        delegate(e.target.files[0])
+        if (e.target.files.length !== 0) {
+          handler(e.target.files[0].name)
+        }
+      }
 
-const FileInput = ({
+const FileInput = handler => ({
   input: {
     value: omitValue,
     onChange,
@@ -249,7 +253,7 @@ const FileInput = ({
   ...props,
 }) =>
       <input
-onChange={adaptFileEventToValue(onChange)}
+onChange={adaptFileEventToValue(onChange, handler)}
 onBlur={adaptFileEventToValue(onBlur)}
 type="file"
 {...inputProps}

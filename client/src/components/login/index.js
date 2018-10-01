@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux'
+import {get} from 'lodash'
 import {LoginForm, SignupForm} from './forms'
 import {requestLogin} from '../../redux/actions/login'
 import {requestSignup} from '../../redux/actions/signup'
+import {resetErrorMsg} from '../../redux/actions/error'
 import './index.css'
 
 
@@ -61,12 +63,16 @@ class login extends Component {
     this.setState({
       loginFormShown: true,
     })
+
+    this.props.resetErrorMsg()
   }
 
   showSignupForm = () => {
     this.setState({
       loginFormShown: false,
     })
+
+    this.props.resetErrorMsg()
   }
   
   render() {
@@ -85,6 +91,9 @@ class login extends Component {
               <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
               <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
             </div>
+            <div className='login-signup-error-message'>
+              {this.props.errors}
+            </div>
           </div>
         </div>
       </div>
@@ -92,9 +101,14 @@ class login extends Component {
   }
 }
 
+const mapStateToProps = (state, ownProps) => ({
+  errors: get(state, `error`, '')
+})
+
 const actions = {
   requestLogin,
   requestSignup,
+  resetErrorMsg,
 }
 
-export const Login = connect(() =>({}), actions)(login)
+export const Login = connect(mapStateToProps, actions)(login)

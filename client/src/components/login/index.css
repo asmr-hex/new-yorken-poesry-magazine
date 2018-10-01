@@ -42,3 +42,8 @@
     font-weight: 400;
     cursor: pointer;
 }
+
+.login-signup-error-message {
+    padding-top: 1em;
+    color: red;
+}

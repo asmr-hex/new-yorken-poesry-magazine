@@ -18,5 +18,5 @@ export const checkResponse = response => {
   // TODO (cw|4.24.2018) create custom error classes?
   // TODO (cw|4.27.2018) eventually get the response.text() to work.
   // rn it returns another promise.
-  throw new Error(`${response.statusText}: ${response.text()}`)
+  throw response// new Error(`${response.statusText}: ${response.text()}`)
 }
