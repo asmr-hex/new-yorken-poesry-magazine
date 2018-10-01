@@ -246,18 +246,27 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		Path:            path.Join(POET_DIR, poetID),
 	}
 
+	supportedLangsMap := map[string]bool{}
+	langs, err := a.getSupportedLanguages()
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+	for _, lang := range langs {
+		supportedLangsMap[lang] = true
+	}
+
 	// validate the poet structure
 	err = poet.Validate(
 		consts.CREATE,
 		types.PoetValidationParams{
 			// ensure that the current logged in/authed user
 			// can only create a poet for themselves.
-			DesignerId: userId,
-			SupportedLangs: map[string]bool{
-				// TODO (cw|4.27.2018) get this list of
-				// supported langauges from somewhere.
-				"python": true,
-			},
+			DesignerId:     userId,
+			SupportedLangs: supportedLangsMap,
 		},
 	)
 	if err != nil {
@@ -357,6 +366,8 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 
 		// return response
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
 	}
 
 	a.Info("Poet successfully created ^-^")
@@ -368,6 +379,11 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	err = poet.TestPoet()
 	if err != nil {
 		a.Error(err.Error())
+
+		// return response
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
 	}
 	a.Info("%s is ok.", poet.Name)
 }
