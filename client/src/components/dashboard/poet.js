@@ -164,7 +164,7 @@ export class createPoetForm extends Component {
   }
 
   onChangeFileName = fileName => text => {
-    this.setState({[fileName]: text});
+    this.setState({[fileName]: text})
   }
   
   render() {
@@ -254,7 +254,7 @@ const FileInput = handler => ({
 }) =>
       <input
 onChange={adaptFileEventToValue(onChange, handler)}
-onBlur={adaptFileEventToValue(onBlur)}
+onBlur={adaptFileEventToValue(onChange, handler)}
 type="file"
 {...inputProps}
 {...props}
