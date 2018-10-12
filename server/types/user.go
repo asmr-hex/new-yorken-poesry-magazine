@@ -382,8 +382,8 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
                            parameterFileIncluded, path
                     FROM users u
                     LEFT OUTER JOIN poets p
-                    ON (u.id = p.designer)
-                    WHERE p.deleted = false
+                    ON (u.id = p.designer AND p.deleted = false)
+                    WHERE u.deleted = false
                 `
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
