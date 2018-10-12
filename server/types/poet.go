@@ -720,6 +720,7 @@ func (p *Poet) TestPoet() error {
 	// test poem generation
 	poem, err := p.GeneratePoem()
 	if err != nil {
+		fmt.Println("couldn't generate a poem")
 		return err
 	}
 
@@ -730,6 +731,7 @@ func (p *Poet) TestPoet() error {
 	// test poem evaluation
 	score, err := p.CritiquePoem(consts.THE_BEST_POEM)
 	if err != nil {
+		fmt.Println("couldn't critique a poem")
 		return err
 	}
 
@@ -740,6 +742,7 @@ func (p *Poet) TestPoet() error {
 	// test self updating
 	success, err := p.StudyPoems(consts.THE_BEST_POEM)
 	if err != nil {
+		fmt.Println("couldn't study poems")
 		return err
 	}
 
