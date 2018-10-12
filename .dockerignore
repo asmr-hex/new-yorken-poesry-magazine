@@ -1,0 +1,8 @@
+# "even though docker doesn't want you in its life, we still <3 you"
+#                                    -- {pipi_sauvage}
+
+# apparently if there are any files/dirs which the current user cannot
+# read that are within the directory in which you are running `docker build .`
+# dockere will throw an error. see https://github.com/moby/moby/issues/34711
+# therefore, we must add the dev data mount point to this file s.t. its ignored
+.dev-data
