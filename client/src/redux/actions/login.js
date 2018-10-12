@@ -40,11 +40,15 @@ export const loginSuccessful = user => dispatch =>
 
 export const LOGIN_FAILED = 'LOGIN_FAILED'
 export const loginFailed = error => dispatch => {
-  error.message = 'login failed: ' + error.message
-  
-  dispatch({
-    error,
-    type: LOGIN_FAILED,
-  })  
+  error.text()
+    .then(
+      msg => {
+        error.message = msg
+        dispatch({
+          error,
+          type: LOGIN_FAILED,
+        })          
+      }
+    )
 }
 

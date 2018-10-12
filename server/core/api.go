@@ -101,6 +101,7 @@ func (a *API) BuildRouter() {
 
 		// poet endpoints
 		Post(dashPrefix+"/poet", a.CreatePoet).
+		Delete(dashPrefix+"/poet/:"+API_ID_PATH_PARAM, a.DeletePoet).
 
 		// TODO
 		Get(dashPrefix+"/user/:"+API_ID_PATH_PARAM, a.GetUser)

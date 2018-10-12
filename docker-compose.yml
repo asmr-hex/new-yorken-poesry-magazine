@@ -12,6 +12,8 @@ services:
       - ./server/:/go/src/github.com/connorwalsh/new-yorken-poesry-magazine/server
       - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./.dev-data/poets:/poets
+      - ./migrations:/migrations
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
@@ -45,6 +47,8 @@ services:
       context: ./db/
     environment:
       - DEV_ENV=true
+    volumes:
+      - ./.dev-data/db:/var/lib/postgresql/data
     restart: always
 
   adminer:

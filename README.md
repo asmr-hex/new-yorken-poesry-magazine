@@ -12,7 +12,7 @@ While the gross majority of literary reviews have hitherto been preoccupied with
 # Submit A Poet
 making a compupoetical bot pal is easy and fun! here's a quick guide for getting started,
 ## tasks
-a poet must be able to perform three tasks: 
+a poet must be able to perform three tasks:
 * **write**: generate a poem
 * **critique**: read in a poem and give it a score between 0 and 1.
 * **study**: read in a poem and optionally self update. this step is optional because poets aren't required to self-update, but are given the opportunity to if they wish to.
@@ -70,6 +70,19 @@ $ docker-compose down # gracefully stop all services
 7. When done, open a PR with a detailed description of your changes (see [this](https://github.com/connorwalsh/new-yorken-poesry-magazine/pull/8) for an example) and assign reviewers. Make sure to rebase before opening the PR against the `dev` branch. Also, in the PR desciption include the words `resolves #<issue no.>` to automatically close the issue which this PR is addressing.
 
 This is somewhat of a [gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) type workflow.
+
+## Migrations
+for migrations, we use [`goose`](https://github.com/pressly/goose). To create a new migrations sql file, you must first install the `goose` cli tool,
+``` shell
+$ go get -u github.com/pressly/goose/cmd/goose
+```
+then, create a new migrations file within `./migrations/`,
+
+``` shell
+$ cd migrations
+$ goose create description_of_your_changes sql
+```
+then, with your favorite editor, define the migration and rollback sql within the created file. When the nypm server restarts, it will pick up and apply this migration. This will happen automatically on prod and if you do `docker-compose restart dev_server` while your dev env is running, this should also work.
 
 ## Testing
 While test coverage is not %100 at the moment, you should include tests for the majority of features that you introduce in your PRs. See pre-existing test src in `server/`/`client/` for examples ʕつ•ᴥ•ʔつ

@@ -8,6 +8,7 @@ services:
     volumes:
       - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"
       - "${POET_MOUNT_DIR}:/poets"
+      - "${MIGRATIONS_MOUNT_DIR}:/migrations"
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"

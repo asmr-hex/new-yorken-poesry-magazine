@@ -16,6 +16,11 @@ git add .
 git commit -m "deploy"
 git push --force deploy master
 
-# pull latest docker image and restart on server
-ssh -t "$DEPLOY_USER@$DEPLOY_HOST" "cd $DEPLOY_DIR; docker-compose pull nypm; docker-compose up -d" 
+# load updated migration files, pull latest docker image and restart on server
+cmds="cd $DEPLOY_DIR;"
+cmds="$cmds mv ./migrations /migrations;"
+cmds="$cmds docker-compose pull nypm;"
+cmds="$cmds docker-compose up -d"
+
+ssh -t "$DEPLOY_USER@$DEPLOY_HOST" "$cmds" 
 

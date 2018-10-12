@@ -8,19 +8,26 @@ import MenuItem from 'material-ui/MenuItem'
 import {get, isEmpty, map} from 'lodash'
 import {formatDate} from '../../types/date'
 import {getPoetsOfUser} from '../../redux/selectors/poets'
-import {requestCreatePoet} from '../../redux/actions/poets'
+import {
+  requestCreatePoet,
+  requestDeletePoet,
+} from '../../redux/actions/poets'
 import {requestReadLanguages} from  '../../redux/actions/languages'
+import {resetErrorMsg} from '../../redux/actions/error'
 
 
 const mapStateToProps = (state, ownProps) => ({
   poets: getPoetsOfUser(state),
   user: state.session.user,
-  languages: get(state, `languages`, [])
+  languages: get(state, `languages`, []),
+  errors: get(state, `error`, ''),
 })
 
 const actions = {
   requestCreatePoet,
   requestReadLanguages,
+  retirePoet: requestDeletePoet,
+  resetErrorMsg,
 }
 
 class poetMgmt extends Component {
@@ -33,6 +40,9 @@ class poetMgmt extends Component {
     if (isEmpty(languages)) {
       requestReadLanguages()
     }
+
+    // if we are reloading this page, reset the error message
+    this.props.resetErrorMsg()
   }
 
   createPoet = values => {
@@ -57,8 +67,8 @@ class poetMgmt extends Component {
 
   render() {
     const {
-      poets,
       languages,
+      retirePoet,
     } = this.props
     
     return (
@@ -69,25 +79,37 @@ class poetMgmt extends Component {
             map(
               this.props.poets,
               (poet, idx) => (
-                <PoetSummary poet={poet} key={idx}/>
+                <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
               ),
               [],
             )
         }
         </div>
-        <CreatePoetForm onSubmit={this.createPoet} languages={languages}/>
+        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors}/>
       </div>
     )
   }
 }
 
 export class PoetSummary extends Component {
+  deletePoet() {
+    const {
+      poet,
+      retirePoet,
+    } = this.props
+    
+    // alert(`are you sure you want to retire ${poet.name}?`)
+
+    retirePoet(poet.id)
+  }
+  
   render() {
     const {
       poet,
     } = this.props
     
     return (
+      <div className='profile-poet-summary-container'>
         <Link className='profile-poet-summary' to={`/poet/${poet.id}`}>
           <div className='profile-poet-name-language'>
             <div className='profile-poet-name'>{poet.name}</div>
@@ -96,6 +118,10 @@ export class PoetSummary extends Component {
           <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
           <div className='profile-poet-description'>{poet.description}</div>
         </Link>
+        <div className='profile-poet-delete-container' onClick={() => this.deletePoet()}>
+          <div className='profile-poet-delete-button'>x</div>
+        </div>
+      </div>
     )
   }
 }
@@ -143,9 +169,8 @@ export class createPoetForm extends Component {
     parametersFileText: 'select parameters file...',
   }
 
-  onChangeProgram = event => {
-    console.log(event)
-    this.setState({ProgramFileText: event.target.value});
+  onChangeFileName = fileName => text => {
+    this.setState({[fileName]: text})
   }
   
   render() {
@@ -163,7 +188,7 @@ export class createPoetForm extends Component {
           <div styles={{marginTop: '1.5em'}}>
             <Field name='description' component={renderTextField} type='text' placeholder='description'/>
           </div>
-          <div>
+          <div className='create-poet-form-language-select'>
             <Field name='language' component={renderSelectField} label='language'>
               {
                 map(
@@ -177,16 +202,19 @@ export class createPoetForm extends Component {
             </Field>
           </div>
           <div className='profile-poet-button'>
-        <Field className='profile-poet-file-button' id='program' name='program' component={FileInput}/>
+        <Field className='profile-poet-file-button' id='program' name='program' component={FileInput(this.onChangeFileName('programFileText').bind(this))}/>
             <label htmlFor="program">{this.state.programFileText}</label>
           </div>
           <div className='profile-poet-button'>
-            <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput}/>
+        <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput(this.onChangeFileName('parametersFileText').bind(this))}/>
             <label htmlFor="parameters">{this.state.parametersFileText}</label>
             <span style={{padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
           </div>
           <button className='profile-poet-submit-button' type='submit'>create poet</button>
         </form>
+        <div className='profile-poet-upload-error-message'>
+          {this.props.errors}
+        </div>
       </div>
     )
   }
@@ -215,10 +243,15 @@ export const CreatePoetForm = reduxForm({
 })(createPoetForm)
 
 // TODO (cw|4.27.2018) refactor this into something much nicer -__-
-const adaptFileEventToValue = delegate =>
-      e => delegate(e.target.files[0])
+const adaptFileEventToValue = (delegate, handler) =>
+      e => {
+        delegate(e.target.files[0])
+        if (e.target.files.length !== 0) {
+          handler(e.target.files[0].name)
+        }
+      }
 
-const FileInput = ({
+const FileInput = handler => ({
   input: {
     value: omitValue,
     onChange,
@@ -229,8 +262,8 @@ const FileInput = ({
   ...props,
 }) =>
       <input
-onChange={adaptFileEventToValue(onChange)}
-onBlur={adaptFileEventToValue(onBlur)}
+onChange={adaptFileEventToValue(onChange, handler)}
+onBlur={adaptFileEventToValue(onChange, handler)}
 type="file"
 {...inputProps}
 {...props}

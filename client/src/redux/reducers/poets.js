@@ -1,9 +1,10 @@
-import {reduce} from 'lodash'
+import {omit, reduce} from 'lodash'
 import {LOGIN_SUCCESSFUL} from '../actions/login'
 import {
   CREATE_POET_SUCCESSFUL,
   READ_POET_SUCCESSFUL,
   READ_POETS_SUCCESSFUL,
+  DELETE_POET_SUCCESSFUL,
 } from '../actions/poets'
 import {
   READ_ISSUES_SUCCESSFUL,
@@ -25,6 +26,8 @@ export const poets = (state = {}, action) => {
     return {...state, [action.payload.id]: action.payload}
   case READ_POETS_SUCCESSFUL:
     return mergePoetsById(state, action.payload)
+  case DELETE_POET_SUCCESSFUL:
+    return omit(state, action.payload.id)
   case LOGIN_SUCCESSFUL:
     // if we are logged in, we want to extract the poets from the
     // user and store them by id in this part of the state tree

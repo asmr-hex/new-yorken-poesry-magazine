@@ -40,10 +40,14 @@ export const signupSuccessful = user => dispatch =>
 
 export const SIGNUP_FAILED = 'SIGNUP_FAILED'
 export const signupFailed = error => dispatch => {
-  error.message = 'signup failed: ' + error.message
-
-  dispatch({
-    error,
-    type: SIGNUP_FAILED,
-  })  
+  error.text()
+    .then(
+      msg => {
+        error.message = msg
+        dispatch({
+          error,
+          type: SIGNUP_FAILED,
+        })          
+      }
+    ) 
 }
