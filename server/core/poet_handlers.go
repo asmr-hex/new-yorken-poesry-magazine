@@ -346,7 +346,30 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 		poet.ParameterFileIncluded = true
 	}
 
-	// create poet in db
+	// set execution context for poet
+	poet.ExecContext = &a.Config.ExecContext
+
+	a.Info("Testing Poet, %s", poet.Name)
+	err = poet.TestPoet()
+	if err != nil {
+		a.Error(err.Error())
+
+		// remove the poet's code directory
+		// delete files from fs
+		osErr := os.RemoveAll(path.Join(POET_DIR, poet.Id))
+		if osErr != nil {
+			// i pray to god thi doesn't happen
+			a.Error("uh-oh: %s", osErr.Error())
+		}
+
+		// return response
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+	a.Info("%s is ok.", poet.Name)
+
+	// create poet in db, now that it passed all the tests
 	err = poet.Create(a.db)
 	if err != nil {
 		a.Error(err.Error())
@@ -371,21 +394,6 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	a.Info("Poet successfully created ^-^")
-
-	// set execution context for poet
-	poet.ExecContext = &a.Config.ExecContext
-
-	a.Info("Testing Poet, %s", poet.Name)
-	err = poet.TestPoet()
-	if err != nil {
-		a.Error(err.Error())
-
-		// return response
-		http.Error(rw, err.Error(), http.StatusBadRequest)
-
-		return
-	}
-	a.Info("%s is ok.", poet.Name)
 }
 
 func (a *API) GetPoetCode(rw web.ResponseWriter, req *web.Request) {

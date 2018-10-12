@@ -8,6 +8,16 @@ import {resetErrorMsg} from '../../redux/actions/error'
 import './index.css'
 
 
+const mapStateToProps = (state, ownProps) => ({
+  errors: get(state, `error`, '')
+})
+
+const actions = {
+  requestLogin,
+  requestSignup,
+  resetErrorMsg,
+}
+
 class login extends Component {
   constructor(props) {
     super(props)
@@ -17,6 +27,11 @@ class login extends Component {
     }
   }
 
+  componentDidMount() {
+    // if we are reloading this page, reset the error message
+    this.props.resetErrorMsg()
+  }
+  
   // upon login, we want to redirect the route to the dashboard
   redirectUponLogin = () => {
     const {history} = this.props
@@ -99,16 +114,6 @@ class login extends Component {
       </div>
     )
   }
-}
-
-const mapStateToProps = (state, ownProps) => ({
-  errors: get(state, `error`, '')
-})
-
-const actions = {
-  requestLogin,
-  requestSignup,
-  resetErrorMsg,
 }
 
 export const Login = connect(mapStateToProps, actions)(login)

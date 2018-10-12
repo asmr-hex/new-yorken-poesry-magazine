@@ -623,9 +623,12 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 	}
 
 	// execute poem generation task
-	results, _ := ctx.Evaluate(p.Language, code, PoetAPIGenerateArgs())
+	results, msg := ctx.Evaluate(p.Language, code, PoetAPIGenerateArgs())
 	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
 	// to extract the appropriate error.
+	// NOTE (cw|10.12.2018) this is the message that can be used to populate the
+	// proposed Poet Error Console described in issue #54.
+	fmt.Println(msg)
 
 	rawPoem, err := p.ParseRawPoem(results)
 	if err != nil {

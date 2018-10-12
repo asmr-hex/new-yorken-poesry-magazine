@@ -57,14 +57,17 @@ export const createPoetSuccessful = poet => dispatch =>
 
 export const CREATE_POET_FAILED = 'CREATE_POET_FAILED'
 export const createPoetFailed = error => dispatch => {
-  error.message = 'create poet failed: ' + error.message
-  
-  dispatch({
-    error,
-    type: CREATE_POET_FAILED,
-  })  
+  error.text()
+    .then(
+      msg => {
+        error.message = msg
+        dispatch({
+          error,
+          type: CREATE_POET_FAILED,
+        })          
+      }
+    ) 
 }
-
 
 export const READ_POETS_REQUESTED = 'READ_POETS_REQUESTED'
 export const requestReadPoets = () => dispatch => {

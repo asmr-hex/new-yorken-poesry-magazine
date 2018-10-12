@@ -13,18 +13,21 @@ import {
   requestDeletePoet,
 } from '../../redux/actions/poets'
 import {requestReadLanguages} from  '../../redux/actions/languages'
+import {resetErrorMsg} from '../../redux/actions/error'
 
 
 const mapStateToProps = (state, ownProps) => ({
   poets: getPoetsOfUser(state),
   user: state.session.user,
-  languages: get(state, `languages`, [])
+  languages: get(state, `languages`, []),
+  errors: get(state, `error`, ''),
 })
 
 const actions = {
   requestCreatePoet,
   requestReadLanguages,
   retirePoet: requestDeletePoet,
+  resetErrorMsg,
 }
 
 class poetMgmt extends Component {
@@ -37,6 +40,9 @@ class poetMgmt extends Component {
     if (isEmpty(languages)) {
       requestReadLanguages()
     }
+
+    // if we are reloading this page, reset the error message
+    this.props.resetErrorMsg()
   }
 
   createPoet = values => {
@@ -79,7 +85,7 @@ class poetMgmt extends Component {
             )
         }
         </div>
-        <CreatePoetForm onSubmit={this.createPoet} languages={languages}/>
+        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors}/>
       </div>
     )
   }
@@ -206,6 +212,9 @@ export class createPoetForm extends Component {
           </div>
           <button className='profile-poet-submit-button' type='submit'>create poet</button>
         </form>
+        <div className='profile-poet-upload-error-message'>
+          {this.props.errors}
+        </div>
       </div>
     )
   }
