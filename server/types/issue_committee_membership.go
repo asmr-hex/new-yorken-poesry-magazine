@@ -12,7 +12,7 @@ type IssueCommitteeMembership struct {
 }
 
 func CreateIssueCommitteeMembershipTable(db *sql.DB) error {
-	mkTableStmt := ` CREATE TABLE IF NOT EXISTS issue_committee_membership (
+	mkTableStmt := `CREATE TABLE IF NOT EXISTS issue_committee_membership (
                            poet UUID REFERENCES poets NOT NULL,
                            issue UUID REFERENCES issues NOT NULL,
                            PRIMARY KEY (poet, issue)

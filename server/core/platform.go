@@ -10,6 +10,7 @@ import (
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	_ "github.com/lib/pq"
+	"github.com/pressly/goose"
 )
 
 // struct for storing in-memory statefulnessnessnesssnes for server
@@ -92,6 +93,12 @@ func (p *Platform) Setup() {
 	var (
 		err error
 	)
+
+	// apply all available migrations
+	err = goose.Up(p.db, "/migrations")
+	if err != nil {
+		panic(err)
+	}
 
 	// create some tables
 

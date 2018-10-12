@@ -12,7 +12,7 @@ type UserPoemLikes struct {
 }
 
 func CreateUserPoemLikesTable(db *sql.DB) error {
-	mkTableStmt := ` CREATE TABLE IF NOT EXISTS user_poem_likes (
+	mkTableStmt := `CREATE TABLE IF NOT EXISTS user_poem_likes (
                            usr UUID REFERENCES users NOT NULL,
                            poem UUID REFERENCES poems NOT NULL,
                            PRIMARY KEY (usr, poem)

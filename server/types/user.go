@@ -161,6 +161,7 @@ func CreateUsersTable(db *sql.DB) error {
                           salt UUID NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
                           emailNotifications BOOL NOT NULL,
+                          deleted BOOL NOT NULL DEFAULT false,
 		          PRIMARY KEY (id)
 	)`
 
@@ -271,8 +272,8 @@ func (u *User) Read(db *sql.DB) error {
                                 p.language, p.path
                          FROM users u
                          LEFT OUTER JOIN poets p
-                         ON (u.id = p.designer)
-                         WHERE u.id = $1
+                         ON (u.id = p.designer AND p.deleted = false)
+                         WHERE u.id = $1 AND u.deleted = false
                 `
 		userReadStmt, err = db.Prepare(stmt)
 		if err != nil {
@@ -380,7 +381,9 @@ func ReadUsers(db *sql.DB) ([]*User, error) {
                            language, programFileName, parameterFileName,
                            parameterFileIncluded, path
                     FROM users u
-                    LEFT OUTER JOIN poets p ON (u.id = p.designer)
+                    LEFT OUTER JOIN poets p
+                    ON (u.id = p.designer AND p.deleted = false)
+                    WHERE u.deleted = false
                 `
 		userReadAllStmt, err = db.Prepare(stmt)
 		if err != nil {
