@@ -352,6 +352,7 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	a.Info("Testing Poet, %s", poet.Name)
 	err = poet.TestPoet()
 	if err != nil {
+		fmt.Println("testing the poem errored...")
 		a.Error(err.Error())
 
 		// remove the poet's code directory

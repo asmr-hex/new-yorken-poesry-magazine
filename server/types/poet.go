@@ -160,10 +160,6 @@ func (p *Poet) Sanitize() {
 
 // check required fields for creation
 func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
-	var (
-		err error
-	)
-
 	// we already know that the Id field is valid
 
 	// designer must be provided AND match the given validation parameter
@@ -176,10 +172,11 @@ func (p *Poet) CheckRequiredFields(params PoetValidationParams) error {
 	// validating a poet's Name (not a username)
 	// TODO (cw|4.27.2018) proposal to rename (or make another) validation
 	// utility function for just Names in general to avoid confusion.
-	err = utils.ValidateUsername(p.Name)
-	if err != nil {
-		return err
-	}
+	// TODO (cw|10.12.2018) do we even want this?!?!?!
+	// err = utils.ValidateUsername(p.Name)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// limit the size of the description
 	if utf8.RuneCountInString(p.Description) > POET_DESCRIPTION_MAX_CHARS {
@@ -723,6 +720,7 @@ func (p *Poet) TestPoet() error {
 	// test poem generation
 	poem, err := p.GeneratePoem()
 	if err != nil {
+		fmt.Println("couldn't generate a poem")
 		return err
 	}
 
@@ -733,6 +731,7 @@ func (p *Poet) TestPoet() error {
 	// test poem evaluation
 	score, err := p.CritiquePoem(consts.THE_BEST_POEM)
 	if err != nil {
+		fmt.Println("couldn't critique a poem")
 		return err
 	}
 
@@ -743,6 +742,7 @@ func (p *Poet) TestPoet() error {
 	// test self updating
 	success, err := p.StudyPoems(consts.THE_BEST_POEM)
 	if err != nil {
+		fmt.Println("couldn't study poems")
 		return err
 	}
 
