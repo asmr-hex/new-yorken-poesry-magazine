@@ -56,7 +56,6 @@ func (p *Poet) ParseRawPoem(results []string) (*RawPoem, error) {
 
 	err = json.Unmarshal([]byte(results[0]), result)
 	if err != nil {
-		fmt.Println(results)
 		return nil, err
 	}
 

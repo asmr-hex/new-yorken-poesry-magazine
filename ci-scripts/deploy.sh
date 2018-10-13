@@ -18,7 +18,6 @@ git push --force deploy master
 
 # load updated migration files, pull latest docker image and restart on server
 cmds="cd $DEPLOY_DIR;"
-cmds="$cmds mv ./migrations /data/migrations;"
 cmds="$cmds docker-compose pull nypm;"
 cmds="$cmds docker-compose up -d"
 
