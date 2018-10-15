@@ -7,7 +7,7 @@ html, body {
     overflow-y: scroll;
 }
 
-#root{
+#root {
     height: inherit;
     width: inherit;
 }

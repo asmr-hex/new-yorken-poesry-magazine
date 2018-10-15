@@ -175,3 +175,11 @@
     border: 1px solid #222;
     color: #222;
 }
+
+/* ----------- MOBILE MEDIA QUERIES ----------- */
+
+@media screen and (max-width: 800px) {
+    .poets-summaries-container {
+        width: 100%;
+    }
+}

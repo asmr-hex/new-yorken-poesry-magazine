@@ -190,3 +190,15 @@
     white-space: pre-wrap;
     letter-spacing: 0.05em;
 }
+
+/* ----------- MOBILE MEDIA QUERIES ----------- */
+
+@media screen and (max-width: 800px) {
+    .issues-summaries-container {
+        width: 100%;
+    }
+
+    .issue-page-container {
+        width: 80%;
+    }
+}

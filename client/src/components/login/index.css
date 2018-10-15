@@ -47,3 +47,15 @@
     padding-top: 1em;
     color: red;
 }
+
+/* ----------- MOBILE MEDIA QUERIES ----------- */
+
+@media screen and (max-width: 800px) {
+    .login-page {
+        width: 80%;
+    }
+
+    .login-form-field {
+        width: 100% !important;
+    }
+}
