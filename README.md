@@ -46,7 +46,7 @@ TODO
 
 # How To Contribute
 ## Quick Start
-The entire application runs within Docker, so spinning up the development environment is as easy as,
+First, `cd` into the `client` directory and run `npm install` to install dependencies. Then the entire application runs within Docker, so spinning up the development environment is as easy as,
 ``` shell
 $ docker-compose up # start all services and follow logs
 $ ctl-c # pause all services

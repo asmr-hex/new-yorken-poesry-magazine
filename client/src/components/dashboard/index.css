@@ -209,3 +209,20 @@
     padding-top: 1em;
     color: red;
 }
+
+/* ----------- MOBILE MEDIA QUERIES ----------- */
+
+@media screen and (max-width: 800px) {
+    .profile-container {
+        width: 100%;
+    }
+
+    .profile-user-details {
+        font-size: 1.25em;
+    }
+
+    .profile-poets-container {
+        width: 95%;
+        flex-direction: column;
+    }
+}
