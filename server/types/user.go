@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
@@ -142,11 +143,14 @@ func (u *User) Sanitize() {
 
 // package level globals for storing prepared sql statements
 var (
-	userAuthStmt    *sql.Stmt
-	userCreateStmt  *sql.Stmt
-	userReadStmt    *sql.Stmt
-	userReadAllStmt *sql.Stmt
-	userDeleteStmt  *sql.Stmt
+	ErrorUserDoesNotExist = errors.New("user does not exist")
+
+	userAuthStmt                 *sql.Stmt
+	userCreateStmt               *sql.Stmt
+	userReadStmt                 *sql.Stmt
+	userReadAllStmt              *sql.Stmt
+	userDeleteStmt               *sql.Stmt
+	userReadWithEmailAddressStmt *sql.Stmt
 
 	poetOfUserReadStmt *sql.Stmt
 )
@@ -241,7 +245,7 @@ func (u *User) Authenticate(db *sql.DB) error {
 		Scan(&u.Id, &hashedPassword, &salt)
 	switch {
 	case err == sql.ErrNoRows:
-		return fmt.Errorf("incorrect username or password AAHHH")
+		return fmt.Errorf("incorrect username or password")
 	case err != nil:
 		return err
 	}
@@ -363,6 +367,38 @@ func (u *User) Delete(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func GetUserWithEmailAddress(email string, db *sql.DB) (*User, error) {
+	var (
+		user User
+		err  error
+	)
+
+	if userReadWithEmailAddressStmt == nil {
+		stmt := `
+                    SELECT u.id, username, email, emailNotifications
+                    FROM users u
+                    WHERE u.email = $1
+                `
+		userReadWithEmailAddressStmt, err = db.Prepare(stmt)
+		if err != nil {
+			return &user, nil
+		}
+	}
+
+	// run the prepared stmt over args (username)
+	err = userReadWithEmailAddressStmt.
+		QueryRow(email).
+		Scan(&user.Id, &user.Username, &user.Email, &user.EmailNotifications)
+	switch {
+	case err == sql.ErrNoRows:
+		return &user, ErrorUserDoesNotExist
+	case err != nil:
+		return &user, err
+	}
+
+	return &user, nil
 }
 
 func ReadUsers(db *sql.DB) ([]*User, error) {

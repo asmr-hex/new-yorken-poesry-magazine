@@ -4,11 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	verifyTokenRegexp = regexp.MustCompile("token=(\\w+)")
+	verifyEmailRegexp = regexp.MustCompile("email=(\\w+)")
 )
 
 func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
@@ -41,38 +47,153 @@ func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
 
 // TODO send email verification
 func (a *API) SignUp(rw web.ResponseWriter, req *web.Request) {
-	// this should be a request handler for a registration endpoint
+	var (
+		user types.User
+		err  error
+	)
+
+	defer req.Body.Close()
 
 	// get data from request
+	decoder := json.NewDecoder(req.Body)
+	err = decoder.Decode(&user)
+	if err != nil {
+		a.Error("Unable to decode POST raw-data: %s", err.Error())
 
-	// create registration token
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 
-	// store registration token and data in db
+		return
+	}
+
+	// ensure user doesn't exist in db already
+	userExists := true
+	_, err = types.GetUserWithEmailAddress(user.Email, a.db)
+	switch {
+	case err == types.ErrorUserDoesNotExist:
+		// good. we will proceed.
+		userExists = false
+	case err != nil:
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	if userExists {
+		msg := fmt.Sprintf("the email address %s is already in use", user.Email)
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+
+	// ensure this isn't a pending verification
+	_, userExists = a.Verifier.GetTokenByEmailAddress(user.Email)
+	if userExists {
+		msg := fmt.Sprintf("verification pending. an email has been sent to %s", user.Email)
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+
+	// if we are in the dev environment, don't send an actual email, just
+	// create the user.
+	if a.Config.DevEnv {
+		a.CreateUser(rw, user)
+	}
+
+	// okay, add to the verifier as pending
+	token := a.Verifier.RegisterPendingUser(user)
 
 	// send email with a link which will have the token in the url
 	// and the page you are directed to will send a POST request with
 	// the provided token which will then fetch the corresponding user
 	// data temporarily keyed by the token and hit the CreateUser hanlder.
-
-	// TODO (cw|4.25.2018) everything below here will go into the VerifyAccount
-	// handler.
-
-	// For now this will *only* create a new user.
-	a.CreateUser(rw, req)
+	// NOTE: if we are in the dev environment, send a response with the verification
+	// code which should be displayed as an alert or something (rather than sending
+	// a real email)
+	// TODO (cw|10.16.2018) invoke the a.Emailer
+	_ = token
 }
 
 // verifies that the account about to be created has been associated with and
 // email address.
 //
-// TODO (cw|4.25.2018) get a verification key from the request param, lookup the
-// user about to be created within an in memory cache, if it exists then proceed,
-// if not, then this is an unverified email address.
-//
 func (a *API) VerifyAccount(rw web.ResponseWriter, req *web.Request) {
-	// TODO once we implement email verification tokens, we will be expecting
-	// a registration token in the data, which we will here use to fetch the
-	// appropriate data from the db. Once we have the user, we will proceed as
-	// normally below. ✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。✲´*。.❄¨¯`*✲。❄。*。
+	var (
+		email string
+		token string
+		err   error
+	)
+
+	// get email and token from params
+	query := req.PathParams[API_VERIFY_PATH_PARAM]
+
+	// get token from query
+	tokenResults := verifyTokenRegexp.FindAllStringSubmatch(query, -1)
+	if len(tokenResults) == 0 || len(tokenResults[0]) != 2 {
+		msg := "malformed verfication request, no token"
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+	token = tokenResults[0][1]
+
+	// get email from query
+	emailResults := verifyEmailRegexp.FindAllStringSubmatch(query, -1)
+	if len(emailResults) == 0 || len(emailResults[0]) != 2 {
+		msg := "malformed verfication request, no email"
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+	email = emailResults[0][1]
+
+	// ensure user doesn't exist in db already
+	userExists := true
+	_, err = types.GetUserWithEmailAddress(email, a.db)
+	switch {
+	case err == types.ErrorUserDoesNotExist:
+		// good. we will proceed.
+		userExists = false
+	case err != nil:
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	if userExists {
+		msg := fmt.Sprintf("the email address %s has already been verified", email)
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+
+	// ensure this isn't a pending verification
+	user, userExists := a.Verifier.GetUserByToken(token)
+	if !userExists {
+		msg := fmt.Sprintf("pending verification for %s doesn't exist or expired", email)
+		a.Error(msg)
+
+		http.Error(rw, msg, http.StatusBadRequest)
+
+		return
+	}
+
+	// create user!
+	a.CreateUser(rw, user)
 }
 
 // creates a user account.
@@ -90,23 +211,10 @@ func (a *API) VerifyAccount(rw web.ResponseWriter, req *web.Request) {
 // For that reason, we will eventually need to change the signature of this function
 // to accept a User struct and a ResponseWriter (we no longer need the Request).
 //
-func (a *API) CreateUser(rw web.ResponseWriter, req *web.Request) {
+func (a *API) CreateUser(rw web.ResponseWriter, user types.User) {
 	var (
-		user types.User
-		err  error
+		err error
 	)
-
-	defer req.Body.Close()
-
-	decoder := json.NewDecoder(req.Body)
-	err = decoder.Decode(&user)
-	if err != nil {
-		a.Error("Unable to decode POST raw-data: %s", err.Error())
-
-		http.Error(rw, err.Error(), http.StatusBadRequest)
-
-		return
-	}
 
 	err = user.Validate(consts.CREATE)
 	if err != nil {
