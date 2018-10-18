@@ -16,7 +16,6 @@ const (
 	API_DASHBOARD               = "dashboard"
 	API_ID_PATH_PARAM           = "id"
 	API_ISSUE_VOLUME_PATH_PARAM = "volume"
-	API_VERIFY_PATH_PARAM       = "verify"
 )
 
 type API struct {
@@ -99,7 +98,7 @@ func (a *API) BuildRouter() {
 		// === Dashboard API ===
 		Post(dashPrefix+"/login", a.Login).
 		Post(dashPrefix+"/signup", a.SignUp).
-		Post(dashPrefix+"/verify?:"+API_VERIFY_PATH_PARAM, a.VerifyAccount).
+		Get(dashPrefix+"/verify", a.VerifyAccount).
 
 		// poet endpoints
 		Post(dashPrefix+"/poet", a.CreatePoet).

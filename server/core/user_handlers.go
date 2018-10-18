@@ -4,17 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/consts"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
 	uuid "github.com/satori/go.uuid"
-)
-
-var (
-	verifyTokenRegexp = regexp.MustCompile("token=(\\w+)")
-	verifyEmailRegexp = regexp.MustCompile("email=(\\w+)")
 )
 
 func (a *API) GetUsers(rw web.ResponseWriter, req *web.Request) {
@@ -130,32 +124,10 @@ func (a *API) VerifyAccount(rw web.ResponseWriter, req *web.Request) {
 		err   error
 	)
 
-	// get email and token from params
-	query := req.PathParams[API_VERIFY_PATH_PARAM]
-
-	// get token from query
-	tokenResults := verifyTokenRegexp.FindAllStringSubmatch(query, -1)
-	if len(tokenResults) == 0 || len(tokenResults[0]) != 2 {
-		msg := "malformed verfication request, no token"
-		a.Error(msg)
-
-		http.Error(rw, msg, http.StatusBadRequest)
-
-		return
-	}
-	token = tokenResults[0][1]
-
-	// get email from query
-	emailResults := verifyEmailRegexp.FindAllStringSubmatch(query, -1)
-	if len(emailResults) == 0 || len(emailResults[0]) != 2 {
-		msg := "malformed verfication request, no email"
-		a.Error(msg)
-
-		http.Error(rw, msg, http.StatusBadRequest)
-
-		return
-	}
-	email = emailResults[0][1]
+	// extract parsed values from query
+	values := req.URL.Query()
+	email = values.Get("email")
+	token = values.Get("token")
 
 	// ensure user doesn't exist in db already
 	userExists := true
