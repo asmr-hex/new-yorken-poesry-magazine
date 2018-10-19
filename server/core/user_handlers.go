@@ -111,7 +111,14 @@ func (a *API) SignUp(rw web.ResponseWriter, req *web.Request) {
 	// code which should be displayed as an alert or something (rather than sending
 	// a real email)
 	// TODO (cw|10.16.2018) invoke the a.Emailer
-	_ = token
+	err = a.Verifier.SendVerificationEmail(user, token)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+
+		return
+	}
 }
 
 // verifies that the account about to be created has been associated with and

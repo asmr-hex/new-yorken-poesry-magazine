@@ -15,6 +15,7 @@ type Config struct {
 	Port               string `env:"SERVER_PORT" envDefault:"8080"`
 	MagazineGuidelines MagazineConfig
 	ExecContext        ExecContext
+	Emailer            Emailer
 	DB                 DB
 }
 
@@ -31,6 +32,13 @@ type MagazineConfig struct {
 type ExecContext struct {
 	Dir      string `env:"EXEC_DIR" envDefault:"/tmp"`
 	MountDir string `env:"EXEC_MOUNT_DIR" envDefault:"/tmp"`
+}
+
+// Emailer conf
+type Emailer struct {
+	Domain string `env:"EMAIL_DOMAIN" envDefault:""`
+	ApiKey string `env:"EMAIL_API_KEY" envDefault:""`
+	Sender string `env:"EMAIL_SENDER" envDefault:"daemon"`
 }
 
 // DB conf

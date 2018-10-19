@@ -14,19 +14,33 @@ type Verifier struct {
 	TokenToUser         map[string]types.User
 	EmailAddressToToken map[string]string
 	TokenIssued         map[string]time.Time
+	Emailer             types.Emailer
 }
 
-func NewVerifier(tokenDuration time.Duration) *Verifier {
+func NewVerifier(emailer types.Emailer, tokenDuration time.Duration) *Verifier {
 	verifier := &Verifier{
 		TokenDuration:       tokenDuration,
 		TokenToUser:         map[string]types.User{},
 		EmailAddressToToken: map[string]string{},
 		TokenIssued:         map[string]time.Time{},
+		Emailer:             emailer,
 	}
 
 	go verifier.SweepUpTokens()
 
 	return verifier
+}
+
+func (v *Verifier) SendVerificationEmail(user types.User, token string) error {
+	var (
+		err error
+	)
+
+	//
+
+	_ = err
+
+	return nil
 }
 
 func (v *Verifier) RegisterPendingUser(user types.User) string {

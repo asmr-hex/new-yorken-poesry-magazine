@@ -16,6 +16,7 @@ import (
 // struct for storing in-memory statefulnessnessnesssnes for server
 type Platform struct {
 	*Logger
+	Emailer       types.Emailer
 	Api           *API
 	MagazineAdmin *MagazineAdministrator
 	config        *env.Config
@@ -34,8 +35,11 @@ func NewPlatform() *Platform {
 	// setup db state, etc.
 	p.Setup()
 
+	// construct new email from config
+	p.Emailer = p.NewEmailer(p.config)
+
 	// construct API and pass it the db connection handle set within Connect ---^
-	p.Api = NewAPI(p.config, p.db)
+	p.Api = NewAPI(p.config, p.db, p.Emailer)
 
 	// construct a zine admin and pass it the db connection handle established above
 	p.MagazineAdmin = NewMagazineAdministrator(
@@ -157,6 +161,26 @@ func (p *Platform) Setup() {
 		}
 	}
 
+}
+
+func (p *Platform) NewEmailer(config *env.Config) types.Emailer {
+	var (
+		emailer types.Emailer
+	)
+
+	if config.DevEnv {
+		// setup dev emailer
+		emailer = types.NewDevEmailer(config.Emailer.Sender)
+	} else {
+		// setup prod emailer
+		emailer = types.NewMailGunEmailer(
+			config.Emailer.Domain,
+			config.Emailer.ApiKey,
+			config.Emailer.Sender,
+		)
+	}
+
+	return emailer
 }
 
 func (p *Platform) Start() {

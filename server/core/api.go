@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
 )
 
@@ -23,23 +24,25 @@ type API struct {
 	Config   *env.Config
 	Version  string
 	Router   *web.Router
+	Emailer  types.Emailer
 	Sessions *Sessions
 	Verifier *Verifier
 	db       *sql.DB
 }
 
-func NewAPI(config *env.Config, db *sql.DB) *API {
+func NewAPI(config *env.Config, db *sql.DB, emailer types.Emailer) *API {
 	api := API{
 		Logger:  NewLogger(os.Stdout),
 		Config:  config,
 		Version: API_VERSION,
+		Emailer: emailer,
 		db:      db,
 	}
 
 	api.BuildRouter()
 
-	api.Sessions = NewSessions(time.Minute * 30)   // TODO put in config
-	api.Verifier = NewVerifier(time.Hour * 24 * 3) // TODO put in config
+	api.Sessions = NewSessions(time.Minute * 30)        // TODO put in config
+	api.Verifier = NewVerifier(emailer, time.Hour*24*3) // TODO put in config
 
 	return &api
 }
