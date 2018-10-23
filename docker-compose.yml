@@ -21,6 +21,7 @@ services:
       - xaqt
     links:
       - "db:${DB_HOST}"
+      - "maildev:maildev"
 
   dev_client:
     env_file: .env
@@ -56,3 +57,9 @@ services:
     restart: always
     ports:
       - 8000:8000
+
+  # dev smtp server + mail gui
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 1080:80 # expose mail gui at 1080

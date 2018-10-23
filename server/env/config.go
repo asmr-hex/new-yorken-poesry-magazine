@@ -38,7 +38,7 @@ type ExecContext struct {
 type Emailer struct {
 	Domain string `env:"EMAIL_DOMAIN" envDefault:""`
 	ApiKey string `env:"EMAIL_API_KEY" envDefault:""`
-	Sender string `env:"EMAIL_SENDER" envDefault:"daemon"`
+	Sender string `env:"EMAIL_SENDER" envDefault:"daemon@poem.computer"`
 }
 
 // DB conf
@@ -73,6 +73,12 @@ func NewConfig() *Config {
 
 	// parse execution context
 	err = env.Parse(&conf.ExecContext)
+	if err != nil {
+		panic(err)
+	}
+
+	// parse execution context
+	err = env.Parse(&conf.Emailer)
 	if err != nil {
 		panic(err)
 	}
