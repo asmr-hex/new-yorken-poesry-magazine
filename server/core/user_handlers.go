@@ -94,12 +94,6 @@ func (a *API) SignUp(rw web.ResponseWriter, req *web.Request) {
 		return
 	}
 
-	// if we are in the dev environment, don't send an actual email, just
-	// create the user.
-	if a.Config.DevEnv {
-		a.CreateUser(rw, user)
-	}
-
 	// okay, add to the verifier as pending
 	token := a.Verifier.RegisterPendingUser(user)
 
@@ -110,7 +104,6 @@ func (a *API) SignUp(rw web.ResponseWriter, req *web.Request) {
 	// NOTE: if we are in the dev environment, send a response with the verification
 	// code which should be displayed as an alert or something (rather than sending
 	// a real email)
-	// TODO (cw|10.16.2018) invoke the a.Emailer
 	err = a.Verifier.SendVerificationEmail(user, token)
 	if err != nil {
 		a.Error(err.Error())

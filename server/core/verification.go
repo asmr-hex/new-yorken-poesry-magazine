@@ -1,9 +1,11 @@
 package core
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/templates"
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	uuid "github.com/satori/go.uuid"
 )
@@ -36,9 +38,21 @@ func (v *Verifier) SendVerificationEmail(user types.User, token string) error {
 		err error
 	)
 
-	//
+	verificationUrl := fmt.Sprintf(
+		"https://poem.computer/verify?token=%s&email=%s",
+		token,
+		user.Email,
+	)
 
-	_ = err
+	body, err := templates.ComposeVerificationEmail(verificationUrl, user.Username)
+	if err != nil {
+		return err
+	}
+
+	err = v.Emailer.SendEmail("pls confirm your email.", body, user.Email)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

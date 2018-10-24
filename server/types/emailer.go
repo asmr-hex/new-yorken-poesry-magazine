@@ -30,7 +30,8 @@ func NewMailGunEmailer(domain, key, sender string) *MailGunEmailer {
 }
 
 func (e *MailGunEmailer) SendEmail(subject, body string, recipients ...string) error {
-	message := e.NewMessage(e.Sender, subject, body, recipients...)
+	message := e.NewMessage(e.Sender, subject, "", recipients...)
+	message.SetHtml(body) // use text/html content-type
 	_, _, err := e.Send(message)
 	if err != nil {
 		return err
@@ -40,10 +41,9 @@ func (e *MailGunEmailer) SendEmail(subject, body string, recipients ...string) e
 }
 
 type DevEmailer struct {
-	Host       string
-	Port       int
-	Sender     string
-	SentEmails []string
+	Host   string
+	Port   int
+	Sender string
 }
 
 // for the dev environment, we are using maildev (https://danfarrelly.nyc/MailDev/)
@@ -53,10 +53,9 @@ type DevEmailer struct {
 // and then we can open up localhost:1080 to view our emails!
 func NewDevEmailer(sender string) *DevEmailer {
 	emailer := &DevEmailer{
-		Host:       "maildev",
-		Port:       25,
-		Sender:     sender,
-		SentEmails: []string{},
+		Host:   "maildev",
+		Port:   25,
+		Sender: sender,
 	}
 
 	return emailer
@@ -77,6 +76,7 @@ func (d *DevEmailer) SendEmail(subject, body string, recipients ...string) error
 	headers["From"] = d.Sender
 	headers["To"] = recipientsString
 	headers["Subject"] = subject
+	headers["Content-Type"] = "text/html; charset=UTF-8"
 
 	// Setup message
 	message := ""
@@ -136,6 +136,44 @@ func (d *DevEmailer) SendEmail(subject, body string, recipients ...string) error
 	return nil
 }
 
-// TODO (cw|10.19.2018) eventually create a TestEmailer which will take a channel
-// so the tests can immediately recieve the verification email over it so they can
-// automatically verify without having to actually check email...
+// a TestEmailer which will cache all sent emails s.t. we can check if the
+// correct emails were sent!
+type TestEmailer struct {
+	Sender     string
+	SentEmails []string
+}
+
+func NewTestEmailer(sender string) *TestEmailer {
+	return &TestEmailer{
+		Sender:     sender,
+		SentEmails: []string{},
+	}
+}
+
+func (t *TestEmailer) SendEmail(subject, body string, recipients ...string) error {
+	// convert recipient slice into comma seperated string
+	recipientsString := ""
+	for idx, recipient := range recipients {
+		recipientsString += recipient
+		if len(recipients) != idx+1 {
+			recipientsString += ", "
+		}
+	}
+
+	// construct email headers
+	headers := make(map[string]string)
+	headers["From"] = t.Sender
+	headers["To"] = recipientsString
+	headers["Subject"] = subject
+
+	// Setup message
+	message := ""
+	for k, v := range headers {
+		message += fmt.Sprintf("%s: %s\r\n", k, v)
+	}
+	message += "\r\n" + body
+
+	t.SentEmails = append(t.SentEmails, message)
+
+	return nil
+}
