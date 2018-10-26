@@ -16,8 +16,9 @@ git add .
 git commit -m "deploy"
 git push --force deploy master
 
-# load updated migration files, pull latest docker image and restart on server
+# load updated migration files, decrypt secrets, pull latest docker image and restart on server
 cmds="cd $DEPLOY_DIR;"
+cmds="$cmds GPG=gpg2 blackbox_decrypt_all_files;"
 cmds="$cmds docker-compose pull nypm;"
 cmds="$cmds docker-compose up -d"
 

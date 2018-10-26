@@ -5,7 +5,6 @@ services:
   dev_server:
     env_file:
       - .env
-      - .secrets
     environment:
       - DEV_ENV=true
     build:
