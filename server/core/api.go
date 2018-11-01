@@ -41,8 +41,8 @@ func NewAPI(config *env.Config, db *sql.DB, emailer types.Emailer) *API {
 
 	api.BuildRouter()
 
-	api.Sessions = NewSessions(time.Minute * 30)        // TODO put in config
-	api.Verifier = NewVerifier(emailer, time.Hour*24*3) // TODO put in config
+	api.Sessions = NewSessions(time.Minute * 30)                        // TODO put in config
+	api.Verifier = NewVerifier(emailer, config.BaseUrl, time.Hour*24*3) // TODO put in config
 
 	return &api
 }

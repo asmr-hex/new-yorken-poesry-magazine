@@ -112,6 +112,18 @@ func (a *API) SignUp(rw web.ResponseWriter, req *web.Request) {
 
 		return
 	}
+
+	userJson, err := json.Marshal(user)
+	if err != nil {
+		a.Error(err.Error())
+
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(userJson)
 }
 
 // verifies that the account about to be created has been associated with and
@@ -165,7 +177,7 @@ func (a *API) VerifyAccount(rw web.ResponseWriter, req *web.Request) {
 	}
 
 	// create user!
-	a.CreateUser(rw, user)
+	a.CreateUser(&user, rw)
 }
 
 // creates a user account.
@@ -183,7 +195,7 @@ func (a *API) VerifyAccount(rw web.ResponseWriter, req *web.Request) {
 // For that reason, we will eventually need to change the signature of this function
 // to accept a User struct and a ResponseWriter (we no longer need the Request).
 //
-func (a *API) CreateUser(rw web.ResponseWriter, user types.User) {
+func (a *API) CreateUser(user *types.User, rw web.ResponseWriter) {
 	var (
 		err error
 	)
@@ -214,7 +226,7 @@ func (a *API) CreateUser(rw web.ResponseWriter, user types.User) {
 	a.Info("user %s successfully created!", user.Username)
 
 	// after user is created we can then immediately log the user in
-	a.login(&user, rw)
+	a.login(user, rw)
 }
 
 // handles login requests.
@@ -315,15 +327,17 @@ func (a *API) login(user *types.User, rw web.ResponseWriter) {
 	user.Sanitize()
 
 	// write json encoded data into response
-	err = json.NewEncoder(rw).Encode(user)
+	userJSON, err := json.Marshal(user)
 	if err != nil {
 		a.Error(err.Error())
 
-		// return response
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(userJSON)
 
 	a.Info("user %s successfully logged in!", user.Username)
 }

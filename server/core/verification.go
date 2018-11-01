@@ -17,15 +17,17 @@ type Verifier struct {
 	EmailAddressToToken map[string]string
 	TokenIssued         map[string]time.Time
 	Emailer             types.Emailer
+	AppBaseUrl          string
 }
 
-func NewVerifier(emailer types.Emailer, tokenDuration time.Duration) *Verifier {
+func NewVerifier(emailer types.Emailer, baseUrl string, tokenDuration time.Duration) *Verifier {
 	verifier := &Verifier{
 		TokenDuration:       tokenDuration,
 		TokenToUser:         map[string]types.User{},
 		EmailAddressToToken: map[string]string{},
 		TokenIssued:         map[string]time.Time{},
 		Emailer:             emailer,
+		AppBaseUrl:          baseUrl,
 	}
 
 	go verifier.SweepUpTokens()
@@ -39,7 +41,8 @@ func (v *Verifier) SendVerificationEmail(user types.User, token string) error {
 	)
 
 	verificationUrl := fmt.Sprintf(
-		"https://poem.computer/verify?token=%s&email=%s",
+		"%s/verify?token=%s&email=%s",
+		v.AppBaseUrl,
 		token,
 		user.Email,
 	)

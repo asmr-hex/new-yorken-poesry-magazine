@@ -9,7 +9,8 @@ import './index.css'
 
 
 const mapStateToProps = (state, ownProps) => ({
-  errors: get(state, `error`, '')
+  errors: get(state, `error`, ''),
+  pendingVerification: get(state, `session.pendingVerification`, false),
 })
 
 const actions = {
@@ -31,14 +32,7 @@ class login extends Component {
     // if we are reloading this page, reset the error message
     this.props.resetErrorMsg()
   }
-  
-  // upon login, we want to redirect the route to the dashboard
-  redirectUponLogin = () => {
-    const {history} = this.props
-
-    history.push('/profile')
-  }
-  
+    
   login = values => {
     const {password, username} = values
     
@@ -64,14 +58,11 @@ class login extends Component {
     // ps. there *is* server-side validation, but we want to
     // include some before it gets put on the wire for ease-of-use.
 
-    this.props.requestSignup(
-      {
+    this.props.requestSignup({
         email: email || '',
         username: username || '',
         password: password || '',      
-      },
-      this.redirectUponLogin,
-    )
+      })
   }
 
   showLoginForm = () => {
@@ -89,28 +80,44 @@ class login extends Component {
 
     this.props.resetErrorMsg()
   }
-  
+
+  // upon login, we want to redirect the route to the dashboard
+  redirectUponLogin = () => {
+    const {history} = this.props
+
+    history.push('/profile')
+  }
+
   render() {
     const {loginFormShown} = this.state
+    const {pendingVerification} = this.props
 
-    return (
-      <div className='main'>
-        <div className='login-page'>
-          <div className='login-container'>
-            {
-              loginFormShown ?
+    const signupLoginComponent =
+      <div className='login-page'>
+        <div className='login-container'>
+           {
+            loginFormShown ?
               <LoginForm onSubmit={this.login}/>
-                : <SignupForm onSubmit={this.signup}/> 
-            }
-            <div className='login-signup-choose-box-thing'>
-              <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
-              <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
-            </div>
-            <div className='login-signup-error-message'>
-              {this.props.errors}
-            </div>
+              : <SignupForm onSubmit={this.signup}/> 
+           } 
+          <div className='login-signup-choose-box-thing'>
+            <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
+            <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
+          </div>
+          <div className='login-signup-error-message'>
+                  {this.props.errors}
           </div>
         </div>
+      </div>
+
+    const pendingVerificationComponent =
+      <div>YO PENDING VERIFICATION FRIEMDB</div>
+    
+    return (
+      <div className='main'>
+        {
+          pendingVerification ? pendingVerificationComponent : signupLoginComponent
+        }
       </div>
     )
   }
