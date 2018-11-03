@@ -608,7 +608,7 @@ func ReadPoets(db *sql.DB, filter ...string) ([]*Poet, error) {
 	return poets, nil
 }
 
-func (p *Poet) GeneratePoem() (*Poem, error) {
+func (p *Poet) GeneratePoem() (*Poem, error, string) {
 	var (
 		poem *Poem
 		err  error
@@ -616,20 +616,18 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 
 	ctx, code, err := p.setupExecutionSandbox()
 	if err != nil {
-		return nil, err
+		return nil, err, ""
 	}
 
 	// execute poem generation task
 	results, msg := ctx.Evaluate(p.Language, code, PoetAPIGenerateArgs())
-	// TODO (cw|9.2.2018) Evaluate returns an xaqt.Message which we shoul use
-	// to extract the appropriate error.
-	// NOTE (cw|10.12.2018) this is the message that can be used to populate the
-	// proposed Poet Error Console described in issue #54.
-	fmt.Println(msg)
+	if msg.Type == "error" {
+		return nil, nil, msg.Data
+	}
 
 	rawPoem, err := p.ParseRawPoem(results)
 	if err != nil {
-		return nil, err
+		return nil, err, ""
 	}
 
 	poem = &Poem{
@@ -639,7 +637,7 @@ func (p *Poet) GeneratePoem() (*Poem, error) {
 		Content: rawPoem.Content,
 	}
 
-	return poem, nil
+	return poem, nil, ""
 }
 
 func (p *Poet) CritiquePoem(poem string) (float64, error) {
@@ -716,36 +714,36 @@ func (p *Poet) setupExecutionSandbox() (*xaqt.Context, xaqt.Code, error) {
 	return ctx, code, nil
 }
 
-func (p *Poet) TestPoet() error {
+func (p *Poet) TestPoet() (error, string) {
 	// test poem generation
-	poem, err := p.GeneratePoem()
-	if err != nil {
-		return err
+	poem, err, userError := p.GeneratePoem()
+	if err != nil || userError != "" {
+		return err, userError
 	}
 
 	if strings.TrimSpace(poem.Content) == "" {
-		return fmt.Errorf("%s's work is simply vapid.", p.Name)
+		return fmt.Errorf("%s's work is simply vapid.", p.Name), ""
 	}
 
 	// test poem evaluation
 	score, err := p.CritiquePoem(consts.THE_BEST_POEM)
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	if score < 0 || score > 1 {
-		return fmt.Errorf("%s is a bad critic.", p.Name)
+		return fmt.Errorf("%s is a bad critic.", p.Name), ""
 	}
 
 	// test self updating
 	success, err := p.StudyPoems(consts.THE_BEST_POEM)
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	if !success {
-		return fmt.Errorf("%s is unable to learn.", p.Name)
+		return fmt.Errorf("%s is unable to learn.", p.Name), ""
 	}
 
-	return nil
+	return nil, ""
 }
