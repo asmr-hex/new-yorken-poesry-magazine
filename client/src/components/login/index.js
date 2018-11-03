@@ -110,8 +110,48 @@ class login extends Component {
         </div>
       </div>
 
+    const style = {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      textAlign: 'left',
+      fontSize: 'x-large',
+      color: '#e58de8',
+    }
+    const msg = `a verification email has been sent. check yr email.`
+
     const pendingVerificationComponent =
-      <div>YO PENDING VERIFICATION FRIEMDB</div>
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <div style={style}>
+          {msg}
+          <pre>
+          {String.raw`
+.-----------------------------.
+| # Poesry Plotter         ∞  |
+| .-------------------------. |
+| |            ./           | |
+| |            +            | |
+| |. . . . . ./. . . . . . .| |
+| |          / .            | |
+| | X=5.2   /  .   Y=0      | |
+| '-------------------------' |
+| [Y=][WIN][ZOOM][TRACE][GRH] |
+|                  _ [ ^ ] _  |
+| [2nd][MODE][DEL]|_|     |_| |
+| [ALP][XTO][STAT]   [ V ]    |
+| [MATH][MAT][PGM][VARS][CLR] |
+| [x-1] [SIN] [COS] [TAN] [^] |
+|  [x2][ , ][ ( ][ ) ][ / ]   |
+| [LOG][ 7 ][ 8 ][ 9 ] [ X ]  |
+| [LN ][ 4 ][ 5 ][ 6 ] [ - ]  |
+| [STO>][ 1 ][ 2 ][ 3 ][ + ]  |
+| [ON][ 0 ][ . ][ (-) ][ENTR] |
+| ----                        |
+'-----------------------------'
+                `}
+          </pre>
+        </div>
+      </div>
     
     return (
       <div className='main'>
