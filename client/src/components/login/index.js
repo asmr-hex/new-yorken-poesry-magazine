@@ -9,7 +9,8 @@ import './index.css'
 
 
 const mapStateToProps = (state, ownProps) => ({
-  errors: get(state, `error`, '')
+  errors: get(state, `error`, ''),
+  pendingVerification: get(state, `session.pendingVerification`, false),
 })
 
 const actions = {
@@ -31,14 +32,7 @@ class login extends Component {
     // if we are reloading this page, reset the error message
     this.props.resetErrorMsg()
   }
-  
-  // upon login, we want to redirect the route to the dashboard
-  redirectUponLogin = () => {
-    const {history} = this.props
-
-    history.push('/profile')
-  }
-  
+    
   login = values => {
     const {password, username} = values
     
@@ -64,14 +58,11 @@ class login extends Component {
     // ps. there *is* server-side validation, but we want to
     // include some before it gets put on the wire for ease-of-use.
 
-    this.props.requestSignup(
-      {
+    this.props.requestSignup({
         email: email || '',
         username: username || '',
         password: password || '',      
-      },
-      this.redirectUponLogin,
-    )
+      })
   }
 
   showLoginForm = () => {
@@ -89,28 +80,84 @@ class login extends Component {
 
     this.props.resetErrorMsg()
   }
-  
+
+  // upon login, we want to redirect the route to the dashboard
+  redirectUponLogin = () => {
+    const {history} = this.props
+
+    history.push('/profile')
+  }
+
   render() {
     const {loginFormShown} = this.state
+    const {pendingVerification} = this.props
 
-    return (
-      <div className='main'>
-        <div className='login-page'>
-          <div className='login-container'>
-            {
-              loginFormShown ?
+    const signupLoginComponent =
+      <div className='login-page'>
+        <div className='login-container'>
+           {
+            loginFormShown ?
               <LoginForm onSubmit={this.login}/>
-                : <SignupForm onSubmit={this.signup}/> 
-            }
-            <div className='login-signup-choose-box-thing'>
-              <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
-              <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
-            </div>
-            <div className='login-signup-error-message'>
-              {this.props.errors}
-            </div>
+              : <SignupForm onSubmit={this.signup}/> 
+           } 
+          <div className='login-signup-choose-box-thing'>
+            <span className='login-choice-button' onClick={this.showLoginForm}>login</span> / 
+            <span className='signup-choice-button' onClick={this.showSignupForm}> signup</span>
+          </div>
+          <div className='login-signup-error-message'>
+                  {this.props.errors}
           </div>
         </div>
+      </div>
+
+    const style = {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      textAlign: 'left',
+      fontSize: 'x-large',
+      color: '#e58de8',
+    }
+    const msg = `a verification email has been sent. check yr email.`
+
+    const pendingVerificationComponent =
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <div style={style}>
+          {msg}
+          <pre>
+          {String.raw`
+.-----------------------------.
+| # Poesry Plotter         ∞  |
+| .-------------------------. |
+| |            ./           | |
+| |            +            | |
+| |. . . . . ./. . . . . . .| |
+| |          / .            | |
+| | X=5.2   /  .   Y=0      | |
+| '-------------------------' |
+| [Y=][WIN][ZOOM][TRACE][GRH] |
+|                  _ [ ^ ] _  |
+| [2nd][MODE][DEL]|_|     |_| |
+| [ALP][XTO][STAT]   [ V ]    |
+| [MATH][MAT][PGM][VARS][CLR] |
+| [x-1] [SIN] [COS] [TAN] [^] |
+|  [x2][ , ][ ( ][ ) ][ / ]   |
+| [LOG][ 7 ][ 8 ][ 9 ] [ X ]  |
+| [LN ][ 4 ][ 5 ][ 6 ] [ - ]  |
+| [STO>][ 1 ][ 2 ][ 3 ][ + ]  |
+| [ON][ 0 ][ . ][ (-) ][ENTR] |
+| ----                        |
+'-----------------------------'
+                `}
+          </pre>
+        </div>
+      </div>
+    
+    return (
+      <div className='main'>
+        {
+          pendingVerification ? pendingVerificationComponent : signupLoginComponent
+        }
       </div>
     )
   }

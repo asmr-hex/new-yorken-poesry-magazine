@@ -196,6 +196,12 @@
 			"revisionTime": "2018-09-17T13:05:28Z"
 		},
 		{
+			"checksumSHA1": "nGG2bPDhoTKxahxOFgnOVJlphUI=",
+			"path": "github.com/gobuffalo/envy",
+			"revision": "047ecc927cd0b7d27bab83eb948e120fb7d1ea68",
+			"revisionTime": "2018-10-11T14:30:41Z"
+		},
+		{
 			"checksumSHA1": "JztYlrYg3yCmPXXmClNB/V/5wS0=",
 			"path": "github.com/gocraft/web",
 			"revision": "d8611de039dfed6a78a34c368d430a19c4a0082d",
@@ -209,6 +215,12 @@
 			"revisionTime": "2018-08-23T19:06:35Z"
 		},
 		{
+			"checksumSHA1": "I+g5iffd0bNDiI8swxzsHiJxBz0=",
+			"path": "github.com/joho/godotenv",
+			"revision": "c0b86d615e06d6fa5f869364d68f774ba49a86e3",
+			"revisionTime": "2018-09-27T05:32:03Z"
+		},
+		{
 			"checksumSHA1": "V1a5/Ra9HXKNuArt5WKUqu+Jxt8=",
 			"path": "github.com/lib/pq",
 			"revision": "88edab0803230a3898347e77b474f8c1820a1f20",
@@ -219,6 +231,12 @@
 			"path": "github.com/lib/pq/oid",
 			"revision": "88edab0803230a3898347e77b474f8c1820a1f20",
 			"revisionTime": "2018-02-01T18:47:07Z"
+		},
+		{
+			"checksumSHA1": "gFESxHfdGAWUu6RK8vMCa9R37Ho=",
+			"path": "github.com/mailgun/mailgun-go",
+			"revision": "4071f66f00fb74b08ae720f28ee9fcd98ebfd69e",
+			"revisionTime": "2018-10-04T22:44:18Z"
 		},
 		{
 			"checksumSHA1": "MrqRXuqj5suGXqcRUUwi+YA7PmE=",

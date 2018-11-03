@@ -6,6 +6,7 @@ import {Title} from './title'
 import {Menu} from './menu'
 import {Dashboard} from '../dashboard'
 import {Login} from '../login'
+import {Verify} from '../login/verify'
 import {About} from '../about'
 import {Issue} from '../issues/issue'
 import {Issues} from '../issues/issues'
@@ -33,6 +34,7 @@ class home extends Component {
         }
         <Switch>
           <Route exact path='/' component={Welcome}/>
+          <Route exact path='/verify' component={Verify}/>
           <Route exact path='/profile' component={Dashboard}/>
           <Route path='/about' component={About}/>
           <Route path='/login' component={Login}/>

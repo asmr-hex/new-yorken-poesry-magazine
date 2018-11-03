@@ -13,8 +13,10 @@ type Config struct {
 	DevEnv             bool   `env:"DEV_ENV" envDefault:"false"`
 	SeedDB             bool   `env:"SEED_DB" envDefault:"false"`
 	Port               string `env:"SERVER_PORT" envDefault:"8080"`
+	BaseUrl            string `env:"BASE_URL" envDefault:"http://localhost:3000"`
 	MagazineGuidelines MagazineConfig
 	ExecContext        ExecContext
+	Emailer            Emailer
 	DB                 DB
 }
 
@@ -31,6 +33,13 @@ type MagazineConfig struct {
 type ExecContext struct {
 	Dir      string `env:"EXEC_DIR" envDefault:"/tmp"`
 	MountDir string `env:"EXEC_MOUNT_DIR" envDefault:"/tmp"`
+}
+
+// Emailer conf
+type Emailer struct {
+	Domain string `env:"EMAIL_DOMAIN" envDefault:""`
+	ApiKey string `env:"EMAIL_API_KEY" envDefault:""`
+	Sender string `env:"EMAIL_SENDER" envDefault:"daemon@poem.computer"`
 }
 
 // DB conf
@@ -65,6 +74,12 @@ func NewConfig() *Config {
 
 	// parse execution context
 	err = env.Parse(&conf.ExecContext)
+	if err != nil {
+		panic(err)
+	}
+
+	// parse execution context
+	err = env.Parse(&conf.Emailer)
 	if err != nil {
 		panic(err)
 	}
