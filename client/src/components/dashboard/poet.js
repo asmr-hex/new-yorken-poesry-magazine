@@ -6,6 +6,7 @@ import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 import {get, isEmpty, map} from 'lodash'
+import Highlight from 'react-highlight'
 import {formatDate} from '../../types/date'
 import {getPoetsOfUser} from '../../redux/selectors/poets'
 import {
@@ -21,6 +22,7 @@ const mapStateToProps = (state, ownProps) => ({
   user: state.session.user,
   languages: get(state, `languages`, []),
   errors: get(state, `error`, ''),
+  userErrors: get(state, `userError`, '')
 })
 
 const actions = {
@@ -85,7 +87,7 @@ class poetMgmt extends Component {
             )
         }
         </div>
-        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors}/>
+        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors} userErrors={this.props.userErrors}/>
       </div>
     )
   }
@@ -214,6 +216,17 @@ export class createPoetForm extends Component {
         </form>
         <div className='profile-poet-upload-error-message'>
           {this.props.errors}
+        </div>
+        <div>
+        {
+          this.props.userErrors == '' ?
+            this.props.userErrors
+            : <div>
+                <Highlight>
+                 {this.props.userErrors}
+                </Highlight>
+              </div>
+        }
         </div>
       </div>
     )
