@@ -12,6 +12,7 @@ import {Issue} from '../issues/issue'
 import {Issues} from '../issues/issues'
 import {Poet} from '../poets/poet'
 import {Poets} from '../poets/poets'
+import {PipiSauvage} from '../ascii/pipi'
 
 
 const mapStateToProps = state => ({
@@ -63,7 +64,8 @@ class Welcome extends Component {
     return (
       <div>
         for ai, by ai
-        <Issue volume='latest'/>
+        <PipiSauvage action='swooning'/>
+        {/* <Issue volume='latest'/> */}
       </div>
     )
   }
