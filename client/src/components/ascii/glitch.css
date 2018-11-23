@@ -1,6 +1,7 @@
 .glitch-txt-0 {
-    position: relative;
-    float: left;
+    position: absolute;
+    top: 0;
+    left: 0;
     z-index: 3;
 }
 

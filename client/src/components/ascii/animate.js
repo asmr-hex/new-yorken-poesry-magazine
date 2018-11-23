@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {map, range} from 'lodash'
+import {map, range, reduce} from 'lodash'
 import './glitch.css'
 
 
@@ -12,9 +12,11 @@ export class Animation extends Component {
       speed: 1,  // in seconds
       frames: ['Default A', 'Default B', 'Default C'],
       sequence: null,
+      repeat: true,
       size: 'large',  // xx-small, x-small, small, ..., large, x-large, xx-large
       glitchEnabled: true,
-      style: {
+      style: {},
+      mainStyle: {
         color: '#e58de8',
         opacity: 1,
       },
@@ -40,7 +42,28 @@ export class Animation extends Component {
     }
 
     this.state = { idx: 0 }
-    
+
+    // jeez....thanksgiving night...i ate too much tofurky
+    // and i created this monstrosity... sorry earth.
+    // welp.
+    // obviously this...thing...returns the frame with the
+    // largest rectangular volume. this is used to stabalize
+    // the animations and is rendered with opacity 0.
+    this.maxFrame = this.animation.frames[reduce(
+      this.animation.frames,
+      (acc, frame, idx) => {
+        const length = reduce(
+          frame.toString().split(/\r?\n/),
+          (l, f) => l < f.length ? f.length : l,
+          0,
+        )
+        const height = frame.toString().split(/\r?\n/).filter(Boolean).length
+        
+        return acc[1] < length*height ? [idx, length*height] : acc
+      },
+      [0, 0],
+    )[0]]
+
     if (this.animation.frames.length != 1) {
       this.renderFrame()
     }
@@ -51,7 +74,12 @@ export class Animation extends Component {
     this.setState({
       idx: (this.state.idx+1) % this.animation.sequence.length,
     })
-    setTimeout(this.renderFrame.bind(this), this.animation.speed * 1000)
+
+    if (this.state.idx == this.animation.sequence.length-1 && !this.animation.repeat) {
+      return
+    }
+    
+    setTimeout(this.renderFrame.bind(this), this.animation.speed * 1000) 
   }
 
   render() {
@@ -61,13 +89,21 @@ export class Animation extends Component {
       justifyContent: 'center',
       textAlign: 'left',
       fontSize: this.animation.size,
+      ...this.animation.style,
     }
 
-    const layerStyles = [this.animation.style, this.animation.middleStyle, this.animation.bottomStyle]
+    const layerStyles = [
+      this.animation.mainStyle,
+      this.animation.middleStyle,
+      this.animation.bottomStyle
+    ]
 
     return (
       <div style={containerStyle}>
         <div style={{position: 'relative', alignSelf: 'flex-start'}}>
+          <pre style={{position: 'relative', float: 'left', opacity: 0}}>
+            {this.maxFrame}
+          </pre>
           {
             map(
               range(0, this.animation.glitchEnabled ? layerStyles.length : 1),

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Route, Switch} from 'react-router-dom'
 import {connect} from 'react-redux'
+import {range, reduce} from 'lodash'
 import './index.css';
 import {Title} from './title'
 import {Menu} from './menu'
@@ -13,6 +14,7 @@ import {Issues} from '../issues/issues'
 import {Poet} from '../poets/poet'
 import {Poets} from '../poets/poets'
 import {PipiSauvage} from '../ascii/pipi'
+import {Animation} from '../ascii/animate'
 
 
 const mapStateToProps = state => ({
@@ -31,7 +33,7 @@ class home extends Component {
     return (
       <div className="App">
         {
-          showTitle ? <Title /> : <Menu loggedIn={loggedIn}/>
+          //showTitle ? <Title /> : <Menu loggedIn={loggedIn}/>
         }
         <Switch>
           <Route exact path='/' component={Welcome}/>
@@ -61,11 +63,40 @@ class home extends Component {
 
 class Welcome extends Component {
   render() {
+    const containerStyle = {
+      display: 'flex',
+      justifyContent: 'center',
+      border: '1px solid black',
+    }
+
+    const welcomeStr = String.raw`
+welc0m3 2 teh
+new yorken poesry
+m a g a z i n e
+`
+    const welcomeFrames = reduce(
+      range(0, welcomeStr.length),
+      (acc, idx) => ([
+        ...acc,
+        idx === 0 ?
+          welcomeStr.charAt(idx)
+          : `${acc[idx-1]}${welcomeStr.charAt(idx)}`,
+      ]),
+      [],
+    )
+    
     return (
-      <div>
-        for ai, by ai
-        <PipiSauvage action='swooning'/>
-        {/* <Issue volume='latest'/> */}
+      <div className={'main'}>
+        <div style={containerStyle}>
+          for ai, by ai
+          <PipiSauvage action='talking'/>
+          <Animation style={{marginLeft: '50px'}}
+                     size={'40px'}
+                     frames={welcomeFrames}
+                     speed={0.1}
+                     repeat={false}
+            />
+        </div>
       </div>
     )
   }
