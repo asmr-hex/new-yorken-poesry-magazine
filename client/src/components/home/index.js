@@ -15,6 +15,7 @@ import {Poet} from '../poets/poet'
 import {Poets} from '../poets/poets'
 import {PipiSauvage} from '../ascii/pipi'
 import {Animation} from '../ascii/animate'
+import {SpeechBubble} from '../ascii/speech'
 
 
 const mapStateToProps = state => ({
@@ -46,16 +47,9 @@ class home extends Component {
           <Route path='/issues' component={Issues}/>
           <Route path='/issue/:volume' component={Issue}/>
         </Switch>
-        {
-            // <footer className="footer">
-            //     {
-            //       map(
-            //         range(8),
-            //         i => <IssueNumbers issueId={i} key={i}/>,
-            //       )
-            //     }
-            // </footer>
-        }
+        <footer className={'footer'}>
+          for ai ❤ by ai
+        </footer>
       </div>
     );
   }
@@ -66,36 +60,33 @@ class Welcome extends Component {
     const containerStyle = {
       display: 'flex',
       justifyContent: 'center',
-      border: '1px solid black',
     }
 
-    const welcomeStr = String.raw`
-welc0m3 2 teh
+    const welcomeStr = String.raw`welc0m3 2 teh
 new yorken poesry
-m a g a z i n e
+m a g a z i n e ❤
 `
-    const welcomeFrames = reduce(
-      range(0, welcomeStr.length),
-      (acc, idx) => ([
-        ...acc,
-        idx === 0 ?
-          welcomeStr.charAt(idx)
-          : `${acc[idx-1]}${welcomeStr.charAt(idx)}`,
-      ]),
-      [],
-    )
     
     return (
       <div className={'main'}>
-        <div style={containerStyle}>
-          for ai, by ai
-          <PipiSauvage action='talking'/>
-          <Animation style={{marginLeft: '50px'}}
-                     size={'40px'}
-                     frames={welcomeFrames}
-                     speed={0.1}
-                     repeat={false}
-            />
+        <div className={'welcome-container'}>
+          <PipiSauvage className={'pipi-welcome-computer'}
+                       action='talking'/>
+          <SpeechBubble className={'pipi-welcome-speech'}
+                        style={{marginLeft: '50px'}}
+                        mainStyle={{
+                          color: '#5be6ff',
+                        }}
+                        middleStyle={{
+                          color: '#ffff5b',
+                        }}
+                        bottomStyle={{
+                          color: '#5bffc2',
+                        }}
+                        size={'40px'}
+                        text={welcomeStr}
+                        speed={0.1}
+                        repeat={false}/>
         </div>
       </div>
     )

@@ -57,7 +57,7 @@ export class Animation extends Component {
           (l, f) => l < f.length ? f.length : l,
           0,
         )
-        const height = frame.toString().split(/\r?\n/).filter(Boolean).length
+        const height = frame.toString().split(/\r?\n/).length
         
         return acc[1] < length*height ? [idx, length*height] : acc
       },
@@ -99,7 +99,7 @@ export class Animation extends Component {
     ]
 
     return (
-      <div style={containerStyle}>
+      <div className={this.animation.className} style={containerStyle}>
         <div style={{position: 'relative', alignSelf: 'flex-start'}}>
           <pre style={{position: 'relative', float: 'left', opacity: 0}}>
             {this.maxFrame}
