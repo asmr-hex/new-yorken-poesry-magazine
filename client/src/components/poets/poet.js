@@ -10,6 +10,7 @@ import {
   requestGeneratePoem,
 } from '../../redux/actions/poets'
 import './index.css'
+import '../app/highlight.css'
 import {Poem} from '../poems/poem'
 
 

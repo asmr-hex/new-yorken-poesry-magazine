@@ -1,0 +1,70 @@
+/*
+
+Custom BubbleGum Code Highlight Theme
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #ffffff;
+  font-size: x-large;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+    color: #ff87c9;
+}
+
+.hljs-function .hljs-keyword {
+    color: #18d0ff;
+}
+
+.hljs,
+.hljs-subst {
+    color: #d27aff;
+}
+
+.hljs-string,
+.hljs-bullet,
+.hljs-addition,
+.hljs-template-tag {
+    color: #ff75b3;
+}
+
+
+.hljs-type,
+.hljs-name,
+.hljs-title,
+.hljs-symbol,
+.hljs-variable,
+.hljs-attribute,
+.hljs-template-variable {
+    color: #66ddb7;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #6272a4;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-title,
+.hljs-section,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
