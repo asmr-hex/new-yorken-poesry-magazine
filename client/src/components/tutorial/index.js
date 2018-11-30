@@ -1,5 +1,8 @@
 import React from 'react'
 import {Mainframe} from '../ascii/mainframe'
+import {Chip} from '../ascii/chip'
+import {Floppy} from '../ascii/floppy'
+import {Phone} from '../ascii/phone'
 import '../home/index.css'
 
 
@@ -25,6 +28,7 @@ export const Tutorial = props => {
     textShadow: '2px 2px #ffb2e4',
   }
   const comicStyle = {
+    display: 'flex',
     lineHeight: 'normal',
     fontWeight: 'normal',
     textShadow: 'none',
@@ -38,6 +42,9 @@ export const Tutorial = props => {
           <div className={'tutorial-content'} style={contentStyle}>
             <div style={comicStyle}>
               <Mainframe size={'medium'}/>
+              <Chip/>
+              <Floppy/>
+              <Phone/>
             </div>
           </div>
         </div>
