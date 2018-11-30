@@ -1,47 +1,82 @@
 .home-menu {
     display: flex;
-    justify-content: space-between;
-    font-size: 8.5vw;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .header-menu-item {
     display: flex;
-    justify-content: center;
-    width: 10%;
-    font-size: 8.5vw;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: x-large;
     cursor: pointer;
+    padding-bottom: 0.3em;
+    border-bottom: 2px solid white;
 }
-
 
 .header-menu-item:hover {
-    text-align: center;
-    background: linear-gradient(to right, #a5cde5 20%, #a5e5b3 40%, #f4f3a4 60%, #f4a4bf 80%);
-    background-size: 100% auto;
-    
-    -webkit-text-fill-color: transparent;
-    text-fill-color: transparent;
-    
-    -webkit-background-clip: text;
-    background-clip: text;
+    border-bottom: 2px dashed #ade1ff;
+    text-decoration: underline !important;
+}
 
-    /* TODO (cw|3.31.2018) figure out how to rainbow animate gradient -__- */
-    animation: shine 2s linear infinite;
-    -webkit-animation: shine 1s linear infinite;
-    -moz-animation: shine 1s linear infinite;
+/* Large Devices, Wide Screens */
+@media only screen and (max-width : 1200px) {
+
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (max-width : 992px) {
+
+}
+
+/* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (max-width : 480px) {
+    .home-menu {
+        justify-content: space-around !important;
+    }
     
-    @-webkit-keyframes shine {
-        to {
-            background-position: 200% center;
-        }
-    }
-    @-moz-keyframes shine {
-        to {
-            background-position: 200% center;
-        }
-    }
-    @keyframes shine {
-        to {
-            background-position: 200% center;
-        }
+    .header-menu-item {
+        font-size: x-small !important;
     }
 }
+
+
+/* .header-menu-item:hover { */
+/*     text-align: center; */
+/*     background: linear-gradient(to right, #a5cde5 20%, #a5e5b3 40%, #f4f3a4 60%, #f4a4bf 80%); */
+/*     background-size: 100% auto; */
+    
+/*     -webkit-text-fill-color: transparent; */
+/*     text-fill-color: transparent; */
+    
+/*     -webkit-background-clip: text; */
+/*     background-clip: text; */
+
+/*     /\* TODO (cw|3.31.2018) figure out how to rainbow animate gradient -__- *\/ */
+/*     animation: shine 2s linear infinite; */
+/*     -webkit-animation: shine 1s linear infinite; */
+/*     -moz-animation: shine 1s linear infinite; */
+    
+/*     @-webkit-keyframes shine { */
+/*         to { */
+/*             background-position: 200% center; */
+/*         } */
+/*     } */
+/*     @-moz-keyframes shine { */
+/*         to { */
+/*             background-position: 200% center; */
+/*         } */
+/*     } */
+/*     @keyframes shine { */
+/*         to { */
+/*             background-position: 200% center; */
+/*         } */
+/*     } */
+/* } */

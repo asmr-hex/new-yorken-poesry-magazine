@@ -63,19 +63,21 @@ export class Animation extends Component {
       },
       [0, 0],
     )[0]]
-
-    if (this.animation.frames.length != 1) {
-      this.renderFrame()
-    }
     
   }
 
+  componentDidMount() {
+    if (this.animation.frames.length !== 1) {
+      this.renderFrame()
+    }
+  }
+  
   renderFrame() {
     this.setState({
       idx: (this.state.idx+1) % this.animation.sequence.length,
     })
 
-    if (this.state.idx == this.animation.sequence.length-1 && !this.animation.repeat) {
+    if (this.state.idx === this.animation.sequence.length-1 && !this.animation.repeat) {
       return
     }
     
@@ -101,7 +103,7 @@ export class Animation extends Component {
     return (
       <div className={this.animation.className} style={containerStyle}>
         <div style={{position: 'relative', alignSelf: 'flex-start'}}>
-          <pre style={{position: 'relative', float: 'left', opacity: 0}}>
+          <pre style={{position: 'relative', float: 'left', opacity: 0, margin: '0px'}}>
             {this.maxFrame}
           </pre>
           {

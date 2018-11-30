@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {get, map, range} from 'lodash'
+import React from 'react';
+import {get} from 'lodash'
 import {Animation} from './animate'
 
 

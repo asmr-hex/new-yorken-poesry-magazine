@@ -219,7 +219,7 @@ export class createPoetForm extends Component {
         </div>
         <div>
         {
-          this.props.userErrors == '' ?
+          this.props.userErrors === '' ?
             this.props.userErrors
             : <div>
                 <Highlight>
