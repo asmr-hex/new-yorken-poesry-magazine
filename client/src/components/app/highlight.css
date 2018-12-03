@@ -11,6 +11,7 @@ Custom BubbleGum Code Highlight Theme
   font-size: x-large;
   text-shadow: none;
   line-height: 1.4em;
+  font-weight: normal;
 }
 
 .hljs-keyword,
@@ -27,7 +28,8 @@ Custom BubbleGum Code Highlight Theme
 
 .hljs,
 .hljs-subst {
-    color: #d27aff;
+    /* color: #d27aff; */
+    color: #9061a4;
 }
 
 .hljs-string,
