@@ -9,6 +9,8 @@ Custom BubbleGum Code Highlight Theme
   padding: 0.5em;
   background: #ffffff;
   font-size: x-large;
+  text-shadow: none;
+  line-height: 1.4em;
 }
 
 .hljs-keyword,
@@ -50,7 +52,7 @@ Custom BubbleGum Code Highlight Theme
 .hljs-quote,
 .hljs-deletion,
 .hljs-meta {
-  color: #6272a4;
+    color: #bac2db;
 }
 
 .hljs-keyword,

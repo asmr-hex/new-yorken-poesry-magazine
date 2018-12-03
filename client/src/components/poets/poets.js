@@ -26,11 +26,24 @@ export class poets extends Component {
     const {
       poets,
     } = this.props
+
+    const pageStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      margin: '2em 25% 5em 25%',
+    }
+    
+    const headerStyle = {
+      color: '#ffb2e4',
+      fontSize: '4em',
+      textShadow: '4px 4px #affbff',
+    }
     
     return (
       <div className='main'>
-        <div className='poets-summaries-container'>
-          <div className='poets-header'>poets</div>
+        <div className='poets-summaries-container' style={pageStyle}>
+          <div className='poets-header' style={headerStyle}>poets</div>
           {
             map(
               poets,
@@ -55,11 +68,18 @@ export class PoetRow extends Component {
       name,
       language,
     } = this.props.poet
+
+    const contentStyle = {
+      fontSize: '2.3em',
+      fontWeight: 'bold',
+      color: '#19ecff',
+      textShadow: '2px 2px #ffb2e4',
+    }
     
     return (
       <Link to={`/poet/${id}`}>
         <div className='poet-row-container'>
-          <div className='poet-row'>
+          <div className='poet-row' style={contentStyle}>
             <div className='poet-row-name-line'>
               <span className='poet-row-name-item'>{name}</span>
               <span className='poet-row-language-item'>{language}</span>

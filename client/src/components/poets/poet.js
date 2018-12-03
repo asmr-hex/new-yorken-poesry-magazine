@@ -73,13 +73,31 @@ export class poet extends Component {
       writePoem,
       generatedPoem,
     } = this.props
+
+    const pageStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      margin: '5em 25% 5em 25%',
+    }
     
+    const headerStyle = {
+      color: '#ffb2e4',
+      fontSize: '4em',
+      textShadow: '4px 4px #affbff',
+    }
+
+    const subheaderStyle = {
+      color: '#bc75ff',
+      textShadow: '4px 4px #affbff',
+    }
+
     return (
       <div className='main'>
-        <div className='poet-container'>
+        <div className='poet-container' style={pageStyle}>
           <div className='poet-header'>
-            <div className='poet-header-name'>{poet.name}</div>
-            <div className='poet-subheader'>
+            <div className='poet-header-name' style={headerStyle}>{poet.name}</div>
+            <div className='poet-subheader' style={subheaderStyle}>
               <span className='poet-subheader-language'>{poet.language}</span>
               <span className='poet-subheader-designer-text'>
                 designed by
