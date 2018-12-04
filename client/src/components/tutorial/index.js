@@ -109,18 +109,24 @@ is 3asy and fun!`}/>
             an <em>algorithmic poet</em> is a computer program you create that
             can <em style={keywordStyle}>write poems</em>, <em style={keywordStyle}>critique poems</em>,
       & <em style={keywordStyle}>learn how to write better poems</em>! your program
-    should be able to read arguments from the command-line in order to perform these tasks.
-      in particular, it should handle
+    should be able to handle each of the following command-line arguments in order to perform these tasks.
       <div style={{display: 'flex', justifyContent: 'center'}}>
-      <ul style={{width: '70%'}}>
-      <li><span style={codeStyle}>--write</span> to generate and print a poem to standard out.</li>
-      <li><span style={codeStyle}>--critique "some poem"</span> to critique "some poem" and print a score between zero & one.</li>
-      <li><span style={codeStyle}>--study "another poem"</span> to read "another poem" and update itself to write better poetry.</li>
+      <ul style={{width: '70%', listStyleType: 'none'}}>
+      <li style={{marginBottom: '0.7em'}}>
+      <span style={codeStyle}>--write</span> generate and print a poem to standard out (stdout).
+      </li>
+      <li style={{marginBottom: '0.7em'}}>
+      <span style={codeStyle}>--critique POEM</span> critique a given poem, POEM, and print a score between
+    0 (worst) and 1 (best).
+      </li>
+      <li style={{marginBottom: '0.7em'}}>
+      <span style={codeStyle}>--study POEM</span> read a given poem, POEM, and <em>optionally</em> use
+      it to modify how your program writes poetry. this task should not print any output to stdout.
+      </li>
       </ul>
       </div>
-    
-      for example, if you wrote a poet in Python called <span style={codeStyle}>poet_bot.py</span>,
-    then you can ask it to perform each task like this,
+      for example, if you write a poet in Python called <span style={codeStyle}>poet_bot.py</span>,
+    then you can ask it to perform each task by running it on the command line like this,
       <Highlight className="shell">
       {
         String.raw`$ python poet_bot.py --write  # write a poem
@@ -133,17 +139,29 @@ $ python poet_bot.py --study "this is a poem to study"  # learn how to write bet
 `
       }
       </Highlight>
+      if these tasks seem kinda vague, don't worry! they are like that for a reason. as long as
+      your poet satisfies the command-line <em>interfaces</em> described above, it can be implemented
+      in whatever way you choose. this gives a poet designer (like you!)
+      nearly limitless options for deciding how their poet will work!
       <br/><br/>
-      let's start by making a new empty python file called <span style={codeStyle}>poet_bot.py</span>.
-      you can name your own file differently, but this is what we will be calling our program
-      in this tutorial.
-      <br/><br/>
-      great! since our program needs to be able to perform three distinct tasks
-    let's define three functions corresponding to each:
+      for the remainder of this tutorial we will go over in detail a couple ways to implement each of these tasks! 
+          </div>
+          <div style={subheaderStyle}>your first poet</div>
+          <div className={'tutorial-content'} style={contentStyle}>
+            let's begin by making a simple poet which can perform the required tasks. this implementation
+            will not be super interesting, but it will give us a foundation to build more complex poets.
+            <br/><br/>
+            we'll start by making a new empty Python file called <span style={codeStyle}>poet_bot.py</span>.
+            you can name your own file differently, but this is what we will be calling our program
+            in this tutorial.
+            <br/><br/>
+            great! since our program needs to be able to perform three distinct tasks,
+            let's define three functions corresponding to each. in your favorite text editor or integrated
+            developer environment (IDE), type out the following in your Python file:
 
-      <Highlight className="python poet-body-code">
-      {
-        String.raw`# poet_bot.py
+            <Highlight className="python poet-body-code">
+              {
+                String.raw`# poet_bot.py
 
 # this function generates and prints a poem.
 def write_poem():
@@ -162,10 +180,10 @@ def learn_how_to_write_better(a_poem):
    pass
 `
       }
-    </Highlight>
-      again, there is nothing special about the names of these functions
-    and you can choose different names. ok, cool. we have a function called
-      <em style={codeStyle}>write_poem</em>
+      </Highlight>
+      again, there is nothing special about the names we are giving these
+      functions, they just seem to make sense given what each function does.
+
           </div>
           <div style={subheaderStyle}>--write</div>
           <div className={'tutorial-content'} style={contentStyle}>
