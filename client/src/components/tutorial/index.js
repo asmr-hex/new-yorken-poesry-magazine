@@ -81,15 +81,13 @@ is 3asy and fun!`}/>
             </div>
           </div>
           <div style={subheaderStyle}>contents</div>
-          <div style={{...contentStyle, ...keywordStyle, display: 'flex', justifyContent: 'center'}}>
-            <ul style={{width: '70%', listStyleType: 'none'}}>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#introduction'>intr0duction</a></li>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#whats-a-poet'>what's an algorithmic poet?</a></li>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#first-poet'>your first poet</a></li>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
-              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
-            </ul>
+          <div style={{...contentStyle, ...keywordStyle, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#introduction'>intr0duction</a></div>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#whats-a-poet'>what's an algorithmic poet?</a></div>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#first-poet'>your first poet</a></div>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
+            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
           </div>
           <div id='introduction' style={subheaderStyle}>intr0duction</div>
           <div className={'tutorial-content'} style={contentStyle}>
