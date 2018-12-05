@@ -80,7 +80,18 @@ algopoetic pa1
 is 3asy and fun!`}/>
             </div>
           </div>
-          <div style={subheaderStyle}>intr0duction</div>
+          <div style={subheaderStyle}>contents</div>
+          <div style={{...contentStyle, ...keywordStyle, display: 'flex', justifyContent: 'center'}}>
+            <ul style={{width: '70%', listStyleType: 'none'}}>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#introduction'>intr0duction</a></li>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#whats-a-poet'>what's an algorithmic poet?</a></li>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href='#first-poet'>your first poet</a></li>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
+              <li style={{marginBottom: '0.7em'}}><a style={keywordStyle} href=''></a></li>
+            </ul>
+          </div>
+          <div id='introduction' style={subheaderStyle}>intr0duction</div>
           <div className={'tutorial-content'} style={contentStyle}>
             {
               // yes! it is a computer program you can write to write
@@ -104,7 +115,7 @@ is 3asy and fun!`}/>
             
             
           </div>
-          <div style={subheaderStyle}>what's an algorithmic poet?</div>
+          <div id='whats-a-poet' style={subheaderStyle}>what's an algorithmic poet?</div>
           <div className={'tutorial-content'} style={contentStyle}>
             an <em>algorithmic poet</em> is a computer program you create that
             can <em style={keywordStyle}>write poems</em>, <em style={keywordStyle}>critique poems</em>,
@@ -146,7 +157,7 @@ $ python poet_bot.py --study "this is a poem to study"  # learn how to write bet
       <br/><br/>
       for the remainder of this tutorial we will go over in detail a couple ways to implement each of these tasks! 
           </div>
-          <div style={subheaderStyle}>your first poet</div>
+          <div id='first-poet' style={subheaderStyle}>your first poet</div>
           <div className={'tutorial-content'} style={contentStyle}>
             let's begin by making a simple poet which can perform the required tasks. this implementation
             will not be super interesting, but it will give us a foundation to build more complex poets.
@@ -157,7 +168,7 @@ $ python poet_bot.py --study "this is a poem to study"  # learn how to write bet
             <br/><br/>
             great! since our program needs to be able to perform three distinct tasks,
             let's define three functions corresponding to each. in your favorite text editor or integrated
-            developer environment (IDE), type out the following in your Python file:
+            development environment (IDE), type out the following in your Python file:
 
             <Highlight className="python poet-body-code">
               {
@@ -179,11 +190,83 @@ def learn_how_to_write_better(a_poem):
    # for now, let's just ignore all other poetry
    pass
 `
-      }
-      </Highlight>
-      again, there is nothing special about the names we are giving these
-      functions, they just seem to make sense given what each function does.
+              }
+            </Highlight>
+            again, there is nothing special about the names we are giving these
+            functions other than telling us clearly what the functions do.
+            <br/><br/>
+            this looks pretty good, but there is something missing. we need to be able to
+            call the right function when our python file is run with each command-line argument.
+            so when we use the <span style={codeStyle}>--write</span> command-line argument, we
+            must run our <span style={codeStyle}>write_poem()</span> function. and so on.
+            <br/><br/>
+            luckily there is a builtin python module called <span style={codeStyle}>argparse</span> for
+            doing just this. let's import it and include some logic to <em>parse</em>, or read, the
+            three required command-line arguments.
+            <Highlight className="python poet-body-code">
+              {
+                String.raw`# poet_bot.py
 
+import argparse
+
+
+# create a new argument parser
+parser = argparse.ArgumentParser()
+
+# if --write is given, this sets the args.write variable to True,
+# otherwise its set to False
+parser.add_argument("--write", action="store_true")
+
+# if the --critique POEM arguments are given, this stores the 
+# string POEM in args.critique, otherwise args.critique is None
+parser.add_argument("--critique", type=str, help="rate a poem between 0-1")
+
+# if the --study POEM arguments are given, this stores the 
+# string POEM in args.study, otherwise args.study is None
+parser.add_argument("--study", type=str, help="learn from new poems")
+
+# get command-line arguments we described above and store
+# them in the args variable.
+args = parser.parse_args()
+
+# this function generates and prints a poem.
+def write_poem():
+    print('roses are red, violets are blue')
+
+# when given a poem, this function critiques it on
+# a scale from 0-1 and prints the score.
+def critique_poem(a_poem):
+   print(0.88)
+
+# when given a poem, this function can allow our
+# program to potentially learn new styles or approaches to
+# writing poetry.
+def learn_how_to_write_better(a_poem):
+   # for now, let's just ignore all other poetry
+   pass
+
+# run functions according to which command-line arguments were given
+if args.write:
+  # bingo! the --write argument was given
+  write_poem()
+elif args.critique:
+  # wahoo! the --critique POEM arguments were given
+  critique_poem(args.critique)
+elif args.study:
+  # awoo! the --study POEM arguments were given
+  study_poem(args.study)
+`
+            }
+    </Highlight>
+      now we have a section of code at the beginning which configures <em>how we will parse</em> the
+    command-line arguments given and we have a section of code at the end which uses the parsed
+    arguments to <em>decide which function we will call</em>.
+      <br/><br/>
+    and that's it. we have our first poet!
+    like we said, it isn't very interesting, but it implements the example we gave in the previous section
+    and is a perfectly valid poet.
+      <br/><br/>
+      in the following sections, we will elaborate on this poet to make it more interesting.
           </div>
           <div style={subheaderStyle}>--write</div>
           <div className={'tutorial-content'} style={contentStyle}>
