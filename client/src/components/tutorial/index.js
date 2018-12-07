@@ -140,15 +140,18 @@ is 3asy and fun!`}/>
       <div style={{display: 'flex', justifyContent: 'center'}}>
       <ul style={{width: '70%', listStyleType: 'none'}}>
       <li style={{marginBottom: '0.7em'}}>
-      <span style={codeStyle}>--write</span> generate and print a poem to standard out (stdout).
+      <span style={codeStyle}>--write</span> generate and print a poem to standard out (stdout). the ouput
+    must be printed in json, resembling <span style={{...codeStyle, fontSize:'0.6em', backgroundColor: '#ffffff'}}>{String.raw`{"title": "<your-title>", "content": "<your-content>"}`}</span>
       </li>
       <li style={{marginBottom: '0.7em'}}>
       <span style={codeStyle}>--critique POEM</span> critique a given poem, POEM, and print a score between
-    0 (worst) and 1 (best).
+    0 (worst) and 1 (best). again, output should be formatted in json
+    like <span style={{...codeStyle, fontSize:'0.6em', backgroundColor: '#ffffff'}}>{String.raw`{"score": <your-score>}`}</span>
       </li>
       <li style={{marginBottom: '0.7em'}}>
       <span style={codeStyle}>--study POEM</span> read a given poem, POEM, and <em>optionally</em> use
-      it to modify how your program writes poetry. this task should not print any output to stdout.
+    it to modify how your program writes poetry. this task should not print any output to stdout. yet again, json
+    ouput <span style={{...codeStyle, fontSize:'0.6em', backgroundColor: '#ffffff'}}>{String.raw`{"success": <true|false>}`}</span>
       </li>
       </ul>
       </div>
@@ -157,12 +160,13 @@ is 3asy and fun!`}/>
       <Highlight className="shell">
       {
         String.raw`$ python poet_bot.py --write  # write a poem
-roses are red, violets are blue
+{"title": "flowers", "content": "roses are red, violets are blue"}
 
 $ python poet_bot.py --critique "this is a bad poem" # critique a poem
-0.88
+{"score": 0.88}
 
 $ python poet_bot.py --study "this is a poem to study"  # learn how to write better
+{"success": true}
 `
       }
       </Highlight>
@@ -189,22 +193,32 @@ $ python poet_bot.py --study "this is a poem to study"  # learn how to write bet
             <Highlight className="python poet-body-code">
               {
                 String.raw`# poet_bot.py
+import json
+
 
 # this function generates and prints a poem.
 def write_poem():
-    print('roses are red, violets are blue')
+    poem = {
+             'title': 'flowers',
+             'content': 'roses are red, violets are blue',
+    }
+    print(json.dumps(poem))
+
 
 # when given a poem, this function critiques it on
 # a scale from 0-1 and prints the score.
 def critique_poem(a_poem):
-   print(0.88)
+   print(json.dumps({'score': 0.88}))
+
 
 # when given a poem, this function can allow our
 # program to potentially learn new styles or approaches to
 # writing poetry.
 def learn_how_to_write_better(a_poem):
    # for now, let's just ignore all other poetry
-   pass
+   # and say that we successfully learned even tho we didn't
+   # actually do anything lol
+   print(json.dumps({'success': True}))
 `
               }
             </Highlight>
@@ -222,7 +236,7 @@ def learn_how_to_write_better(a_poem):
             <Highlight className="python poet-body-code">
               {
                 String.raw`# poet_bot.py
-
+import json
 import argparse
 
 
@@ -231,35 +245,45 @@ parser = argparse.ArgumentParser()
 
 # if --write is given, this sets the args.write variable to True,
 # otherwise its set to False
-parser.add_argument("--write", action="store_true")
+parser.add_argument('--write', action='store_true')
 
 # if the --critique POEM arguments are given, this stores the 
 # string POEM in args.critique, otherwise args.critique is None
-parser.add_argument("--critique", type=str, help="rate a poem between 0-1")
+parser.add_argument('--critique', type=str, help='rate a poem between 0-1')
 
 # if the --study POEM arguments are given, this stores the 
 # string POEM in args.study, otherwise args.study is None
-parser.add_argument("--study", type=str, help="learn from new poems")
+parser.add_argument('--study', type=str, help='learn from new poems')
 
 # get command-line arguments we described above and store
 # them in the args variable.
 args = parser.parse_args()
 
+
 # this function generates and prints a poem.
 def write_poem():
-    print('roses are red, violets are blue')
+    poem = {
+     'title': 'flowers',
+     'content': 'roses are red, violets are blue',
+    }
+    print(json.dumps(poem))
+
 
 # when given a poem, this function critiques it on
 # a scale from 0-1 and prints the score.
 def critique_poem(a_poem):
-   print(0.88)
+   print(json.dumps({'score': 0.88}))
+
 
 # when given a poem, this function can allow our
 # program to potentially learn new styles or approaches to
 # writing poetry.
 def learn_how_to_write_better(a_poem):
    # for now, let's just ignore all other poetry
-   pass
+   # and say that we successfully learned even tho we didn't
+   # actually do anything lol
+   print(json.dumps({'success': True}))
+
 
 # run functions according to which command-line arguments were given
 if args.write:
