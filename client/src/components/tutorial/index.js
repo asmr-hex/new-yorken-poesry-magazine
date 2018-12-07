@@ -41,6 +41,20 @@ export const Tutorial = props => {
     fontStyle: 'italic',
     color: '#75b0ff',
   }
+  const tocStyle = {
+    color: '#c3a5d3',
+    fontSize: '0.9em',
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    textShadow: '3px 3px #edc9fc',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '60%',
+  }
+  const tocContainerStyle = {
+    display: 'flex',
+    justifyContent: 'center'
+  }
   const codeStyle = {
     fontWeight: 'normal',
     fontSize: '0.8em',
@@ -82,12 +96,16 @@ is 3asy and fun!`}/>
           </div>
           <div style={subheaderStyle}>contents</div>
           <div style={{...contentStyle, ...keywordStyle, display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#introduction'>intr0duction</a></div>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#whats-a-poet'>what's an algorithmic poet?</a></div>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href='#first-poet'>your first poet</a></div>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
-            <div style={{marginBottom: '1em'}}><a style={keywordStyle} href=''></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#introduction'><div>intr0duction</div><div>֎</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#whats-a-poet'><div>what's an algorithmic poet?</div><div>⎈</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#first-poet'><div>your first poet</div><div>♥</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#more-interesting-poet'><div>a more interesting poet</div><div>★</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#refining-poet-taste'><div>refining your poet's taste</div><div>☂</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#learning-from-new-poetry'><div>learning from new poetry</div><div>☻</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#parameters-file'><div>using the parameters file</div><div>☾</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#how-to-submit'><div>how to submit</div><div>♫</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#user-tutorials'><div>user submitted tutorials</div><div>⚑</div></a></div>
+            <div style={tocContainerStyle}><a style={tocStyle} href='#resources'><div>some resources</div><div>⚛</div></a></div>
           </div>
           <div id='introduction' style={subheaderStyle}>intr0duction</div>
           <div className={'tutorial-content'} style={contentStyle}>
@@ -265,20 +283,46 @@ elif args.study:
     and is a perfectly valid poet.
       <br/><br/>
       in the following sections, we will elaborate on this poet to make it more interesting.
-          </div>
-          <div style={subheaderStyle}>--write</div>
-          <div className={'tutorial-content'} style={contentStyle}>
-          </div>
-          <div style={subheaderStyle}>--critique</div>
-          <div style={subheaderStyle}>--study</div>
-          <div style={subheaderStyle}>using a parameters file (optional)</div>
-          <div style={subheaderStyle}>putting it all together</div>
-          <div style={subheaderStyle}>how to submit</div>
-          <div style={subheaderStyle}>user provided tutorials</div>
-          <div id='resources' style={subheaderStyle}>some resources</div>
-          <div className={'tutorial-content'} style={contentStyle}>
+      </div>
+      
+      <div id='more-interesting-poet'style={subheaderStyle}>a more interesting poet</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      wow, we've already written our first poet! why don't you take a <em>five minute</em> break
+    to stretch, drink some water, say hi to your friends, water your plants.
+      <br/><br/><br/>
+      <div style={{textAlign: 'center'}}>. . .</div>
+      <br/><br/>
+      hello again, good to have you back! if you recall, our first poet is able to perform all the
+    required tasks, but there is one problem: it outputs the same results everytime. now this isn't
+    very interesting. but we can change this! we believe in you!
+      <br/><br/>
+      there are many approaches we could take, maybe an infinite number. for example,
+    </div>
+      
+      <div id='refining-poet-taste' style={subheaderStyle}>refining your poet's taste</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      
+    </div>
+      <div id='learning-from-new-poetry' style={subheaderStyle}>learning from new poetry</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      
+    </div>
+      <div id='parameters-file' style={subheaderStyle}>using a parameters file (optional)</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      
+    </div>
+      <div id='how-to-submit' style={subheaderStyle}>how to submit</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      
+    </div>
+      <div id='user-tutorials' style={subheaderStyle}>user provided tutorials</div>
+      <div className={'tutorial-content'} style={contentStyle}>
+      
+    </div>
+      <div id='resources' style={subheaderStyle}>some resources</div>
+      <div className={'tutorial-content'} style={contentStyle}>
             blah
-          </div>
+    </div>
         </div>
       </div>
     </div>
