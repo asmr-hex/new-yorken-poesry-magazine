@@ -10,9 +10,9 @@
 }
 
 .signin-button {
-    background-color: #222;
-    color: #fff;
-    border: 1px solid #222;
+    background-color: #fff;
+    color: #f28cce;
+    border: 1px solid #f28cce;
     font-family: 'Source Sans Pro', sans-serif;;
     font-size: 1.7em;
     outline:none;
@@ -22,14 +22,15 @@
 }
 
 .signin-button:hover {
-    background-color: #fff;
-    color: #222;
-    border: 1px solid #222;
+    background-color: #ffb2e4;
+    color: #ffffff;
+    border: 1px solid #ffb2e4;
 }
 
 .login-signup-choose-box-thing {
     margin-top: 0.3em;
     font-size: 1.3em;
+    color: #f28cce;
     white-space: pre-wrap;
 }
 
@@ -46,6 +47,19 @@
 .login-signup-error-message {
     padding-top: 1em;
     color: red;
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #c3a5d3;
+}
+::-moz-placeholder { /* Firefox 19+ */
+    color: #c3a5d3;
+}
+:-ms-input-placeholder { /* IE 10+ */
+    color: #c3a5d3;
+}
+:-moz-placeholder { /* Firefox 18- */
+    color: #c3a5d3;
 }
 
 /* ----------- MOBILE MEDIA QUERIES ----------- */

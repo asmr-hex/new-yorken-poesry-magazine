@@ -332,11 +332,11 @@ elif args.study:
     that you write out a bunch of different sentences, but replace all the words with
       their <em>parts of speech</em>. for example, the sentence
         <br/><br/>
-      <em style={keywordStyle}>"the horse raced past the barn fell"</em>
+      <em style={{...keywordStyle, color: '#c3a5d3', fontWeight: 'normal'}}>"the horse raced past the barn fell"</em>
         <br/><br/>            
       would become
        <br/><br/>
-      <em style={keywordStyle}>"article noun verb preposition article noun verb"</em>.
+      <em style={{...keywordStyle, color: '#c3a5d3', fontWeight: 'normal'}}>"article noun verb preposition article noun verb"</em>.
        <br/><br/>
     </div>
       
