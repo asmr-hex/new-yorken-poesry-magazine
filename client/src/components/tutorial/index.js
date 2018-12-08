@@ -320,7 +320,24 @@ elif args.study:
     required tasks, but there is one problem: it outputs the same results everytime. now this isn't
     very interesting. but we can change this! we believe in you!
       <br/><br/>
-      there are many approaches we could take, maybe an infinite number. for example,
+      there are many approaches we could take, maybe an infinite number. for example, we
+    could randomly select sentences from our favorite book of poetry and string them together. or
+    we could <em>train</em> a neural network to generate poetic human language from an extremely large dataset from
+    Project Gutenberg. or we could collect every Céline Dion lyric and every Crass lyric, mix them together
+    and randomly select words.
+      <br/><br/>
+      since we want to keep things relatively simple, we will implement a
+    small <em style={keywordStyle}>Context Free Grammar</em> which is a fancy word to describe
+    a method of generating sentences which is similar to how <em>Mad Libs</em> works. the idea is
+    that you write out a bunch of different sentences, but replace all the words with
+      their <em>parts of speech</em>. for example, the sentence
+        <br/><br/>
+      <em style={keywordStyle}>"the horse raced past the barn fell"</em>
+        <br/><br/>            
+      would become
+       <br/><br/>
+      <em style={keywordStyle}>"article noun verb preposition article noun verb"</em>.
+       <br/><br/>
     </div>
       
       <div id='refining-poet-taste' style={subheaderStyle}>refining your poet's taste</div>
