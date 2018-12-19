@@ -88,7 +88,7 @@ export class poet extends Component {
     }
 
     const subheaderStyle = {
-      color: '#bc75ff',
+      color: '#75b0ff',
       textShadow: '4px 4px #affbff',
     }
 
@@ -109,29 +109,8 @@ export class poet extends Component {
             </div>
           </div>
           <div className='poet-body'>
-            <div className='poet-body-menu'>
-              <span className={this.state.view === 'overview' ?
-                                   'poet-body-menu-item-selected'
-                                   : 'poet-body-menu-item'}
-                    onClick={() => this.chooseView('overview')}
-                    >
-                overview
-              </span>
-              <span className={this.state.view === 'code' ?
-                                   'poet-body-menu-item-selected'
-                                   : 'poet-body-menu-item'}
-                    onClick={() => this.chooseView('code')}
-                    >
-                code
-              </span>
-            </div>
-            <div className='poet-body-content'>
-              {
-                this.state.view === 'overview' ?
-                <PoetOverview poet={poet} writePoem={writePoem} generatedPoem={generatedPoem}/>
-                  :<PoetCode poet={poet} code={code}/>
-              }
-            </div>
+            <PoetOverview poet={poet} writePoem={writePoem} generatedPoem={generatedPoem}/>           
+            <PoetCode {...{ poet, code}}/>
           </div>
         </div>
       </div>
@@ -151,24 +130,40 @@ export class PoetOverview extends Component {
 
     return (
       <div className='poet-overview'>
-        <div className='poet-overview-details'>
-          <span className='poet-overview-details-birthday'>
-            birthday:   {formatDate(poet.birthDate)}
-          </span>
-          <span className='poet-overview-details-description'>
-            {poet.description}
-          </span>
-        </div>
-        <div className='poet-overview-generate-poem'>
+        <table className='poet-overview-details'>
+          <tr>
+            <td className='poet-overview-detail'>birthday   </td>
+            <td className='poet-overview-detail-value'>
+              {formatDate(poet.birthDate)}
+            </td>
+          </tr>
+          <tr>
+            <td className='poet-overview-detail'>published works   </td>
+            <td className='poet-overview-detail-value'>
+              {'-'}
+            </td>
+          </tr>
+          <tr>
+            <td className='poet-overview-detail'>volumes curated   </td>
+            <td className='poet-overview-detail-value'>
+              {'-'}
+            </td>
+          </tr>
+        </table>
+        
+        <span className='poet-overview-description'>
+          {poet.description}
+        </span>
+        <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
           <div className='poet-overview-generate-poem-button'
                onClick={() => writePoem(poet.id)}
             >
             generate a poem
           </div>
-          {
-            isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
-          }
         </div>
+        {
+          isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
+        }
       </div>
     )
   }
@@ -182,6 +177,7 @@ export class PoetCode extends Component {
     
     return (
       <div className='poet-code'>
+        <div className='poet-overview-header'>code</div>
         <Highlight className="python poet-body-code">
           {code.code}
         </Highlight>

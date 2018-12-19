@@ -21,7 +21,7 @@
 }
 
 .poet-row:hover {
-    border: 4px dashed #ade1ff;
+    border: 4px dashed #ede98b;
 }
 
 .poet-row-name-line {
@@ -53,7 +53,7 @@
     flex-direction: column;
     align-items: flex-start;
     padding-bottom: 2em;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px dotted #19ecff;
 }
 
 .poet-header-name {
@@ -125,27 +125,44 @@
 
 .poet-overview {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #19ecff;
+    text-shadow: 2px 2px #ffb2e4;
+    font-size: 2.5em;
+    margin-top: 2em;
 }
 
 .poet-overview-details {
-    /* flex-grow: 1; */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 50%;
-    border-right: 1px solid #ccc;
-    padding-right: 2em;
+    text-align: left;
+    font-size: 0.7em;
 }
 
-.poet-overview-details-birthday {
-    font-size: 1.4em;
+.poet-overview-detail {
+    text-align: left;
     white-space: pre-wrap;
 }
 
-.poet-overview-details-description {
-    font-size: 1.6em;
-    white-space: pre-wrap;
-    padding-top: 1em;
+.poet-overview-detail-value {
+    text-align: center;
+    font-weight: bold;
+    color: #ffb2e4;
+    text-shadow: 3px 3px #19ecff;
+}
+
+.poet-overview-header {
+    margin-top: 2em;
+    font-weight: bold;
+    font-size: 3em;
+    color: #ffb2e4;
+    text-shadow: 3px 3px #affbff;
+}
+
+.poet-overview-description {
+    margin-top: 1em;
+    width: 100%;
+    padding-bottom: 2em;
+    border-bottom: 1px dotted #19ecff;
     text-align: justify;
 }
 
@@ -160,20 +177,21 @@
 
 .poet-overview-generate-poem-button {
     padding: 1em;
-    background-color: #222;
-    border: 1px solid #222;
-    font-size: 1.3em;
-    color: #eee;
+    background-color: #ffffff;
+    border: 1px solid #f28cce;
+    font-size: 0.6em;
+    color: #f28cce;
     font-weight: 500;
     cursor:pointer;
     margin-bottom: 2em;
+    margin-top: 3em;
 }
 
 
 .poet-overview-generate-poem-button:hover {
-    background-color: #fff;
-    border: 1px solid #222;
-    color: #222;
+    background-color: #ffb2e4;
+    border: 1px solid #ffb2e4;
+    color: #ffffff;
 }
 
 /* ----------- MOBILE MEDIA QUERIES ----------- */
