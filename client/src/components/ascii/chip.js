@@ -22,8 +22,9 @@ export const Chip = (props) => {
   return (
     <Animation
       frames={get(actionFrames, config.action)}
+      sequence={[0,1,0,1,0,0,1,0,1]}
       size={'x-large'}
-      speed={1}
+      speed={0.5}
       {...config}
       />
   )
@@ -31,17 +32,17 @@ export const Chip = (props) => {
 
 const getTalkingFrames = () =>
       ([String.raw`
-          _______
-        ╼‖       |╾
-        ╼‖       |╾
-        ╼‖ ◒ ◡ ◒ |╾
-        ╼‖       |╾
-        ╼‖_______|╾`,
+  _______
+╼‖       |╾
+╼‖       |╾
+╼‖ ◒ ◡ ◒ |╾
+╼‖       |╾
+╼‖_______|╾`,
         String.raw`
-          _______
-        ╼‖       |╾
-        ╼‖       |╾
-        ╼‖ ◒ ▾ ◒ |╾
-        ╼‖       |╾
-        ╼‖_______|╾`,
+  _______
+╼‖       |╾
+╼‖       |╾
+╼‖ ◒ ▾ ◒ |╾
+╼‖       |╾
+╼‖_______|╾`,
        ])

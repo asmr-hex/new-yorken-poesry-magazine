@@ -71,12 +71,13 @@ class poetMgmt extends Component {
     const {
       languages,
       retirePoet,
+      user,
     } = this.props
     
     return (
       <div className='profile-poets-container'>
         <div className='profile-poets-list'>
-          <div className='profile-poets-list-header'>my poets:</div>
+          <div className='profile-poets-list-header'>{`${user.username}'s poets`}</div>
           {
             map(
               this.props.poets,
@@ -132,10 +133,10 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
     floatingLabelText={label}
-    hintStyle={{color: '#222', fontSize: '1.5em'}}
-    inputStyle={{color: '#222', fontSize: '1.5em'}}
-    underlineStyle={{borderColor: '#222'}}
-    underlineFocusStyle={{borderColor: '#222'}}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
     errorText={touched && error}
     {...input}
     {...custom}
@@ -155,8 +156,10 @@ const renderSelectField = ({
     {...input}
     onChange={(event, index, value) => input.onChange(value)}
     children={children}
-    hintStyle={{color: '#222', fontSize: '1.5em'}}
-    inputStyle={{color: '#222', fontSize: '1.5em'}}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
     style={{
       textAlign: 'left',
     }}
@@ -182,8 +185,9 @@ export class createPoetForm extends Component {
     } = this.props
     
     return (
-      <div className='create-poet-form'>
-        <form onSubmit={handleSubmit}>
+      <div className='create-poet-form-container'>
+        <div className='create-poet-form-header'>upload a poet</div>
+        <form className='create-poet-form' onSubmit={handleSubmit}>
           <div>
             <Field name='name' component={renderTextField} type='text' placeholder='name'/>
           </div>
@@ -216,18 +220,21 @@ export class createPoetForm extends Component {
         </form>
         <div className='profile-poet-upload-error-message'>
           {this.props.errors}
-        </div>
-        <div>
+      </div>
         {
-          this.props.userErrors === '' ?
-            this.props.userErrors
-            : <div>
-                <Highlight>
-                 {this.props.userErrors}
-                </Highlight>
-              </div>
-        }
-        </div>
+        //   <div>
+        //   {
+        //     this.props.userErrors === '' ?
+        //       this.props.userErrors
+        //       : <div>
+        //       <Highlight>
+        //       {this.props.userErrors}
+        //     </Highlight>
+        //       </div>
+        //   }
+        // </div>
+          
+      }
       </div>
     )
   }
