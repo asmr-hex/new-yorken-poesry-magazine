@@ -10,7 +10,14 @@ class userMgmt extends Component {
       user,
     } = this.props
 
-    const greeting = String.raw`hiya 
+    const hellos = [
+      'hiya', 'yo', 'sup',
+      'qué onda', 'coucou',
+      'おはよう', '哈罗', 'Приветик',
+      'شكو ماكو', 'नमस्ते',
+    ]
+    
+    const greeting = String.raw`${hellos[Math.floor(Math.random()*hellos.length)]} 
 ${user.username}!`
     
     return (
