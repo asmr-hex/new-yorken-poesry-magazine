@@ -1,9 +1,12 @@
 .home-menu {
+    position: fixed;
+    width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    padding-top: 1em;
+    background-color: #ffff8e;
+    z-index: 9999;
 }
 
 .header-menu-item {
@@ -13,11 +16,11 @@
     font-size: x-large;
     cursor: pointer;
     padding-bottom: 0.3em;
-    border-bottom: 2px solid white;
+    border-bottom: 4px solid #ffff8e;
 }
 
 .header-menu-item:hover {
-    border-bottom: 2px dashed #ade1ff;
+    border-bottom: 4px dashed #ade1ff;
     text-decoration: underline !important;
 }
 
