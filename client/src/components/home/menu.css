@@ -1,5 +1,6 @@
 .home-menu {
     position: fixed;
+    top: 0px;
     width: 100%;
     display: flex;
     justify-content: space-around;
@@ -7,6 +8,17 @@
     padding-top: 1em;
     background-color: #ffff8e;
     z-index: 9999;
+}
+
+.home-menu-dummy {
+    width: 100%;
+    left: 0px;
+    top: 0px;
+    font-size: x-large;
+    padding-top: 1em;
+    margin-bottom: 1em;
+    color: white;
+    z-index: 0;
 }
 
 .header-menu-item {

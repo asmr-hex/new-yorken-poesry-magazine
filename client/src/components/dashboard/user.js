@@ -50,6 +50,7 @@ ${user.username}!`
             <td className='profile-user-details-value'>**********</td>
           </tr>
         </table>
+        <div className='profile-user-details-divider'></div>
       </div>
     )
   }

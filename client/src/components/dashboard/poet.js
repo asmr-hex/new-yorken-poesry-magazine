@@ -76,17 +76,23 @@ class poetMgmt extends Component {
     
     return (
       <div className='profile-poets-container'>
-        <div className='profile-poets-list'>
-          <div className='profile-poets-list-header'>{`${user.username}'s poets`}</div>
-          {
-            map(
-              this.props.poets,
-              (poet, idx) => (
-                <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
-              ),
-              [],
-            )
-        }
+        <div className='profile-poets-list-container'>
+          <div className='profile-poets-list-header-container'>
+            <div className='profile-poets-list-header'>
+              {`poets`}
+            </div>
+          </div>
+          <div className='profile-poets-list'>
+            {
+              map(
+                this.props.poets,
+                (poet, idx) => (
+                  <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
+                ),
+                [],
+              )
+            }
+          </div>
         </div>
         <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors} userErrors={this.props.userErrors}/>
       </div>
@@ -186,8 +192,11 @@ export class createPoetForm extends Component {
     
     return (
       <div className='create-poet-form-container'>
-        <div className='create-poet-form-header'>upload a poet</div>
-        <form className='create-poet-form' onSubmit={handleSubmit}>
+        <div className='create-poet-form-header-container'>
+          <div className='create-poet-form-header'>upload a poet</div>
+        </div>
+        <div className='create-poet-form-and-error'>
+          <form className='create-poet-form' onSubmit={handleSubmit}>
           <div>
             <Field name='name' component={renderTextField} type='text' placeholder='name'/>
           </div>
@@ -221,6 +230,7 @@ export class createPoetForm extends Component {
         <div className='profile-poet-upload-error-message'>
           {this.props.errors}
       </div>
+        </div>
         {
         //   <div>
         //   {

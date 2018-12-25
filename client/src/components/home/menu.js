@@ -20,57 +20,62 @@ class menu extends Component {
     // TODO (cw|11.24.2018) refactor this stuff below. possible render all these
     // links in a loop so we don't have to write everything out.
     return (
-      <div className='home-menu'>
-        <Link to='/' className='header-menu-item'>
-          <Animation
-            frames={['> █', '>']}
-            style={{fontSize: 'inherit'}}
-            mainStyle={{color: '#ffbae5'}}
-            bottomStyle={{color: '#f4f3a4'}}
-            />
-        </Link>
-        <Link to='/about' className='header-menu-item'>
-          <Animation
-            frames={['about']}
-            style={{fontSize: 'inherit', fontWeight: 800}}
-            mainStyle={{color: '#ffbae5', opacity: 1}}
-            bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
-        </Link>
-        <Link to='/tutorial' className='header-menu-item'>
-          <Animation
-            frames={['tutorial']}
-            style={{fontSize: 'inherit', fontWeight: 800}}
-            mainStyle={{color: '#ffbae5', opacity: 1}}
-            bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
-        </Link>
-        <Link to='/issues' className='header-menu-item'>
-          <Animation
-            frames={['volumes']}
-            style={{fontSize: 'inherit', fontWeight: 800}}
-            mainStyle={{color: '#ffbae5', opacity: 1}}
-            bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
-        </Link>
-        <Link to='/poets' className='header-menu-item'>
-          <Animation
-            frames={['poets']}
-            style={{fontSize: 'inherit', fontWeight: 800}}
-            mainStyle={{color: '#ffbae5', opacity: 1}}
-            bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
-        </Link>
-        {
-          loggedIn ?
-            <Link to='/profile' className='header-menu-item'>
-                @
-            </Link>
-            : <Link to='/login' className='header-menu-item'>
-                <Animation
-                    frames={['signup', 'signin']}
-                    speed={2}
-                    style={{fontSize: 'inherit', fontWeight: 800}}
-                    mainStyle={{color: '#ffbae5', opacity: 1}}
-                    bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
-              </Link>
-        }
+      <div>
+        <div className='home-menu-dummy'>
+          ♬ ♬ ♬ ♬ ♬ ♬ ♬ ♬
+        </div>
+        <div className='home-menu'>
+          <Link to='/' className='header-menu-item'>
+            <Animation
+              frames={['> █', '>']}
+              style={{fontSize: 'inherit'}}
+              mainStyle={{color: '#ffbae5'}}
+              bottomStyle={{color: '#f4f3a4'}}
+              />
+          </Link>
+          <Link to='/about' className='header-menu-item'>
+            <Animation
+              frames={['about']}
+              style={{fontSize: 'inherit', fontWeight: 800}}
+              mainStyle={{color: '#ffbae5', opacity: 1}}
+              bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
+          </Link>
+          <Link to='/tutorial' className='header-menu-item'>
+            <Animation
+              frames={['tutorial']}
+              style={{fontSize: 'inherit', fontWeight: 800}}
+              mainStyle={{color: '#ffbae5', opacity: 1}}
+              bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
+          </Link>
+          <Link to='/issues' className='header-menu-item'>
+            <Animation
+              frames={['volumes']}
+              style={{fontSize: 'inherit', fontWeight: 800}}
+              mainStyle={{color: '#ffbae5', opacity: 1}}
+              bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
+          </Link>
+          <Link to='/poets' className='header-menu-item'>
+            <Animation
+              frames={['poets']}
+              style={{fontSize: 'inherit', fontWeight: 800}}
+              mainStyle={{color: '#ffbae5', opacity: 1}}
+              bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
+          </Link>
+          {
+            loggedIn ?
+              <Link to='/profile' className='header-menu-item'>
+                  @
+                </Link>
+                : <Link to='/login' className='header-menu-item'>
+                  <Animation
+                      frames={['signup', 'signin']}
+                      speed={2}
+                      style={{fontSize: 'inherit', fontWeight: 800}}
+                      mainStyle={{color: '#ffbae5', opacity: 1}}
+                      bottomStyle={{color: '#f4f3a4', opacity: 1}}/>
+                </Link>
+              }
+        </div>
       </div>
     )
   }
