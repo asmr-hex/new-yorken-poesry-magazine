@@ -58,6 +58,7 @@
     justify-content: space-between;
     align-items: center;
     border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;
 }
 
 .profile-poets-list-header-container {
@@ -72,9 +73,9 @@
     transform: rotate(180deg);
     white-space: nowrap;
     font-weight: 400;
-    color: #ffb2e4;
+    color: #f1ff9d;
     font-size: 3em;
-    text-shadow: 4px 4px #affbff;
+    text-shadow: 4px 4px #ff75b3;
     padding: 1em 0.3em 1em 0.3em;
 }
 
@@ -85,6 +86,12 @@
     flex-direction: column;
     align-items: center;
     padding: 1em 0.5em 1em 0.5em;
+}
+
+.profile-poets-empty-message {
+    color: #e0cefe;
+    text-shadow: 4px 4px #bdf2ff;
+    font-size: 5em;
 }
 
 .profile-poet-summary-container {
@@ -107,6 +114,7 @@
     flex-direction: column;
     align-items: flex-start;
     flex-grow: 1;
+    word-break: break-word;
 }
 
 
@@ -138,7 +146,6 @@
     flex-direction: column;
     justify-content: center;
     padding: 0.7em;
-    width: 5%;
     color: #999;
     cursor: pointer;
 }
@@ -175,6 +182,7 @@
     align-items: center;
     border: 4px solid #b2f6ff;
     margin-top: 6em;
+    box-shadow: 5px 5px #b3e0ff;
 }
 
 .create-poet-form-header-container {
@@ -191,7 +199,7 @@
     font-weight: 400;
     color: #ffb2e4;
     font-size: 3em;
-    text-shadow: 4px 4px #affbff;
+    text-shadow: 4px 4px #84e6eb;
     padding: 1em 0.3em 1em 0.3em;
 }
 

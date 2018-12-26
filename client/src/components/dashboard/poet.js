@@ -73,6 +73,14 @@ class poetMgmt extends Component {
       retirePoet,
       user,
     } = this.props
+
+    const poets = map(
+      this.props.poets,
+      (poet, idx) => (
+        <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
+      ),
+      [],
+    )
     
     return (
       <div className='profile-poets-container'>
@@ -84,13 +92,14 @@ class poetMgmt extends Component {
           </div>
           <div className='profile-poets-list'>
             {
-              map(
-                this.props.poets,
-                (poet, idx) => (
-                  <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
-                ),
-                [],
-              )
+              poets.length === 0 ?
+              <div className='profile-poets-empty-message'>
+                  {String.raw`
+⚀ ⚁ ⚂ ⚃ ⚄ ⚅
+ no  poets
+`}
+              </div>
+                : poets
             }
           </div>
         </div>
@@ -135,7 +144,7 @@ export class PoetSummary extends Component {
   }
 }
 
-const renderTextField = multiline => ({input, label, meta: {touched, error}, ...custom}) => (
+const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
     floatingLabelText={label}
@@ -143,7 +152,22 @@ const renderTextField = multiline => ({input, label, meta: {touched, error}, ...
     inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
     underlineStyle={{borderColor: '#19ecff'}}
     underlineFocusStyle={{borderColor: '#f28cce'}}
-    multiLine={multiline}
+    errorText={touched && error}
+    {...input}
+    {...custom}
+    />
+)
+
+const renderMultiLineTextField = ({input, label, meta: {touched, error}, ...custom}) => (
+  <TextField
+    hintText={label}
+    floatingLabelText={label}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    textareaStyle={{color: '#f28cce'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
+    multiLine={true}
     errorText={touched && error}
     {...input}
     {...custom}
@@ -163,8 +187,9 @@ const renderSelectField = ({
     {...input}
     onChange={(event, index, value) => input.onChange(value)}
     children={children}
-    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    labelStyle={{color: '#f28cce', fontSize: '1.5em'}}
     inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    listStyle={{color: '#f28cce', fontSize: '1.5em'}}
     underlineStyle={{borderColor: '#19ecff'}}
     underlineFocusStyle={{borderColor: '#f28cce'}}
     style={{
@@ -194,15 +219,15 @@ export class createPoetForm extends Component {
     return (
       <div className='create-poet-form-container'>
         <div className='create-poet-form-header-container'>
-          <div className='create-poet-form-header'>upload a poet</div>
+          <div className='create-poet-form-header'>upload poet</div>
         </div>
         <div className='create-poet-form-and-error'>
           <form className='create-poet-form' onSubmit={handleSubmit}>
           <div>
-            <Field name='name' component={renderTextField(false)} type='text' spellcheck='false' placeholder='name'/>
+            <Field name='name' component={renderTextField} type='text' spellcheck='false' placeholder='name'/>
           </div>
           <div styles={{marginTop: '1.5em'}}>
-            <Field name='description' component={renderTextField(true)} type='text' placeholder='description'/>
+            <Field name='description' component={renderMultiLineTextField} type='text' placeholder='description'/>
           </div>
           <div className='create-poet-form-language-select'>
             <Field name='language' component={renderSelectField} label='language'>
@@ -224,7 +249,7 @@ export class createPoetForm extends Component {
           <div className='profile-poet-button'>
         <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput(this.onChangeFileName('parametersFileText').bind(this))}/>
             <label htmlFor="parameters">{this.state.parametersFileText}</label>
-            <span style={{padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
+        <span style={{color: '#fa26bb', padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
           </div>
           <button className='profile-poet-submit-button' type='submit'>create poet</button>
         </form>
