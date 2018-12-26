@@ -129,11 +129,11 @@ export class PoetSummary extends Component {
     return (
       <div className='profile-poet-summary-container'>
         <Link className='profile-poet-summary' to={`/poet/${poet.id}`}>
-          <div className='profile-poet-name-language'>
-            <div className='profile-poet-name'>{poet.name}</div>
-            <div className='profile-poet-language'>{poet.language}</div>
+          <div className='profile-poet-name'>{poet.name}</div>
+          <div className='profile-poet-meta-data'>
+            <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
+            <div className='profile-poet-language'>{`<${poet.language}>`}</div>
           </div>
-          <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
           <div className='profile-poet-description'>{poet.description}</div>
         </Link>
         <div className='profile-poet-delete-container' onClick={() => this.deletePoet()}>

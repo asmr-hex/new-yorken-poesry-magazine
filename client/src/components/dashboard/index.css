@@ -30,7 +30,7 @@
 }
 
 .profile-user-details-field {
-    color: #ff87c9;
+    color: #b487ff;
 }
 
 .profile-user-details-value {
@@ -73,9 +73,9 @@
     transform: rotate(180deg);
     white-space: nowrap;
     font-weight: 400;
-    color: #f1ff9d;
+    color: #49fffd;
     font-size: 3em;
-    text-shadow: 4px 4px #ff75b3;
+    text-shadow: 4px 4px #fe87bc;
     padding: 1em 0.3em 1em 0.3em;
 }
 
@@ -117,28 +117,36 @@
     word-break: break-word;
 }
 
+.profile-poet-name {
+    font-size: 2em;
+    font-weight: 300;
+    color: #f8aef6;
+    font-weight: bold;
+}
 
-.profile-poet-name-language {
+.profile-poet-meta-data {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     width: 95%;
     padding-bottom: 0.5em;
 }
 
-.profile-poet-name {
-    font-size: 2em;
-    font-weight: 300;
+.profile-poet-language {
+    /* font-size: 1.4em; */
+    font-family: monospace;
+    color: #ff8f8f;
 }
 
-.profile-poet-language {
-    font-size: 1.4em;
-    font-family: monospace;
+.profile-poet-birthday {
+    color: #ff8f8f;
 }
 
 .profile-poet-description {
     text-align: justify;
     font-size: 1.2em;
     font-weight: 300;
+    color: #4c9cfa;
 }
 
 .profile-poet-delete-container {
@@ -146,6 +154,7 @@
     flex-direction: column;
     justify-content: center;
     padding: 0.7em;
+    margin-left: 0.8em;
     color: #999;
     cursor: pointer;
 }
