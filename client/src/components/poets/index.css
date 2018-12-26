@@ -164,6 +164,7 @@
     padding-bottom: 2em;
     border-bottom: 1px dotted #19ecff;
     text-align: justify;
+    word-break: break-all;
 }
 
 .poet-overview-generate-poem {
