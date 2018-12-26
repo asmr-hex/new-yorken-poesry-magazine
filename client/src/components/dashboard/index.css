@@ -30,11 +30,11 @@
 }
 
 .profile-user-details-field {
-    color: pink;
+    color: #ff87c9;
 }
 
 .profile-user-details-value {
-    color: pink;
+    color: #ff87c9;
 }
 
 .profile-user-details-divider {
@@ -57,14 +57,14 @@
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    border: 4px solid pink;
+    border: 4px solid #ffa9d8;
 }
 
 .profile-poets-list-header-container {
     display: flex;
     align-items: center;
     align-self: stretch;
-    background-color: pink;
+    background-color: #ffa9d8;
 }
 
 .profile-poets-list-header {
@@ -173,7 +173,7 @@
     width: 80%;
     justify-content: space-between;
     align-items: center;
-    border: 4px solid #b2ffb2;
+    border: 4px solid #b2f6ff;
     margin-top: 6em;
 }
 
@@ -181,7 +181,7 @@
     display: flex;
     align-items: center;
     align-self: stretch;
-    background-color: #b2ffb2;
+    background-color: #b2f6ff;
 }
 
 .create-poet-form-header {
@@ -268,19 +268,24 @@
 .profile-poet-upload-error-message {
     color: #ff7792;
     margin-top: 2em;
+    border-left: 2px solid #ff7792;
 }
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
     color: #c3a5d3;
+    overflow: hidden;
 }
 ::-moz-placeholder { /* Firefox 19+ */
     color: #c3a5d3;
+    overflow: hidden;
 }
 :-ms-input-placeholder { /* IE 10+ */
     color: #c3a5d3;
+    overflow: hidden;
 }
 :-moz-placeholder { /* Firefox 18- */
     color: #c3a5d3;
+    overflow: hidden;
 }
 
 

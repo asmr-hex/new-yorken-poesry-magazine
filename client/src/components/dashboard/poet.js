@@ -135,7 +135,7 @@ export class PoetSummary extends Component {
   }
 }
 
-const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
+const renderTextField = multiline => ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
     floatingLabelText={label}
@@ -143,6 +143,7 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
     inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
     underlineStyle={{borderColor: '#19ecff'}}
     underlineFocusStyle={{borderColor: '#f28cce'}}
+    multiLine={multiline}
     errorText={touched && error}
     {...input}
     {...custom}
@@ -198,10 +199,10 @@ export class createPoetForm extends Component {
         <div className='create-poet-form-and-error'>
           <form className='create-poet-form' onSubmit={handleSubmit}>
           <div>
-            <Field name='name' component={renderTextField} type='text' placeholder='name'/>
+            <Field name='name' component={renderTextField(false)} type='text' spellcheck='false' placeholder='name'/>
           </div>
           <div styles={{marginTop: '1.5em'}}>
-            <Field name='description' component={renderTextField} type='text' placeholder='description'/>
+            <Field name='description' component={renderTextField(true)} type='text' placeholder='description'/>
           </div>
           <div className='create-poet-form-language-select'>
             <Field name='language' component={renderSelectField} label='language'>
