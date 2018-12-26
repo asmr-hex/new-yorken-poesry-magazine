@@ -116,9 +116,9 @@ export class PoetSummary extends Component {
       retirePoet,
     } = this.props
     
-    // alert(`are you sure you want to retire ${poet.name}?`)
-
-    retirePoet(poet.id)
+    if (window.confirm(`are you sure you want to retire ${poet.name}?`)) {
+      retirePoet(poet.id) 
+    }
   }
   
   render() {
