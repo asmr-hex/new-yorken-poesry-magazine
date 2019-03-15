@@ -33,10 +33,23 @@ export class issues extends Component {
       issues,
     } = this.props
 
+    const pageStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      margin: '2em 25% 5em 25%',
+    }
+    
+    const headerStyle = {
+      color: '#ffb2e4',
+      fontSize: '4em',
+      textShadow: '4px 4px #affbff',
+    }
+
     return (
       <div className='main'>
-        <div className='issues-summaries-container'>
-          <div className='issues-header'>volumes</div>
+        <div className='issues-summaries-container' style={pageStyle}>
+          <div className='issues-header' style={headerStyle}>volumes</div>
           {
             map(
               issues,
@@ -63,10 +76,16 @@ export class IssueRow extends Component {
       description,
     } = this.props.issue
 
+    const contentStyle = {
+      fontSize: '2.3em',
+      color: '#19ecff',
+      textShadow: '2px 2px #ffb2e4',
+    }
+
     return (
       <Link to={`/issue/${volume}`}>
         <div className='issue-row-container'>
-          <div className='issue-row'>
+          <div className='issue-row' style={contentStyle}>
             <div className='issue-row-title-line'>
               <span>
                 <span className='issue-row-volume-item'>{`Vol. ${volume}`}</span>

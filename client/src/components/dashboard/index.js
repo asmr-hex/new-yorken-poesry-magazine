@@ -31,27 +31,9 @@ class dashboard extends Component {
     
     return (
       <div className='main'>
-        <div className='profile-container'>
-          <div className='profile-tabs'>
-            <div
-              className={this.state.userMgmt ? 'profile-tab-selected' : 'profile-tab'}
-              onClick={this.manageUserPage(true)}>
-              profile
-            </div>
-            <div
-              className={this.state.userMgmt ? 'profile-tab' : 'profile-tab-selected'}
-              onClick={this.manageUserPage(false)}>
-              poets
-            </div>
-          </div>
-          <div className='profile-body'>
-            {
-              this.state.userMgmt ?
-              <UserMgmt user={user}/>
-                : <PoetMgmt/>
-                
-              }
-          </div>
+        <div className='profile-body'>
+          <UserMgmt user={user}/>
+          <PoetMgmt/>
         </div>
       </div>
     )

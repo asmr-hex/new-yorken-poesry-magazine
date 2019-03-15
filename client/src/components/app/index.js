@@ -10,7 +10,6 @@ class app extends Component {
     return (
       <MuiThemeProvider>
         <Switch>
-          {/* we *must* specify routes in a specific order so the matching works -__- */}
           <Route path='/' component={Home}/>
         </Switch>
       </MuiThemeProvider>

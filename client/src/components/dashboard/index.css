@@ -1,123 +1,152 @@
-.profile-container {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    padding-top: 2em;
-}
-
-.profile-tabs {
-    display: flex;
-    justify-content: space-around;
-    padding-bottom: 2em;
-    border-bottom: 1px solid #ccc;
-}
-
-.profile-tab {
-    padding: 0.5em;
-    border: 1px solid #222;
-    font-size: 1.9em;
-    font-weight: 300;
-    cursor: pointer;
-}
-
-.profile-tab:hover {
-    padding: 0.5em;
-    border: 1px solid #222;
-    font-size: 1.9em;
-    font-weight: 300;
-    background-color: #222;
-    color: #fff;
-}
-
-.profile-tab-selected {
-    padding: 0.5em;
-    border: 1px solid #222;
-    font-size: 1.9em;
-    font-weight: 300;
-    color: #fff;
-    background-color: #222;
-    cursor: pointer;
-}
-
 .profile-body {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     padding-top: 2em;
+    margin-bottom: 6em;
+    width: 30%;
 }
 
 .profile-user-details-container {
-    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 4em;
+    margin-bottom: 5em;
+}
+
+.profile-user-greeting {
+    display: flex;
+    justify-content: flex-start;
 }
 
 .profile-user-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    width: 50%;
+    margin-top: 2em;
     font-size: 1.5em;
     font-weight: 400;
+    text-align: left;
+}
+
+.profile-user-details-field {
+    color: #b487ff;
+}
+
+.profile-user-details-value {
+    color: #ff87c9;
+}
+
+.profile-user-details-divider {
+    width: 60%;
+    margin-top: 2em;
+    border-bottom: 1px solid #ffe3e9;
 }
 
 .profile-poets-container {
     display: flex;
+    width: 100%;
+    flex-direction: column;
     justify-content: space-between;
-    width: 80%;
+    align-items: center;
+}
+
+.profile-poets-list-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;
+}
+
+.profile-poets-list-header-container {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    background-color: #ffa9d8;
 }
 
 .profile-poets-list-header {
-    font-size: 2em;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
     font-weight: 400;
-    padding-bottom: 1em;
+    color: #49fffd;
+    font-size: 3em;
+    text-shadow: 4px 4px #fe87bc;
+    padding: 1em 0.3em 1em 0.3em;
 }
 
+
 .profile-poets-list {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    width: 40%;
+    align-items: center;
+    padding: 1em 0.5em 1em 0.5em;
+}
+
+.profile-poets-empty-message {
+    color: #e0cefe;
+    text-shadow: 4px 4px #bdf2ff;
+    font-size: 5em;
 }
 
 .profile-poet-summary-container {
     display: flex;
     flex-direction: row;
-    width: 100%;
     padding: 1em;
-    margin-bottom: 3em;
+    width: 90%;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    border: 4px solid #ffffff;
 }
+
+.profile-poet-summary-container:hover {
+    border: 4px dashed #ede98b;
+}
+
 
 .profile-poet-summary {
     display: flex;
     flex-direction: column;
-    border: 1px solid #fff;
     align-items: flex-start;
-    margin-right: 0.8em;
     flex-grow: 1;
-}
-
-.profile-poet-summary:hover {
-    border: 1px solid #222;
-}
-
-.profile-poet-name-language {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    padding-bottom: 0.5em;
+    word-break: break-word;
 }
 
 .profile-poet-name {
     font-size: 2em;
     font-weight: 300;
+    color: #f8aef6;
+    font-weight: bold;
+}
+
+.profile-poet-meta-data {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 95%;
+    padding-bottom: 0.5em;
 }
 
 .profile-poet-language {
-    font-size: 1.4em;
+    /* font-size: 1.4em; */
     font-family: monospace;
+    color: #ff8f8f;
+}
+
+.profile-poet-birthday {
+    color: #ff8f8f;
 }
 
 .profile-poet-description {
     text-align: justify;
     font-size: 1.2em;
     font-weight: 300;
+    color: #4c9cfa;
 }
 
 .profile-poet-delete-container {
@@ -125,12 +154,14 @@
     flex-direction: column;
     justify-content: center;
     padding: 0.7em;
+    margin-left: 0.8em;
     color: #999;
     cursor: pointer;
 }
 
 .profile-poet-delete-container:hover {
-    background-color: #f14a4a;
+    background-color: #ff7792;
+    /* background-color: #f14a4a; */
     color: #fff;
 }
 
@@ -140,11 +171,57 @@
     cursor: pointer;
 }
 
+/* .create-poet-form-container { */
+/*     display: flex; */
+/*     flex-direction: column; */
+/*     justify-content: center; */
+/*     align-items: center; */
+/*     padding: 1em 4em 4em 4em; */
+/*     text-align: left; */
+/*     width: 70%; */
+/* } */
+
+
+
+.create-poet-form-container {
+    display: flex;
+    position: relative;
+    width: 80%;
+    justify-content: space-between;
+    align-items: center;
+    border: 4px solid #b2f6ff;
+    margin-top: 6em;
+    box-shadow: 5px 5px #b3e0ff;
+}
+
+.create-poet-form-header-container {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    background-color: #b2f6ff;
+}
+
+.create-poet-form-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-weight: 400;
+    color: #ffb2e4;
+    font-size: 3em;
+    text-shadow: 4px 4px #84e6eb;
+    padding: 1em 0.3em 1em 0.3em;
+}
+
+
+.create-poet-form-and-error {
+    display: flex;
+    flex-direction: column;
+    margin: 3em 3em 3em 3em;
+}
 
 .create-poet-form {
-    border: 1px solid #222;
-    padding: 4em;
-    text-align: left;
+    display: flex;
+    flex-direction: column;
 }
 
 .create-poet-form-language-select {
@@ -171,9 +248,9 @@
     font-size: 1.25em;
     font-weight: 300;
     padding: 0.3em;
-    color: #222;
     background-color: #fff;
-    border: 1px solid #222;
+    color: #f28cce;
+    border: 1px solid #f28cce;
     display: inline-block;
     cursor: pointer;
 }
@@ -182,15 +259,15 @@
 .profile-poet-file-button + label:hover {
     /* outline: 1px dotted #000; */
     /* outline: -webkit-focus-ring-color auto 5px; */
-    background-color: #222;
-    border: 1px solid #222;
-    color: #fff;
+    background-color: #ffb2e4;
+    color: #ffffff;
+    border: 1px solid #ffb2e4;
 }
 
 .profile-poet-submit-button {
     background-color: #fff;
-    color: #282a36;
-    border: 2px solid #222;
+    color: #f28cce;
+    border: 2px solid #f28cce;
     font-family: 'Source Sans Pro', sans-serif;;
     font-size: 1.7em;
     outline:none;
@@ -200,15 +277,34 @@
 }
 
 .profile-poet-submit-button:hover {
-    background-color: #a7ff9d;
-    color: #222;
-    border: 2px solid #222;
+    background-color: #ffb2e4;
+    color: #ffffff;
+    border: 2px solid #ffb2e4;
 }
 
 .profile-poet-upload-error-message {
-    padding-top: 1em;
-    color: red;
+    color: #ff7792;
+    margin-top: 2em;
+    border-left: 2px solid #ff7792;
 }
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #c3a5d3;
+    overflow: hidden;
+}
+::-moz-placeholder { /* Firefox 19+ */
+    color: #c3a5d3;
+    overflow: hidden;
+}
+:-ms-input-placeholder { /* IE 10+ */
+    color: #c3a5d3;
+    overflow: hidden;
+}
+:-moz-placeholder { /* Firefox 18- */
+    color: #c3a5d3;
+    overflow: hidden;
+}
+
 
 /* ----------- MOBILE MEDIA QUERIES ----------- */
 
