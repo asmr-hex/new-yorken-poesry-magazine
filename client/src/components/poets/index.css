@@ -11,6 +11,7 @@
     margin-bottom: 1em;
 }
 
+
 .poet-row {
     display: flex;
     flex-direction: column;
@@ -88,7 +89,9 @@
 }
 
 .poet-body {
-    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .poet-body-menu {
@@ -119,19 +122,45 @@
     padding-top: 2em;
 }
 
-.poet-body-code {
-    text-align: left;
-}
-
 .poet-overview {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     color: #19ecff;
     text-shadow: 2px 2px #ffb2e4;
     font-size: 2.5em;
     margin-top: 2em;
 }
+
+.poet-overview-stats-container {
+    display: flex;
+    position: relative;
+    width: 60%;
+    justify-content: space-between;
+    align-items: center;
+    border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;
+    margin-bottom: 2em;
+}
+
+.poet-overview-stats-header-container {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    background-color: #ffa9d8;
+}
+
+.poet-overview-stats-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-weight: 400;
+    color: #49fffd;
+    font-size: 1em;
+    text-shadow: 4px 4px #fe87bc;
+    padding: 1em 0.3em 1em 0.3em;
+}
+
 
 .poet-overview-details {
     text-align: left;
@@ -158,14 +187,72 @@
     text-shadow: 3px 3px #affbff;
 }
 
+
+.poet-overview-description-container {
+    display: flex;
+    position: relative;
+    width: 80%;
+    justify-content: space-between;
+    align-items: center;
+    border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;
+    margin-bottom: 2em;
+}
+
+.poet-overview-description-header-container {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    background-color: #ffa9d8;
+}
+
+.poet-overview-description-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-weight: 400;
+    color: #49fffd;
+    font-size: 1em;
+    text-shadow: 4px 4px #fe87bc;
+    padding: 1em 0.3em 1em 0.3em;
+}
+
 .poet-overview-description {
     margin-top: 1em;
     width: 100%;
     padding-bottom: 2em;
-    border-bottom: 1px dotted #19ecff;
     text-align: justify;
     word-break: break-all;
 }
+
+.poet-overview-sample-poem-container {
+    display: flex;
+    position: relative;
+    width: 80%;
+    justify-content: space-between;
+    align-items: center;
+    border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;    
+}
+
+.poet-overview-sample-poem-header-container {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    background-color: #ffa9d8;
+}
+
+.poet-overview-sample-poem-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-weight: 400;
+    color: #49fffd;
+    font-size: 1em;
+    text-shadow: 4px 4px #fe87bc;
+    padding: 1em 0.3em 1em 0.3em;
+}
+
 
 .poet-overview-generate-poem {
     /* flex-grow: 1; */
@@ -194,6 +281,47 @@
     border: 1px solid #ffb2e4;
     color: #ffffff;
 }
+
+.poet-code-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 80%;
+    justify-content: flex-start;
+    align-items: center;
+    border: 4px solid #ffa9d8;
+    box-shadow: 4px 4px #e396d3;
+    margin-bottom: 2em;
+    margin-top: 4em;
+}
+
+.poet-code-header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    background-color: #ffa9d8;
+}
+
+.poet-code-header {
+    white-space: nowrap;
+    font-weight: 400;
+    color: #49fffd;
+    font-size: 3em;
+    text-shadow: 4px 4px #fe87bc;
+    padding: 0.3em 0.3em 0.3em 0.3em;
+}
+
+.poet-body-code-container {
+    overflow-x: scroll;
+    width: 100%;
+}
+
+.poet-body-code {
+    text-align: left;
+    /* font-size: 1em; */
+}
+
 
 /* ----------- MOBILE MEDIA QUERIES ----------- */
 

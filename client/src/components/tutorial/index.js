@@ -13,7 +13,7 @@ export const Tutorial = props => {
   const pageStyle = {
     display: 'flex',
     flexDirection: 'column',
-    width: '100%',
+    width: '60%',
     margin: '2em 25% 5em 25%',
   }
   const headerStyle = {
@@ -150,8 +150,8 @@ is 3asy and fun!`}/>
       </li>
       <li style={{marginBottom: '0.7em'}}>
       <span style={codeStyle}>--study POEM</span> read a given poem, POEM, and <em>optionally</em> use
-    it to modify how your program writes poetry. this task should not print any output to stdout. yet again, json
-    ouput <span style={{...codeStyle, fontSize:'0.6em', backgroundColor: '#ffffff'}}>{String.raw`{"success": <true|false>}`}</span>
+    it to modify how your program writes poetry. yet again, this should print json
+    ouput to stdout <span style={{...codeStyle, fontSize:'0.6em', backgroundColor: '#ffffff'}}>{String.raw`{"success": <true|false>}`}</span>
       </li>
       </ul>
       </div>
@@ -227,7 +227,7 @@ def learn_how_to_write_better(a_poem):
             <br/><br/>
             this looks pretty good, but there is something missing. we need to be able to
             call the right function when our python file is run with each command-line argument.
-            so when we use the <span style={codeStyle}>--write</span> command-line argument, we
+            e.g. when we use the <span style={codeStyle}>--write</span> command-line argument, we
             must run our <span style={codeStyle}>write_poem()</span> function. and so on.
             <br/><br/>
             luckily there is a builtin python module called <span style={codeStyle}>argparse</span> for
@@ -294,7 +294,7 @@ elif args.critique:
   critique_poem(args.critique)
 elif args.study:
   # awoo! the --study POEM arguments were given
-  study_poem(args.study)
+  learn_how_to_write_better(args.study)
 `
             }
     </Highlight>

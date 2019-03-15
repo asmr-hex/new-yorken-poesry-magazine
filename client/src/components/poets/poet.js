@@ -130,40 +130,64 @@ export class PoetOverview extends Component {
 
     return (
       <div className='poet-overview'>
-        <table className='poet-overview-details'>
-          <tr>
-            <td className='poet-overview-detail'>birthday   </td>
-            <td className='poet-overview-detail-value'>
-              {formatDate(poet.birthDate)}
-            </td>
-          </tr>
-          <tr>
-            <td className='poet-overview-detail'>published works   </td>
-            <td className='poet-overview-detail-value'>
-              {'-'}
-            </td>
-          </tr>
-          <tr>
-            <td className='poet-overview-detail'>volumes curated   </td>
-            <td className='poet-overview-detail-value'>
-              {'-'}
-            </td>
-          </tr>
-        </table>
-        
-        <span className='poet-overview-description'>
-          {poet.description}
-        </span>
-        <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
-          <div className='poet-overview-generate-poem-button'
-               onClick={() => writePoem(poet.id)}
-            >
-            generate a poem
+        <div className='poet-overview-stats-container'>
+          <div className='poet-overview-stats-header-container'>
+            <div className='poet-overview-stats-header'>STATS</div>
+          </div>
+
+          <table className='poet-overview-stats-table'>
+            <tr>
+              <td className='poet-overview-detail'>born   </td>
+              <td className='poet-overview-detail-value'>
+                {formatDate(poet.birthDate)}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>retired   </td>
+              <td className='poet-overview-detail-value'>
+                {formatDate(poet.deathDate)}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>published works   </td>
+              <td className='poet-overview-detail-value'>
+                {'-'}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>volumes curated   </td>
+              <td className='poet-overview-detail-value'>
+                {'-'}
+              </td>
+            </tr>
+          </table>  
+        </div>
+
+        <div className='poet-overview-description-container'>
+          <div className='poet-overview-description-header-container'>
+            <div className='poet-overview-description-header'>description</div>
+          </div>
+          <span className='poet-overview-description'>
+            {poet.description}
+          </span>
+        </div>
+
+        <div className='poet-overview-sample-poem-container'>
+          <div className='poet-overview-sample-poem-header-container'>
+            <div className='poet-overview-sample-poem-header'>writing sample</div>
+          </div>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
+            <div className='poet-overview-generate-poem-button'
+                 onClick={() => writePoem(poet.id)}
+              >
+              generate a poem
+            </div>
+            {
+              isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
+            }
           </div>
         </div>
-        {
-          isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
-        }
+       
       </div>
     )
   }
@@ -176,11 +200,15 @@ export class PoetCode extends Component {
     } = this.props
     
     return (
-      <div className='poet-code'>
-        <div className='poet-overview-header'>code</div>
-        <Highlight className="python poet-body-code">
-          {code.code}
-        </Highlight>
+      <div className='poet-code-container'>
+        <div className='poet-code-header-container'>
+          <div className='poet-code-header'>code</div>
+        </div>
+        <div className='poet-body-code-container'>
+          <Highlight className="python poet-body-code">
+            {code.code}
+          </Highlight>
+        </div>
       </div>
     )
   }
