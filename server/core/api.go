@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/connorwalsh/new-yorken-poesry-magazine/server/env"
+	"github.com/connorwalsh/new-yorken-poesry-magazine/server/types"
 	"github.com/gocraft/web"
 )
 
@@ -16,7 +17,6 @@ const (
 	API_DASHBOARD               = "dashboard"
 	API_ID_PATH_PARAM           = "id"
 	API_ISSUE_VOLUME_PATH_PARAM = "volume"
-	API_VERIFY_PATH_PARAM       = "verify"
 )
 
 type API struct {
@@ -24,21 +24,25 @@ type API struct {
 	Config   *env.Config
 	Version  string
 	Router   *web.Router
+	Emailer  types.Emailer
 	Sessions *Sessions
+	Verifier *Verifier
 	db       *sql.DB
 }
 
-func NewAPI(config *env.Config, db *sql.DB) *API {
+func NewAPI(config *env.Config, db *sql.DB, emailer types.Emailer) *API {
 	api := API{
 		Logger:  NewLogger(os.Stdout),
 		Config:  config,
 		Version: API_VERSION,
+		Emailer: emailer,
 		db:      db,
 	}
 
 	api.BuildRouter()
 
-	api.Sessions = NewSessions(time.Minute * 30) // TODO put in config
+	api.Sessions = NewSessions(time.Minute * 30)                        // TODO put in config
+	api.Verifier = NewVerifier(emailer, config.BaseUrl, time.Hour*24*3) // TODO put in config
 
 	return &api
 }
@@ -59,7 +63,7 @@ func (a *API) BuildRouter() {
 		// === Public API ===
 
 		// User Register /Login
-		Post(pubPrefix+"/register", a.CreateUser).
+		Post(pubPrefix+"/register", a.SignUp).
 		Post(pubPrefix+"/login", a.Login).
 
 		// Plural type Reads
@@ -97,7 +101,7 @@ func (a *API) BuildRouter() {
 		// === Dashboard API ===
 		Post(dashPrefix+"/login", a.Login).
 		Post(dashPrefix+"/signup", a.SignUp).
-		Post(dashPrefix+"/verify/:"+API_VERIFY_PATH_PARAM, a.VerifyAccount).
+		Get(dashPrefix+"/verify", a.VerifyAccount).
 
 		// poet endpoints
 		Post(dashPrefix+"/poet", a.CreatePoet).

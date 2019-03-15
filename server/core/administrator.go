@@ -264,10 +264,16 @@ func (s *MagazineAdministrator) ElicitPoemsFrom(poets []*types.Poet) {
 		// ask this poet to write some verses
 		// TODO (cw|9.16.2018) parse poem result (title, content, etc.)
 		// {title: "", content: "", etc..}
-		poem, err := poet.GeneratePoem()
+		poem, err, userError := poet.GeneratePoem()
 		if err != nil {
 			s.Error(err.Error())
 			return err
+		}
+		if userError != "" {
+			// TODO (cw|11.4.2018) send an email to the designer that their
+			// poet errored!
+			s.Error(userError)
+			return fmt.Errorf(userError)
 		}
 
 		// give poem an Id and Author

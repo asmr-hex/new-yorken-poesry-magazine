@@ -350,10 +350,8 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 	poet.ExecContext = &a.Config.ExecContext
 
 	a.Info("Testing Poet, %s", poet.Name)
-	err = poet.TestPoet()
-	if err != nil {
-		a.Error(err.Error())
-
+	err, userError := poet.TestPoet()
+	if err != nil || userError != "" {
 		// remove the poet's code directory
 		// delete files from fs
 		osErr := os.RemoveAll(path.Join(POET_DIR, poet.Id))
@@ -362,8 +360,17 @@ func (a *API) CreatePoet(rw web.ResponseWriter, req *web.Request) {
 			a.Error("uh-oh: %s", osErr.Error())
 		}
 
-		// return response
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		if err != nil {
+			a.Error(err.Error())
+
+			// return response
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+		} else {
+			a.Error(userError)
+
+			// return response
+			http.Error(rw, userError, http.StatusBadRequest)
+		}
 
 		return
 	}

@@ -6,6 +6,7 @@ import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
 import MenuItem from 'material-ui/MenuItem'
 import {get, isEmpty, map} from 'lodash'
+import Highlight from 'react-highlight'
 import {formatDate} from '../../types/date'
 import {getPoetsOfUser} from '../../redux/selectors/poets'
 import {
@@ -21,6 +22,7 @@ const mapStateToProps = (state, ownProps) => ({
   user: state.session.user,
   languages: get(state, `languages`, []),
   errors: get(state, `error`, ''),
+  userErrors: get(state, `userError`, '')
 })
 
 const actions = {
@@ -69,23 +71,39 @@ class poetMgmt extends Component {
     const {
       languages,
       retirePoet,
+      user,
     } = this.props
+
+    const poets = map(
+      this.props.poets,
+      (poet, idx) => (
+        <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
+      ),
+      [],
+    )
     
     return (
       <div className='profile-poets-container'>
-        <div className='profile-poets-list'>
-          <div className='profile-poets-list-header'>my poets:</div>
-          {
-            map(
-              this.props.poets,
-              (poet, idx) => (
-                <PoetSummary poet={poet} retirePoet={retirePoet}key={idx}/>
-              ),
-              [],
-            )
-        }
+        <div className='profile-poets-list-container'>
+          <div className='profile-poets-list-header-container'>
+            <div className='profile-poets-list-header'>
+              {`poets`}
+            </div>
+          </div>
+          <div className='profile-poets-list'>
+            {
+              poets.length === 0 ?
+              <div className='profile-poets-empty-message'>
+                  {String.raw`
+⚀ ⚁ ⚂ ⚃ ⚄ ⚅
+ no  poets
+`}
+              </div>
+                : poets
+            }
+          </div>
         </div>
-        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors}/>
+        <CreatePoetForm onSubmit={this.createPoet} languages={languages} errors={this.props.errors} userErrors={this.props.userErrors}/>
       </div>
     )
   }
@@ -98,9 +116,9 @@ export class PoetSummary extends Component {
       retirePoet,
     } = this.props
     
-    // alert(`are you sure you want to retire ${poet.name}?`)
-
-    retirePoet(poet.id)
+    if (window.confirm(`are you sure you want to retire ${poet.name}?`)) {
+      retirePoet(poet.id) 
+    }
   }
   
   render() {
@@ -111,11 +129,11 @@ export class PoetSummary extends Component {
     return (
       <div className='profile-poet-summary-container'>
         <Link className='profile-poet-summary' to={`/poet/${poet.id}`}>
-          <div className='profile-poet-name-language'>
-            <div className='profile-poet-name'>{poet.name}</div>
-            <div className='profile-poet-language'>{poet.language}</div>
+          <div className='profile-poet-name'>{poet.name}</div>
+          <div className='profile-poet-meta-data'>
+            <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
+            <div className='profile-poet-language'>{`<${poet.language}>`}</div>
           </div>
-          <div className='profile-poet-birthday'>{formatDate(poet.birthDate)}</div>
           <div className='profile-poet-description'>{poet.description}</div>
         </Link>
         <div className='profile-poet-delete-container' onClick={() => this.deletePoet()}>
@@ -130,10 +148,26 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
     floatingLabelText={label}
-    hintStyle={{color: '#222', fontSize: '1.5em'}}
-    inputStyle={{color: '#222', fontSize: '1.5em'}}
-    underlineStyle={{borderColor: '#222'}}
-    underlineFocusStyle={{borderColor: '#222'}}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
+    errorText={touched && error}
+    {...input}
+    {...custom}
+    />
+)
+
+const renderMultiLineTextField = ({input, label, meta: {touched, error}, ...custom}) => (
+  <TextField
+    hintText={label}
+    floatingLabelText={label}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    textareaStyle={{color: '#f28cce'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
+    multiLine={true}
     errorText={touched && error}
     {...input}
     {...custom}
@@ -153,8 +187,11 @@ const renderSelectField = ({
     {...input}
     onChange={(event, index, value) => input.onChange(value)}
     children={children}
-    hintStyle={{color: '#222', fontSize: '1.5em'}}
-    inputStyle={{color: '#222', fontSize: '1.5em'}}
+    labelStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    listStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
     style={{
       textAlign: 'left',
     }}
@@ -180,13 +217,17 @@ export class createPoetForm extends Component {
     } = this.props
     
     return (
-      <div className='create-poet-form'>
-        <form onSubmit={handleSubmit}>
+      <div className='create-poet-form-container'>
+        <div className='create-poet-form-header-container'>
+          <div className='create-poet-form-header'>upload poet</div>
+        </div>
+        <div className='create-poet-form-and-error'>
+          <form className='create-poet-form' onSubmit={handleSubmit}>
           <div>
-            <Field name='name' component={renderTextField} type='text' placeholder='name'/>
+            <Field name='name' component={renderTextField} type='text' spellcheck='false' placeholder='name'/>
           </div>
           <div styles={{marginTop: '1.5em'}}>
-            <Field name='description' component={renderTextField} type='text' placeholder='description'/>
+            <Field name='description' component={renderMultiLineTextField} type='text' placeholder='description'/>
           </div>
           <div className='create-poet-form-language-select'>
             <Field name='language' component={renderSelectField} label='language'>
@@ -208,13 +249,28 @@ export class createPoetForm extends Component {
           <div className='profile-poet-button'>
         <Field className='profile-poet-file-button' name='parameters' id='parameters' component={FileInput(this.onChangeFileName('parametersFileText').bind(this))}/>
             <label htmlFor="parameters">{this.state.parametersFileText}</label>
-            <span style={{padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
+        <span style={{color: '#fa26bb', padding: '0.6em', marginLeft: '0.8em', fontStyle: 'italic'}}>optional</span>
           </div>
           <button className='profile-poet-submit-button' type='submit'>create poet</button>
         </form>
         <div className='profile-poet-upload-error-message'>
           {this.props.errors}
+      </div>
         </div>
+        {
+        //   <div>
+        //   {
+        //     this.props.userErrors === '' ?
+        //       this.props.userErrors
+        //       : <div>
+        //       <Highlight>
+        //       {this.props.userErrors}
+        //     </Highlight>
+        //       </div>
+        //   }
+        // </div>
+          
+      }
       </div>
     )
   }

@@ -1,0 +1,41 @@
+.glitch-txt-0 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    margin: 0px;
+}
+
+.glitch-txt-1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    animation: glitch-anim-1 2s steps(15) infinite alternate-reverse;
+    transform: translateZ(0px);
+    margin: 0px;
+}
+
+@keyframes glitch-anim-1 {
+    0% {transform: translateY(0px);}
+    100% {transform: translate(2px, 4px);}
+}
+
+.glitch-txt-2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    animation: glitch-anim-2 4s steps(15) infinite alternate-reverse;
+    transform: translateZ(0px);
+    margin: 0px;
+}
+
+@keyframes glitch-anim-2 {
+    0% {transform: translateY(0px);}
+    100% {transform: translateY(-3px);}
+}

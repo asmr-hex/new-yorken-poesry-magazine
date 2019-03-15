@@ -39,3 +39,9 @@ client/yarn-error.log*
 
 ### Dev Data ingore ###
 .dev-data/
+
+### blackbock ignore ###
+/keyrings/live/pubring.gpg~
+/keyrings/live/pubring.kbx~
+/keyrings/live/secring.gpg
+/.secrets

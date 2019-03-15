@@ -1,17 +1,16 @@
-import React from 'react';
+import React from 'react'
 import { Field, reduxForm } from 'redux-form'
 import TextField from 'material-ui/TextField'
-
 
 const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
-    floatingLabelText={label}
-    hintStyle={{color: '#222', fontSize: '1.5em'}}
-    inputStyle={{color: '#222', fontSize: '1.5em'}}
-    underlineStyle={{borderColor: '#222'}}
-    underlineFocusStyle={{borderColor: '#222'}}
+    hintStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    inputStyle={{color: '#f28cce', fontSize: '1.5em'}}
+    underlineStyle={{borderColor: '#19ecff'}}
+    underlineFocusStyle={{borderColor: '#f28cce'}}
     errorText={touched && error}
+    className='login-form-field'
     {...input}
     {...custom}
     />
@@ -19,17 +18,17 @@ const renderTextField = ({input, label, meta: {touched, error}, ...custom}) => (
 
 const loginForm = props => {
   const { handleSubmit } = props
-  
+
   return (
     <form onSubmit={handleSubmit} name='login-form'>
       <div>
-        <Field name="username" component={renderTextField} type="text" placeholder="username"/>
+        <Field name='username' component={renderTextField} type='text' placeholder='username' />
       </div>
       <div>
-        <Field name="password" component={renderTextField} type="password" placeholder="password"/>
+        <Field name='password' component={renderTextField} type='password' placeholder='password' />
       </div>
-      <button className='signin-button' type="submit">login</button>
-    </form> 
+      <button className='signin-button' type='submit'>login</button>
+    </form>
   )
 }
 

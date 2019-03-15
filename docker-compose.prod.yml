@@ -3,7 +3,11 @@
 version: '2'
 services:
   nypm:
-    env_file: .env
+    env_file:
+      - .env
+      - .secrets
+    environment:
+      - BASE_URL=https://poem.computer
     image: "${DOCKER_IMAGE}"
     volumes:
       - "${EXEC_MOUNT_DIR}:${EXEC_DIR}"

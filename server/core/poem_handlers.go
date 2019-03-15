@@ -62,11 +62,18 @@ func (a *API) GeneratePoem(rw web.ResponseWriter, req *web.Request) {
 
 	// generate poem
 	// TODO (cw|9.23.2018) rate limit this...
-	poem, err := poet.GeneratePoem()
+	poem, err, userError := poet.GeneratePoem()
 	if err != nil {
 		a.Error(err.Error())
 
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+	if userError != "" {
+		a.Error(userError)
+
+		http.Error(rw, userError, http.StatusBadRequest)
 
 		return
 	}

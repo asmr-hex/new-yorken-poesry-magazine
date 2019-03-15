@@ -10,6 +10,7 @@ import {
   requestGeneratePoem,
 } from '../../redux/actions/poets'
 import './index.css'
+import '../app/highlight.css'
 import {Poem} from '../poems/poem'
 
 
@@ -72,13 +73,31 @@ export class poet extends Component {
       writePoem,
       generatedPoem,
     } = this.props
+
+    const pageStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      margin: '5em 25% 5em 25%',
+    }
     
+    const headerStyle = {
+      color: '#ffb2e4',
+      fontSize: '4em',
+      textShadow: '4px 4px #affbff',
+    }
+
+    const subheaderStyle = {
+      color: '#75b0ff',
+      textShadow: '4px 4px #affbff',
+    }
+
     return (
       <div className='main'>
-        <div className='poet-container'>
+        <div className='poet-container' style={pageStyle}>
           <div className='poet-header'>
-            <div className='poet-header-name'>{poet.name}</div>
-            <div className='poet-subheader'>
+            <div className='poet-header-name' style={headerStyle}>{poet.name}</div>
+            <div className='poet-subheader' style={subheaderStyle}>
               <span className='poet-subheader-language'>{poet.language}</span>
               <span className='poet-subheader-designer-text'>
                 designed by
@@ -90,29 +109,8 @@ export class poet extends Component {
             </div>
           </div>
           <div className='poet-body'>
-            <div className='poet-body-menu'>
-              <span className={this.state.view === 'overview' ?
-                                   'poet-body-menu-item-selected'
-                                   : 'poet-body-menu-item'}
-                    onClick={() => this.chooseView('overview')}
-                    >
-                overview
-              </span>
-              <span className={this.state.view === 'code' ?
-                                   'poet-body-menu-item-selected'
-                                   : 'poet-body-menu-item'}
-                    onClick={() => this.chooseView('code')}
-                    >
-                code
-              </span>
-            </div>
-            <div className='poet-body-content'>
-              {
-                this.state.view === 'overview' ?
-                <PoetOverview poet={poet} writePoem={writePoem} generatedPoem={generatedPoem}/>
-                  :<PoetCode poet={poet} code={code}/>
-              }
-            </div>
+            <PoetOverview poet={poet} writePoem={writePoem} generatedPoem={generatedPoem}/>           
+            <PoetCode {...{ poet, code}}/>
           </div>
         </div>
       </div>
@@ -132,24 +130,64 @@ export class PoetOverview extends Component {
 
     return (
       <div className='poet-overview'>
-        <div className='poet-overview-details'>
-          <span className='poet-overview-details-birthday'>
-            birthday:   {formatDate(poet.birthDate)}
-          </span>
-          <span className='poet-overview-details-description'>
+        <div className='poet-overview-stats-container'>
+          <div className='poet-overview-stats-header-container'>
+            <div className='poet-overview-stats-header'>STATS</div>
+          </div>
+
+          <table className='poet-overview-stats-table'>
+            <tr>
+              <td className='poet-overview-detail'>born   </td>
+              <td className='poet-overview-detail-value'>
+                {formatDate(poet.birthDate)}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>retired   </td>
+              <td className='poet-overview-detail-value'>
+                {formatDate(poet.deathDate)}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>published works   </td>
+              <td className='poet-overview-detail-value'>
+                {'-'}
+              </td>
+            </tr>
+            <tr>
+              <td className='poet-overview-detail'>volumes curated   </td>
+              <td className='poet-overview-detail-value'>
+                {'-'}
+              </td>
+            </tr>
+          </table>  
+        </div>
+
+        <div className='poet-overview-description-container'>
+          <div className='poet-overview-description-header-container'>
+            <div className='poet-overview-description-header'>description</div>
+          </div>
+          <span className='poet-overview-description'>
             {poet.description}
           </span>
         </div>
-        <div className='poet-overview-generate-poem'>
-          <div className='poet-overview-generate-poem-button'
-               onClick={() => writePoem(poet.id)}
-            >
-            generate a poem
+
+        <div className='poet-overview-sample-poem-container'>
+          <div className='poet-overview-sample-poem-header-container'>
+            <div className='poet-overview-sample-poem-header'>writing sample</div>
           </div>
-          {
-            isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
-          }
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
+            <div className='poet-overview-generate-poem-button'
+                 onClick={() => writePoem(poet.id)}
+              >
+              generate a poem
+            </div>
+            {
+              isEmpty(generatedPoem) ? null : <Poem poem={generatedPoem}/>
+            }
+          </div>
         </div>
+       
       </div>
     )
   }
@@ -162,10 +200,15 @@ export class PoetCode extends Component {
     } = this.props
     
     return (
-      <div className='poet-code'>
-        <Highlight className="python poet-body-code">
-          {code.code}
-        </Highlight>
+      <div className='poet-code-container'>
+        <div className='poet-code-header-container'>
+          <div className='poet-code-header'>code</div>
+        </div>
+        <div className='poet-body-code-container'>
+          <Highlight className="python poet-body-code">
+            {code.code}
+          </Highlight>
+        </div>
       </div>
     )
   }

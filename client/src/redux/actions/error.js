@@ -12,7 +12,7 @@ export const resetErrorMsg = () => dispatch =>
 export const checkResponse = response => {
   if (response.ok) {
       // decode response body from json
-      return response.json() 
+      return response.json()
   }
 
   // TODO (cw|4.24.2018) create custom error classes?

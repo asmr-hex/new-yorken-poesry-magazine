@@ -1,41 +1,79 @@
-
 .about {
-    height: 100%;
-    margin-top: 1%;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-        "tabs"
-        "tab-content"
-}
-
-.about-tabs {
-    grid-area: tabs;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    width: 100%;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 2em;
 }
 
-.about-tab {
-    display: flex;
-    justify-content: center;
-    width: auto;
-    padding: 5px;
-    font-size: 2.5vw;
-    font-weight: 300;
-    color: #444;
-    border: solid #fff 2px;
-    cursor: pointer;
+/* Large Devices, Wide Screens */
+@media only screen and (max-width : 1200px) {
+
 }
 
-.about-content {
-    grid-area: tab-content;
-    font-size: 2vw;
-    text-align: justify;
-    text-justify: inter-word;
+/* Medium Devices, Desktops */
+@media only screen and (max-width : 992px) {
+
 }
 
-.about-bullet {
-    font-weight: 400;
+/* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+
 }
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (max-width : 480px) {
+    .about-content {
+        font-size: 2em !important;
+        text-align: center !important;
+    }
+
+    .about-svg {
+        height: 10vw !important;
+    }
+}
+
+
+/* .about { */
+/*     height: 100%; */
+/*     margin-top: 1%; */
+/*     display: grid; */
+/*     grid-template-columns: 1fr; */
+/*     grid-template-rows: auto 1fr; */
+/*     grid-template-areas: */
+/*         "tabs" */
+/*         "tab-content" */
+/* } */
+
+/* .tabs { */
+/*     grid-area: tabs; */
+/*     display: flex; */
+/*     flex-direction: row; */
+/*     justify-content: space-between; */
+/*     background-color: blue; */
+/* } */
+
+/* .about-tab { */
+/*     display: flex; */
+/*     justify-content: center; */
+/*     width: auto; */
+/*     padding: 5px; */
+/*     font-size: 2.5vw; */
+/*     font-weight: 300; */
+/*     color: #444; */
+/*     border: solid #fff 2px; */
+/*     cursor: pointer; */
+/* } */
+
+/* .about-content { */
+/*     grid-area: tab-content; */
+/*     font-size: 2vw; */
+/*     text-align: justify; */
+/*     text-justify: inter-word; */
+/*     background-color: red; */
+/* } */
+
+/* .about-bullet { */
+/*     font-weight: 400; */
+/* } */

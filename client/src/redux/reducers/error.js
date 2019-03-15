@@ -1,4 +1,3 @@
-// import {SET_SUBMIT_FAILED} from 'redux-form'
 import {
   RESET_ERROR_MESSAGE,
 } from '../actions/error'
@@ -13,7 +12,7 @@ export const error = (state = null, action) => {
   if (type === RESET_ERROR_MESSAGE) {
     
     return null
-    
+
   } else if (type === '@@redux-form/SET_SUBMIT_FAILED') {
     // TODO (cw|10.12.2018) this is kinda janky...it would be nice to use
     // some constant from the redux-form library instead of a magic string

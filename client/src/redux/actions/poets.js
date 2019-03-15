@@ -56,15 +56,23 @@ export const createPoetSuccessful = poet => dispatch =>
 
 
 export const CREATE_POET_FAILED = 'CREATE_POET_FAILED'
+export const CREATE_POET_FAILED_USER_ERROR = 'CREATE_POET_FAILED_USER_ERROR'
 export const createPoetFailed = error => dispatch => {
   error.text()
     .then(
       msg => {
+        console.log(error)
+        
+        // differentiate user errors from system errors
+        const type = error.status === 400 ?
+          CREATE_POET_FAILED_USER_ERROR
+          : CREATE_POET_FAILED
         error.message = msg
+        
         dispatch({
           error,
-          type: CREATE_POET_FAILED,
-        })          
+          type,
+        })
       }
     ) 
 }
